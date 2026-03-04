@@ -96,6 +96,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 10+ — diameter, operator, name</div>
 </div>
+<div class="lg"><div class="lg-title">Gas Infrastructure</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Compressor Stations</span><label class="tg"><input type="checkbox" id="t-gcomp" onchange="togGI('gcomp')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery Pts</span><label class="tg"><input type="checkbox" id="t-grdp" onchange="togGI('grdp')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#00BCD4"></span>Processing Plants</span><label class="tg"><input type="checkbox" id="t-gproc" onchange="togGI('gproc')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#5C6BC0"></span>Storage Facilities</span><label class="tg"><input type="checkbox" id="t-gstor" onchange="togGI('gstor')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EC407A"></span>Interconnects</span><label class="tg"><input type="checkbox" id="t-gicon" onchange="togGI('gicon')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 8+</div>
+</div>
 <div class="lg"><div class="lg-title">Digital</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 10+</div>
@@ -144,6 +152,7 @@ tx:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
 sub:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
 gas:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
 osmpipe:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
+gi:{on:false,mz:8,g:L.layerGroup(),types:{gcomp:false,grdp:false,gproc:false,gstor:false,gicon:false}},
 dc:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 fld:{on:false,mz:12,ly:null},
 wet:{on:false,mz:12,ly:null},
@@ -170,7 +179,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
 }
 
 function bboxEnv(){
@@ -246,6 +255,64 @@ onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Gas Pipeline</b
 }).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
 }
 
+var GIBASE='https://services5.arcgis.com/HDRa0B57OVrv2E1q/arcgis/rest/services/';
+var GI_SERVICES={
+gcomp:{svc:'Natural_Gas_Compressor_Stations',color:'#FF5722',fields:'NAME,OPERATOR,STATUS,COUNTY,STATE,NUM_UNITS,CERT_HP,TYPE',label:'Compressor Station'},
+grdp:{svc:'Natural_Gas_Receipt_Delivery_Points',color:'#FFAB00',fields:'NAME,STATUS,COUNTY,STATE,COMPNAME,CONNNAME,MAXCAP,SCHEDCAP,AVAILCAP',label:'Receipt/Delivery Point'},
+gproc:{svc:'Natural_Gas_Processing_Plants',color:'#00BCD4',fields:'NAME,OPERATOR,STATUS,COUNTY,STATE,GASCAP,BASIN',label:'Processing Plant'},
+gstor:{svc:'Natural_Gas_Storage_Facilities',color:'#5C6BC0',fields:'NAME,OPERATOR,STATUS,COUNTY,STATE,TYPE',label:'Storage Facility'},
+gicon:{svc:'Oil_and_Natural_Gas_Interconnects',color:'#EC407A',fields:'NAME,OPERATOR,STATUS,COUNTY,STATE,TYPE',label:'Interconnect'}
+};
+function togGI(t){
+var s=LS.gi;s.types[t]=!s.types[t];
+var anyOn=false;for(var k in s.types)if(s.types[k])anyOn=true;
+if(anyOn&&!s.on){s.on=true;s.g.addTo(map)}
+if(!anyOn&&s.on){s.on=false;map.removeLayer(s.g);s.g.clearLayers()}
+loadGI();uLeg();
+}
+var giLoading=false;
+function loadGI(){
+if(giLoading)return;var s=LS.gi;if(!s.on)return;
+if(map.getZoom()<s.mz){s.g.clearLayers();return}
+giLoading=true;s.g.clearLayers();
+var env=bboxEnv();
+var promises=[];
+for(var t in s.types){
+if(!s.types[t])continue;
+(function(typ){
+var svcInfo=GI_SERVICES[typ];
+var params=new URLSearchParams({
+where:'1=1',geometry:env,geometryType:'esriGeometryEnvelope',
+spatialRel:'esriSpatialRelIntersects',outFields:svcInfo.fields,
+returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
+});
+var url=GIBASE+svcInfo.svc+'/FeatureServer/0/query?'+params.toString();
+promises.push(fetch(url).then(function(r){return r.json()}).then(function(d){
+if(!d.features)return;
+d.features.forEach(function(f){
+var p=f.properties;var c=f.geometry.coordinates;
+var m=L.circleMarker([c[1],c[0]],{radius:6,fillColor:svcInfo.color,fillOpacity:0.9,color:'#fff',weight:1.5});
+var popup='<b>'+svcInfo.label+'</b><br>';
+popup+='<b>'+(p.NAME||'Unknown')+'</b><br>';
+if(p.OPERATOR)popup+='Operator: '+p.OPERATOR+'<br>';
+if(p.COMPNAME)popup+='Company: '+p.COMPNAME+'<br>';
+if(p.CONNNAME)popup+='Connection: '+p.CONNNAME+'<br>';
+popup+='Status: '+(p.STATUS||'\u2014')+'<br>';
+if(p.COUNTY)popup+='County: '+p.COUNTY+', '+(p.STATE||'')+'<br>';
+if(p.TYPE)popup+='Type: '+p.TYPE+'<br>';
+if(p.MAXCAP)popup+='Max Capacity: '+p.MAXCAP+'<br>';
+if(p.AVAILCAP)popup+='Avail Capacity: '+p.AVAILCAP+'<br>';
+if(p.CERT_HP)popup+='Certified HP: '+Number(p.CERT_HP).toLocaleString()+'<br>';
+if(p.NUM_UNITS)popup+='Units: '+p.NUM_UNITS+'<br>';
+if(p.GASCAP)popup+='Gas Capacity: '+p.GASCAP+'<br>';
+if(p.BASIN)popup+='Basin: '+p.BASIN+'<br>';
+m.bindPopup(popup);s.g.addLayer(m);
+});
+}).catch(function(e){console.error('GI error '+typ+':',e)}));
+})(t);
+}
+Promise.all(promises).then(function(){giLoading=false}).catch(function(){giLoading=false});
+}
 var osmPipeCD=false;
 function ldOSMPipe(){
 var s=LS.osmpipe;if(osmPipeCD||s.ld)return;s.ld=true;osmPipeCD=true;setTimeout(function(){osmPipeCD=false},8000);
@@ -419,6 +486,13 @@ if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" sty
 if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#4FC3F7"></span>Substations</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
+if(LS.gi.on){has=true;
+if(LS.gi.types.gcomp)h+='<div class="lgi"><span class="ld" style="background:#FF5722"></span>Compressor</div>';
+if(LS.gi.types.grdp)h+='<div class="lgi"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery</div>';
+if(LS.gi.types.gproc)h+='<div class="lgi"><span class="ld" style="background:#00BCD4"></span>Processing</div>';
+if(LS.gi.types.gstor)h+='<div class="lgi"><span class="ld" style="background:#5C6BC0"></span>Storage</div>';
+if(LS.gi.types.gicon)h+='<div class="lgi"><span class="ld" style="background:#EC407A"></span>Interconnect</div>';
+}
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
@@ -427,7 +501,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.6 loaded');
+console.log('Corridor Map v1.7 loaded');
 </script>
 </body>
 </html>
