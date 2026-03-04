@@ -109,6 +109,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg"><div class="lg-title">Fiber Networks</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>Long Haul Fiber</span><label class="tg"><input type="checkbox" id="t-fiber" onchange="togFiber()"><span class="ts"></span></label></div>
 <div class="lz">Infrapedia — click for carrier name</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF6D00"></span>Lumen / Level3</span><label class="tg"><input type="checkbox" id="t-lumen" onchange="togLumen()"><span class="ts"></span></label></div>
+<div class="lz">53K+ routes — click for details</div>
 </div>
 <div class="lg"><div class="lg-title">Digital</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
@@ -296,6 +298,23 @@ if(p.length)h+='<b>Length:</b> '+Number(p.length).toLocaleString()+' km';
 L.popup().setLatLng(e.latlng).setContent(h).openOn(map);
 });
 fiberLayer.addTo(map);
+uLeg();
+}
+var lumenLayer=null;var lumenData=null;
+function togLumen(){
+if(lumenLayer){map.removeLayer(lumenLayer);lumenLayer=null;uLeg();return}
+if(lumenData){renderLumen();return}
+fetch('data/lumen_routes.json').then(function(r){return r.json()}).then(function(d){
+lumenData=d;renderLumen();
+}).catch(function(e){console.error('Lumen load error:',e)});
+}
+function renderLumen(){
+lumenLayer=L.geoJSON(lumenData,{
+style:function(){return{color:'#FF6D00',weight:1.5,opacity:0.7}},
+onEachFeature:function(f,ly){
+ly.bindPopup('<b style="font-size:13px">Lumen / CenturyLink</b><br><b>State:</b> '+f.properties.state);
+}
+}).addTo(map);
 uLeg();
 }
 var GIBASE='https://services5.arcgis.com/HDRa0B57OVrv2E1q/arcgis/rest/services/';
@@ -598,6 +617,7 @@ if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
 if(fiberLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#00E5FF"></span>Fiber</div>'}
+if(lumenLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Lumen</div>'}
 if(LS.gi.on){has=true;
 if(LS.gi.types.gcomp)h+='<div class="lgi"><span class="ld" style="background:#FF5722"></span>Compressor</div>';
 if(LS.gi.types.grdp)h+='<div class="lgi"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery</div>';
@@ -615,7 +635,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v2.3.1 loaded');
+console.log('Corridor Map v2.4 loaded');
 </script>
 </body>
 </html>
