@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corridor Infrastructure Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
+#map{position:absolute;top:0;left:0;right:0;bottom:0;z-index:1}
+#layer-panel{position:absolute;top:12px;left:12px;z-index:1000;background:#1B2B3A;color:#F0EDE8;border-radius:10px;width:270px;max-height:calc(100vh - 24px);overflow-y:auto;box-shadow:0 4px 24px rgba(0,0,0,0.35);transition:transform 0.3s ease}
+#layer-panel.collapsed{transform:translateX(-258px)}
+#panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid rgba(196,133,76,0.25)}
+#panel-header h1{font-size:13px;font-weight:700;letter-spacing:3px;color:#C4854C}
+#panel-toggle{background:none;border:none;color:#F0EDE8;cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px}
+#panel-toggle:hover{background:rgba(240,237,232,0.1)}
+.lg{padding:6px 16px}
+.lg-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C4854C;margin-bottom:4px;margin-top:4px}
+.li{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.ll{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;color:#F0EDE8;flex:1}
+.ld{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.lz{font-size:8px;color:rgba(240,237,232,0.35);margin-left:16px;margin-top:-1px;margin-bottom:1px}
+.tg{position:relative;width:32px;height:17px;flex-shrink:0}
+.tg input{opacity:0;width:0;height:0}
+.ts{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(240,237,232,0.15);border-radius:9px;transition:0.2s}
+.ts:before{content:'';position:absolute;height:13px;width:13px;left:2px;bottom:2px;background:#F0EDE8;border-radius:50%;transition:0.2s}
+.tg input:checked+.ts{background:#C4854C}
+.tg input:checked+.ts:before{transform:translateX(15px)}
+#search-box{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;width:360px}
+#search-input{width:100%;padding:9px 38px 9px 13px;border:none;border-radius:8px;background:#1B2B3A;color:#F0EDE8;font-family:'DM Sans',sans-serif;font-size:12.5px;box-shadow:0 4px 16px rgba(0,0,0,0.3);outline:none}
+#search-input::placeholder{color:rgba(240,237,232,0.4)}
+#search-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;color:#C4854C;cursor:pointer;font-size:15px;padding:4px 8px}
+#sr{position:absolute;top:42px;left:0;right:0;background:#1B2B3A;border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+.sri{padding:7px 13px;font-size:11px;color:#F0EDE8;cursor:pointer;border-bottom:1px solid rgba(240,237,232,0.06)}
+.sri:hover{background:rgba(196,133,76,0.15)}
+#bb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:1000;display:flex;gap:6px}
+#cd{background:#1B2B3A;color:#F0EDE8;padding:5px 10px;border-radius:6px;font-size:10.5px;font-family:'DM Sans',monospace;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+#zd{background:#1B2B3A;color:#C4854C;padding:5px 9px;border-radius:6px;font-size:10.5px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+#ctx{position:absolute;z-index:2000;background:#1B2B3A;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:none;overflow:hidden;min-width:170px}
+.ci{padding:9px 14px;font-size:11.5px;color:#F0EDE8;cursor:pointer;display:flex;align-items:center;gap:7px}
+.ci:hover{background:rgba(196,133,76,0.15)}
+#mb{position:absolute;top:12px;right:12px;z-index:1000;background:#1B2B3A;color:#F0EDE8;border:none;border-radius:8px;padding:9px 13px;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:5px}
+#mb:hover{background:#253545}
+#mb.active{background:#C4854C;color:#1B2B3A}
+#mr{position:absolute;top:50px;right:12px;z-index:1000;background:#1B2B3A;color:#F0EDE8;padding:7px 12px;border-radius:8px;font-size:11.5px;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:none}
+#lg{position:absolute;bottom:36px;right:12px;z-index:1000;background:#1B2B3A;color:#F0EDE8;border-radius:8px;padding:9px 13px;box-shadow:0 4px 16px rgba(0,0,0,0.3);font-size:10.5px;max-width:190px;display:none}
+#lg h3{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#C4854C;margin-bottom:5px}
+.lgi{display:flex;align-items:center;gap:5px;padding:1.5px 0}
+.lgl{width:18px;height:2.5px;border-radius:2px;flex-shrink:0}
+.lgs{width:12px;height:12px;border-radius:2px;flex-shrink:0}
+.leaflet-popup-content-wrapper{background:#1B2B3A;color:#F0EDE8;border-radius:8px;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+.leaflet-popup-tip{background:#1B2B3A}
+.leaflet-popup-content{font-size:11.5px;line-height:1.5;margin:10px 13px}
+.leaflet-popup-content b{color:#C4854C}
+.leaflet-popup-close-button{color:#C4854C !important}
+.leaflet-popup-close-button:hover{color:#F0EDE8 !important}
+.leaflet-control-zoom a{background:#1B2B3A !important;color:#F0EDE8 !important;border-color:rgba(240,237,232,0.1) !important}
+.leaflet-control-zoom a:hover{background:#253545 !important}
+.leaflet-control-attribution{background:rgba(27,43,58,0.8) !important;color:rgba(240,237,232,0.5) !important;font-size:9px !important}
+.leaflet-control-attribution a{color:#C4854C !important}
+#layer-panel::-webkit-scrollbar{width:4px}
+#layer-panel::-webkit-scrollbar-track{background:transparent}
+#layer-panel::-webkit-scrollbar-thumb{background:rgba(196,133,76,0.3);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="layer-panel">
+<div id="panel-header"><h1>CO RR IDOR</h1><button id="panel-toggle" onclick="document.getElementById('layer-panel').classList.toggle('collapsed');this.textContent=document.getElementById('layer-panel').classList.contains('collapsed')?'\u25B6':'\u25C0'">&laquo;</button></div>
+<div class="lg"><div class="lg-title">Base Map</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4A90D9"></span>Google Satellite</span><label class="tg"><input type="radio" name="bm" value="sat" checked onchange="switchBase('sat')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#8BC34A"></span>Google Streets</span><label class="tg"><input type="radio" name="bm" value="str" onchange="switchBase('str')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF9800"></span>OpenStreetMap</span><label class="tg"><input type="radio" name="bm" value="osm" onchange="switchBase('osm')"><span class="ts"></span></label></div>
+</div>
+<div class="lg"><div class="lg-title">Power Infrastructure</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission 345kV+</span><label class="tg"><input type="checkbox" id="t-tx" checked onchange="tog('tx')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 8+</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" checked onchange="tog('sub')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 8+</div>
+</div>
+<div class="lg"><div class="lg-title">Pipelines</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Natural Gas</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 8+</div>
+</div>
+<div class="lg"><div class="lg-title">Digital</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 10+</div>
+</div>
+<div class="lg"><div class="lg-title">Environmental</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>FEMA Flood Zones</span><label class="tg"><input type="checkbox" id="t-fld" onchange="tog('fld')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 12+</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="tog('wet')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 12+</div>
+</div>
+</div>
+<div id="search-box"><input type="text" id="search-input" placeholder="Search address, city, county, or lat,lng..." autocomplete="off"><button id="search-btn" onclick="doSearch()">&#x2315;</button><div id="sr"></div></div>
+<button id="mb" onclick="togMeasure()">&#x1F4CF; Measure</button>
+<div id="mr"></div>
+<div id="bb"><div id="cd">&mdash;</div><div id="zd">Z: 6</div></div>
+<div id="ctx"><div class="ci" onclick="openSV()">&#x1F6E3;&#xFE0F; Street View</div><div class="ci" onclick="copyC()">&#x1F4CB; Copy Coords</div><div class="ci" onclick="openGM()">&#x1F5FA;&#xFE0F; Google Maps</div></div>
+<div id="lg"></div>
+<div id="map"></div>
+<script>
+var K='AIzaSyDHrZpNrdPBWMxYhw_ep3xhQUfFEGmKvpE';
+var BL={
+sat:L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
+str:L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
+osm:L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'})
+};
+var map=L.map('map',{center:[33.5,-97.5],zoom:6,layers:[BL.sat]});
+var cBase='sat';
+function switchBase(n){map.removeLayer(BL[cBase]);BL[n].addTo(map);cBase=n;document.querySelectorAll('input[name="bm"]').forEach(function(r){r.checked=(r.value===n)})}
+
+var LS={
+tx:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
+sub:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
+gas:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
+dc:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
+fld:{on:false,mz:12,ly:null},
+wet:{on:false,mz:12,ly:null}
+};
+
+function tog(n){
+var s=LS[n];s.on=!s.on;
+if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
+else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);s.ly=null}}
+uLeg();
+}
+
+map.on('mousemove',function(e){document.getElementById('cd').textContent=e.latlng.lat.toFixed(5)+', '+e.latlng.lng.toFixed(5)});
+map.on('zoomend',function(){document.getElementById('zd').textContent='Z: '+map.getZoom();rAll()});
+map.on('moveend',rAll);
+
+var rT=null;
+function rAll(){clearTimeout(rT);rT=setTimeout(function(){for(var n in LS)rl(n)},400)}
+
+function rl(n){
+var s=LS[n];if(!s.on)return;var z=map.getZoom();
+if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}
+if(z<s.mz){if(s.g)s.g.clearLayers();return}
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='dc')ldDC();
+}
+
+function bboxStr(){var b=map.getBounds();return b.getWest()+','+b.getSouth()+','+b.getEast()+','+b.getNorth()}
+
+function ldTx(){
+var s=LS.tx;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
+var u='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Transmission_Lines/FeatureServer/0/query?'+
+'where=VOLTAGE+>=+345&geometry='+encodeURIComponent(bboxStr())+'&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects'+
+'&outFields=VOLTAGE,OWNER,SUB_1,SUB_2&returnGeometry=true&f=geojson&outSR=4326&resultRecordCount=2000';
+fetch(u,{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.features)return;
+L.geoJSON(d,{style:function(f){var v=f.properties.VOLTAGE||345;var c='#4FC3F7';if(v>=765)c='#9C27B0';else if(v>=500)c='#EF5350';return{color:c,weight:v>=500?3:2,opacity:0.85}},
+onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Transmission Line</b><br>Voltage: '+p.VOLTAGE+' kV<br>Owner: '+(p.OWNER||'—')+'<br>From: '+(p.SUB_1||'—')+'<br>To: '+(p.SUB_2||'—'))}
+}).addTo(s.g);s.ld=false;
+}).catch(function(e){if(e.name!=='AbortError')console.error(e);s.ld=false});
+}
+
+function ldSub(){
+var s=LS.sub;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
+var u='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Substations/FeatureServer/0/query?'+
+'where=MAX_VOLT+>=+345&geometry='+encodeURIComponent(bboxStr())+'&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects'+
+'&outFields=NAME,STATE,STATUS,MAX_VOLT,MIN_VOLT,LINES,COUNTY&returnGeometry=true&f=geojson&outSR=4326&resultRecordCount=2000';
+fetch(u,{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.features)return;
+d.features.forEach(function(f){var p=f.properties,c=f.geometry.coordinates,v=p.MAX_VOLT||345;
+var col='#FF6B6B';if(v>=765)col='#9C27B0';else if(v>=500)col='#FF8A65';
+var m=L.circleMarker([c[1],c[0]],{radius:v>=500?7:5,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
+m.bindPopup('<b>'+(p.NAME||'Substation')+'</b><br>Max: '+v+' kV<br>Min: '+(p.MIN_VOLT||'—')+' kV<br>Lines: '+(p.LINES||'—')+'<br>Status: '+(p.STATUS||'—')+'<br>County: '+(p.COUNTY||'—')+', '+(p.STATE||'—'));
+s.g.addLayer(m)});s.ld=false;
+}).catch(function(e){if(e.name!=='AbortError')console.error(e);s.ld=false});
+}
+
+function ldGas(){
+var s=LS.gas;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
+var u='https://geo.dot.gov/server/rest/services/hosted/Natural_Gas_Pipelines_US_EIA/FeatureServer/0/query?'+
+'where=1=1&geometry='+encodeURIComponent(bboxStr())+'&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects'+
+'&outFields=typepipe,operator,status&returnGeometry=true&f=geojson&outSR=4326&resultRecordCount=2000';
+fetch(u,{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.features)return;
+L.geoJSON(d,{style:function(f){var t=(f.properties.typepipe||'').toLowerCase();var c='#9E9E9E';if(t.indexOf('interstate')>=0)c='#FFA726';else if(t.indexOf('intrastate')>=0)c='#FFD54F';return{color:c,weight:2,opacity:0.75}},
+onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Gas Pipeline</b><br>Type: '+(p.typepipe||'—')+'<br>Operator: '+(p.operator||'—')+'<br>Status: '+(p.status||'—'))}
+}).addTo(s.g);s.ld=false;
+}).catch(function(e){if(e.name!=='AbortError')console.error(e);s.ld=false});
+}
+
+var dcCD=false;
+function ldDC(){
+var s=LS.dc;if(dcCD||s.ld)return;s.ld=true;dcCD=true;setTimeout(function(){dcCD=false},5000);
+var b=map.getBounds();var bb=b.getSouth()+','+b.getWest()+','+b.getNorth()+','+b.getEast();
+var q='[out:json][timeout:30];(node["telecom"="data_center"]('+bb+');way["telecom"="data_center"]('+bb+');node["building"="data_centre"]('+bb+');way["building"="data_centre"]('+bb+'););out center body;';
+fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q)})
+.then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.elements)return;
+d.elements.forEach(function(el){var lat=el.lat||(el.center&&el.center.lat),lon=el.lon||(el.center&&el.center.lon);
+if(!lat||!lon)return;var nm=(el.tags&&el.tags.name)||'Data Center',op=(el.tags&&el.tags.operator)||'—';
+var m=L.circleMarker([lat,lon],{radius:6,fillColor:'#AB47BC',fillOpacity:0.9,color:'#fff',weight:1.5});
+m.bindPopup('<b>\uD83C\uDFE2 '+nm+'</b><br>Operator: '+op);s.g.addLayer(m)});s.ld=false;
+}).catch(function(e){console.error(e);s.ld=false});
+}
+
+function rFld(){
+var s=LS.fld;if(!s.on)return;
+if(map.getZoom()<s.mz){if(s.ly){map.removeLayer(s.ly);s.ly=null}return}
+if(s.ly)map.removeLayer(s.ly);
+s.ly=L.esri.dynamicMapLayer({url:'https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer',layers:[28],opacity:0.4,f:'image'}).addTo(map);
+s.ly.bringToBack();
+}
+
+function rWet(){
+var s=LS.wet;if(!s.on)return;
+if(map.getZoom()<s.mz){if(s.ly){map.removeLayer(s.ly);s.ly=null}return}
+if(s.ly)map.removeLayer(s.ly);
+s.ly=L.esri.dynamicMapLayer({url:'https://fwspublicservices.wim.usgs.gov/wetlandsmapservice/rest/services/Wetlands/MapServer',layers:[0],opacity:0.4,f:'image'}).addTo(map);
+s.ly.bringToBack();
+}
+
+// Search
+var si=document.getElementById('search-input'),srEl=document.getElementById('sr');
+si.addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
+si.addEventListener('input',function(){
+if(si.value.length<3){srEl.style.display='none';return}
+var cm=si.value.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+if(cm){srEl.innerHTML='<div class="sri" onclick="goTo('+cm[1]+','+cm[2]+',14)">Go to '+parseFloat(cm[1]).toFixed(4)+', '+parseFloat(cm[2]).toFixed(4)+'</div>';srEl.style.display='block';return}
+clearTimeout(si._d);si._d=setTimeout(function(){
+fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(si.value)+'&format=json&limit=5&countrycodes=us')
+.then(function(r){return r.json()}).then(function(res){if(!res.length){srEl.style.display='none';return}
+srEl.innerHTML=res.map(function(r){return '<div class="sri" onclick="goTo('+r.lat+','+r.lon+',13)">'+r.display_name+'</div>'}).join('');srEl.style.display='block'})},350);
+});
+function doSearch(){
+var v=si.value.trim();if(!v)return;
+var cm=v.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+if(cm){goTo(parseFloat(cm[1]),parseFloat(cm[2]),14);return}
+fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(v)+'&format=json&limit=1&countrycodes=us')
+.then(function(r){return r.json()}).then(function(res){if(res.length)goTo(res[0].lat,res[0].lon,13)});
+}
+function goTo(lat,lng,z){map.setView([lat,lng],z||13);srEl.style.display='none';si.blur();var m=L.marker([lat,lng]).addTo(map);setTimeout(function(){map.removeLayer(m)},5000)}
+document.addEventListener('click',function(e){if(!document.getElementById('search-box').contains(e.target))srEl.style.display='none'});
+
+// Context menu
+var cLL=null;var ctx=document.getElementById('ctx');
+map.on('contextmenu',function(e){e.originalEvent.preventDefault();cLL=e.latlng;ctx.style.left=e.originalEvent.pageX+'px';ctx.style.top=e.originalEvent.pageY+'px';ctx.style.display='block'});
+document.addEventListener('click',function(){ctx.style.display='none'});
+function openSV(){if(cLL)window.open('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+cLL.lat+','+cLL.lng,'_blank')}
+function copyC(){if(cLL)navigator.clipboard.writeText(cLL.lat.toFixed(6)+', '+cLL.lng.toFixed(6))}
+function openGM(){if(cLL)window.open('https://www.google.com/maps/@'+cLL.lat+','+cLL.lng+',17z','_blank')}
+
+// Measure
+var mOn=false,mPts=[],mLine=null,mMks=[];
+function togMeasure(){
+mOn=!mOn;var b=document.getElementById('mb'),r=document.getElementById('mr');
+if(mOn){b.classList.add('active');b.textContent='\uD83D\uDCCF Click map (ESC to stop)';map.getContainer().style.cursor='crosshair';mPts=[];if(mLine)map.removeLayer(mLine);mMks.forEach(function(m){map.removeLayer(m)});mMks=[];r.style.display='none'}
+else{b.classList.remove('active');b.textContent='\uD83D\uDCCF Measure';map.getContainer().style.cursor='';if(mLine)map.removeLayer(mLine);mMks.forEach(function(m){map.removeLayer(m)});mMks=[];mPts=[];r.style.display='none'}
+}
+map.on('click',function(e){
+if(!mOn)return;mPts.push(e.latlng);
+var d=L.circleMarker(e.latlng,{radius:4,fillColor:'#C4854C',fillOpacity:1,color:'#fff',weight:2}).addTo(map);mMks.push(d);
+if(mPts.length>=2){if(mLine)map.removeLayer(mLine);mLine=L.polyline(mPts,{color:'#C4854C',weight:2,dashArray:'6,6'}).addTo(map);
+var td=0;for(var i=1;i<mPts.length;i++)td+=mPts[i-1].distanceTo(mPts[i]);
+var mi=(td/1609.344).toFixed(2),km=(td/1000).toFixed(2),r=document.getElementById('mr');
+r.innerHTML='<b style="color:#C4854C">'+mi+' mi</b> ('+km+' km)';r.style.display='block'}
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&mOn)togMeasure()});
+
+// Legend
+function uLeg(){
+var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
+if(LS.tx.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div><div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div><div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>'}
+if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF6B6B"></span>Sub 345kV</div><div class="lgi"><span class="ld" style="background:#FF8A65"></span>Sub 500kV+</div>'}
+if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
+if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
+if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
+if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
+lg.innerHTML=h;lg.style.display=has?'block':'none';
+}
+uLeg();rAll();
+</script>
+</body>
+</html>
