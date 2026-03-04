@@ -114,8 +114,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
 </div>
 <div class="lg"><div class="lg-title">Property</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#F0EDE8"></span>Parcels (TX)</span><label class="tg"><input type="checkbox" id="t-parcels" onchange="tog('parcels')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 14+ — click for owner, value, acres</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Texas Parcels</span><label class="tg"><input type="checkbox" id="t-parcels" onchange="togParcel('TX')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#7FBA00"></span>Wisconsin Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsWI" onchange="togParcel('WI')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4285F4"></span>Minnesota Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsMN" onchange="togParcel('MN')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF9800"></span>Indiana Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsIN" onchange="togParcel('IN')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 14+ — click for details</div>
 </div>
 <div class="lg"><div class="lg-title">Hyperscale &amp; Major DC</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" checked onchange="tog('hs')"><span class="ts"></span></label></div>
@@ -161,7 +164,7 @@ dc:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 fld:{on:false,mz:12,ly:null},
 wet:{on:false,mz:12,ly:null},
 cty:{on:false,mz:0,ly:null},
-parcels:{on:false,mz:14,ly:null},
+
 st:{on:false,mz:0,ly:null},
 hs:{on:true,mz:0,g:L.layerGroup().addTo(map),ld:false,ac:null}
 };
@@ -169,7 +172,7 @@ hs:{on:true,mz:0,g:L.layerGroup().addTo(map),ld:false,ac:null}
 function tog(n){
 var s=LS[n];s.on=!s.on;
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
-else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st'&&n!=='parcels')s.ly=null}}
+else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}}
 uLeg();
 }
 
@@ -184,7 +187,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='parcels')ldParcels();else if(n==='st')ldSt();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
 }
 
 function bboxEnv(){
@@ -406,33 +409,63 @@ return '<b>'+p.NAME+'</b><br>'+p.STATE_ABBR+'<br>FIPS: '+p.FIPS+'<br>Pop: '+pop;
 });
 s.ly.addTo(map);s.ly.bringToBack();
 }
-function ldParcels(){
-var s=LS.parcels;if(!s.on)return;
-if(map.getZoom()<s.mz){if(s.ly){map.removeLayer(s.ly);s.ly=null}return}
-if(s.ly){if(!map.hasLayer(s.ly))s.ly.addTo(map);return}
-s.ly=L.esri.featureLayer({
-url:'https://feature.tnris.org/arcgis/rest/services/Parcels/stratmap_land_parcels_48_most_recent/MapServer/0',
-where:'1=1',
-style:function(){return{color:'#C4854C',weight:0.8,opacity:0.6,fillColor:'#C4854C',fillOpacity:0.05,interactive:true}},
-fields:['owner_name','legal_area','lgl_area_unit','mkt_value','land_value','imp_value','situs_addr','situs_city','legal_desc','county','year_built','mail_addr','stat_land_use']
+var PARCEL_SERVICES={
+TX:{url:'https://feature.tnris.org/arcgis/rest/services/Parcels/stratmap_land_parcels_48_most_recent/MapServer/0',
+color:'#C4854C',fields:['owner_name','legal_area','lgl_area_unit','mkt_value','land_value','imp_value','situs_addr','county','year_built','legal_desc'],
+popup:function(p){var h='<b style="font-size:13px">'+(p.owner_name||'Unknown Owner')+'</b><br>';
+h+='<b>Market:</b> '+(p.mkt_value?'$'+Number(p.mkt_value).toLocaleString():'\u2014')+' <b>Land:</b> '+(p.land_value?'$'+Number(p.land_value).toLocaleString():'\u2014')+'<br>';
+h+='<b>Area:</b> '+(p.legal_area?(p.legal_area+' '+(p.lgl_area_unit||'')):'\u2014')+'<br>';
+if(p.situs_addr)h+='<b>Address:</b> '+p.situs_addr+'<br>';
+if(p.county)h+='<b>County:</b> '+p.county+'<br>';
+if(p.year_built)h+='<b>Built:</b> '+p.year_built+'<br>';
+if(p.legal_desc)h+='<br><i style="color:rgba(240,237,232,0.5);font-size:10px">'+p.legal_desc+'</i>';
+return h}},
+WI:{url:'https://services3.arcgis.com/n6uYoouQZW75n5WI/arcgis/rest/services/Wisconsin_Statewide_Parcels/FeatureServer/0',
+color:'#7FBA00',fields:['OWNERNME1','OWNERNME2','SITEADRESS','ESTFMKVALUE','LNDVALUE','IMPVALUE','ASSDACRES','DEEDACRES','CONAME','PROPCLASS','PLACENAME'],
+popup:function(p){var h='<b style="font-size:13px">'+(p.OWNERNME1||'Unknown Owner')+'</b>';
+if(p.OWNERNME2&&p.OWNERNME2!=='NOT AVAILABLE')h+='<br>'+p.OWNERNME2;
+h+='<br><b>Est. Market:</b> '+(p.ESTFMKVALUE?'$'+Number(p.ESTFMKVALUE).toLocaleString():'\u2014')+' <b>Land:</b> '+(p.LNDVALUE?'$'+Number(p.LNDVALUE).toLocaleString():'\u2014')+'<br>';
+h+='<b>Acres:</b> '+(p.ASSDACRES||p.DEEDACRES||'\u2014')+'<br>';
+if(p.SITEADRESS)h+='<b>Address:</b> '+p.SITEADRESS+'<br>';
+if(p.CONAME)h+='<b>County:</b> '+p.CONAME+'<br>';
+if(p.PLACENAME)h+='<b>Place:</b> '+p.PLACENAME;
+return h}},
+MN:{url:'https://services.arcgis.com/9OIuDHbyhmH91RfZ/arcgis/rest/services/plan_parcels_open_gdb/FeatureServer/0',
+color:'#4285F4',fields:['owner_name','tax_name','own_add_l1','acres_poly','co_name','ctu_name','useclass1','dwell_type','tax_year'],
+popup:function(p){var h='<b style="font-size:13px">'+(p.owner_name||'Unknown Owner')+'</b><br>';
+if(p.own_add_l1)h+='<b>Owner Address:</b> '+p.own_add_l1+'<br>';
+h+='<b>Acres:</b> '+(p.acres_poly?Number(p.acres_poly).toFixed(2):'\u2014')+'<br>';
+if(p.co_name)h+='<b>County:</b> '+p.co_name+'<br>';
+if(p.ctu_name)h+='<b>City/Twp:</b> '+p.ctu_name+'<br>';
+if(p.useclass1)h+='<b>Use:</b> '+p.useclass1+'<br>';
+if(p.dwell_type)h+='<b>Type:</b> '+p.dwell_type;
+return h}},
+IN:{url:'https://gisdata.in.gov/server/rest/services/Hosted/Parcel_Boundaries_of_Indiana_Current/FeatureServer/0',
+color:'#FF9800',fields:['parcel_id','prop_add','prop_city','prop_zip','tax_township','tax_county','tax_school'],
+popup:function(p){var h='<b style="font-size:13px">Parcel: '+(p.parcel_id||'\u2014')+'</b><br>';
+if(p.prop_add)h+='<b>Address:</b> '+p.prop_add+'<br>';
+if(p.prop_city)h+=p.prop_city+(p.prop_zip?', '+p.prop_zip:'')+'<br>';
+if(p.tax_county)h+='<b>County:</b> '+p.tax_county+'<br>';
+if(p.tax_township)h+='<b>Township:</b> '+p.tax_township+'<br>';
+if(p.tax_school)h+='<b>School:</b> '+p.tax_school;
+return h}}
+};
+var parcelLayers={};
+function togParcel(st){
+var svc=PARCEL_SERVICES[st];if(!svc)return;
+if(parcelLayers[st]){
+if(map.hasLayer(parcelLayers[st])){map.removeLayer(parcelLayers[st])}
+else{parcelLayers[st].addTo(map)}
+uLeg();return;
+}
+parcelLayers[st]=L.esri.featureLayer({
+url:svc.url,where:'1=1',minZoom:14,
+style:function(){return{color:svc.color,weight:0.8,opacity:0.6,fillColor:svc.color,fillOpacity:0.05,interactive:true}},
+fields:svc.fields
 });
-s.ly.bindPopup(function(layer){
-var p=layer.feature.properties;
-var mkt=p.mkt_value?'$'+Number(p.mkt_value).toLocaleString():'\u2014';
-var land=p.land_value?'$'+Number(p.land_value).toLocaleString():'\u2014';
-var imp=p.imp_value?'$'+Number(p.imp_value).toLocaleString():'\u2014';
-var area=p.legal_area?(p.legal_area+' '+(p.lgl_area_unit||'')):'\u2014';
-var html='<b style="font-size:13px">'+(p.owner_name||'Unknown Owner')+'</b><br>';
-html+='<b>Market Value:</b> '+mkt+'<br>';
-html+='<b>Land:</b> '+land+' | <b>Improvements:</b> '+imp+'<br>';
-html+='<b>Area:</b> '+area+'<br>';
-if(p.situs_addr)html+='<b>Address:</b> '+p.situs_addr+'<br>';
-if(p.county)html+='<b>County:</b> '+p.county+'<br>';
-if(p.year_built)html+='<b>Year Built:</b> '+p.year_built+'<br>';
-if(p.legal_desc)html+='<br><i style="color:rgba(240,237,232,0.5);font-size:10px">'+p.legal_desc+'</i>';
-return html;
-},{maxWidth:320});
-s.ly.addTo(map);
+parcelLayers[st].bindPopup(function(layer){return svc.popup(layer.feature.properties)},{maxWidth:320});
+parcelLayers[st].addTo(map);
+uLeg();
 }
 function ldSt(){
 var s=LS.st;if(!s.on)return;
@@ -528,14 +561,17 @@ if(LS.gi.types.gicon)h+='<div class="lgi"><span class="ld" style="background:#EC
 }
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
-if(LS.parcels.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>Parcels (TX)</div>'}
+if(parcelLayers.TX&&map.hasLayer(parcelLayers.TX)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>TX Parcels</div>'}
+if(parcelLayers.WI&&map.hasLayer(parcelLayers.WI)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(127,186,0,0.2);border:1px solid #7FBA00"></span>WI Parcels</div>'}
+if(parcelLayers.MN&&map.hasLayer(parcelLayers.MN)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,133,244,0.2);border:1px solid #4285F4"></span>MN Parcels</div>'}
+if(parcelLayers.IN&&map.hasLayer(parcelLayers.IN)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(255,152,0,0.2);border:1px solid #FF9800"></span>IN Parcels</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
 if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
 if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.8 loaded');
+console.log('Corridor Map v1.9 loaded');
 </script>
 </body>
 </html>
