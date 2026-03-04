@@ -114,6 +114,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
 </div>
 <div class="lg"><div class="lg-title">Property</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>All Parcels (US)</span><label class="tg"><input type="checkbox" id="t-regrid" onchange="togRegrid()"><span class="ts"></span></label></div>
+<div class="lz">Boundaries only — all 50 states</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Texas Parcels</span><label class="tg"><input type="checkbox" id="t-parcels" onchange="togParcel('TX')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Wisconsin Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsWI" onchange="togParcel('WI')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Minnesota Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsMN" onchange="togParcel('MN')"><span class="ts"></span></label></div>
@@ -409,6 +411,14 @@ return '<b>'+p.NAME+'</b><br>'+p.STATE_ABBR+'<br>FIPS: '+p.FIPS+'<br>Pop: '+pop;
 });
 s.ly.addTo(map);s.ly.bringToBack();
 }
+var regridLayer=null;
+function togRegrid(){
+if(regridLayer){map.removeLayer(regridLayer);regridLayer=null;uLeg();return}
+regridLayer=L.tileLayer('https://tiles.arcgis.com/tiles/KzeiCaQsMoeCfoCq/arcgis/rest/services/Regrid_Nationwide_Parcel_Boundaries_v1/MapServer/tile/{z}/{y}/{x}',{
+maxZoom:21,minZoom:12,opacity:0.7,attribution:'Regrid'
+}).addTo(map);
+uLeg();
+}
 var PARCEL_URLS={
 TX:'https://services1.arcgis.com/1mtXwieMId59thmg/arcgis/rest/services/2019_Texas_Parcels_StratMap/FeatureServer/0/query',
 WI:'https://services3.arcgis.com/n6uYoouQZW75n5WI/arcgis/rest/services/Wisconsin_Statewide_Parcels/FeatureServer/0/query',
@@ -562,7 +572,7 @@ if(LS.gi.types.gicon)h+='<div class="lgi"><span class="ld" style="background:#EC
 }
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
-var anyParcels=false;for(var _ps in PARCEL_URLS){if(parcelEnabled[_ps])anyParcels=true}
+var anyParcels=regridLayer?true:false;for(var _ps in PARCEL_URLS){if(parcelEnabled[_ps])anyParcels=true}
 if(anyParcels){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>Parcels</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
 if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
@@ -570,7 +580,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v2.0.2 loaded');
+console.log('Corridor Map v2.1 loaded');
 </script>
 </body>
 </html>
