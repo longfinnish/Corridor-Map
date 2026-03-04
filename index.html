@@ -455,18 +455,29 @@ function togParcel(st){
 var svc=PARCEL_SERVICES[st];if(!svc)return;
 if(parcelLayers[st]){
 if(map.hasLayer(parcelLayers[st])){map.removeLayer(parcelLayers[st])}
-else{parcelLayers[st].addTo(map)}
+else if(map.getZoom()>=14){parcelLayers[st].addTo(map)}
 uLeg();return;
 }
-parcelLayers[st]=L.esri.featureLayer({
-url:svc.url,where:'1=1',minZoom:14,
+var opts={url:svc.url,where:'1=1',
 style:function(){return{color:svc.color,weight:0.8,opacity:0.6,fillColor:svc.color,fillOpacity:0.05,interactive:true}},
-fields:svc.fields
-});
+fields:svc.fields,pane:'overlayPane'};
+if(svc.url.indexOf('MapServer')>-1){opts.isModern=false}
+parcelLayers[st]=L.esri.featureLayer(opts);
 parcelLayers[st].bindPopup(function(layer){return svc.popup(layer.feature.properties)},{maxWidth:320});
-parcelLayers[st].addTo(map);
+if(map.getZoom()>=14){parcelLayers[st].addTo(map)}
+parcelLayers['_zoom_'+st]=true;
 uLeg();
 }
+map.on('zoomend',function(){
+for(var st in PARCEL_SERVICES){
+if(!parcelLayers['_zoom_'+st])continue;
+if(map.getZoom()>=14){
+if(parcelLayers[st]&&!map.hasLayer(parcelLayers[st]))parcelLayers[st].addTo(map);
+}else{
+if(parcelLayers[st]&&map.hasLayer(parcelLayers[st]))map.removeLayer(parcelLayers[st]);
+}
+}
+});
 function ldSt(){
 var s=LS.st;if(!s.on)return;
 if(s.ly){if(!map.hasLayer(s.ly))s.ly.addTo(map);return}
@@ -561,17 +572,17 @@ if(LS.gi.types.gicon)h+='<div class="lgi"><span class="ld" style="background:#EC
 }
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
-if(parcelLayers.TX&&map.hasLayer(parcelLayers.TX)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>TX Parcels</div>'}
-if(parcelLayers.WI&&map.hasLayer(parcelLayers.WI)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(127,186,0,0.2);border:1px solid #7FBA00"></span>WI Parcels</div>'}
-if(parcelLayers.MN&&map.hasLayer(parcelLayers.MN)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,133,244,0.2);border:1px solid #4285F4"></span>MN Parcels</div>'}
-if(parcelLayers.IN&&map.hasLayer(parcelLayers.IN)){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(255,152,0,0.2);border:1px solid #FF9800"></span>IN Parcels</div>'}
+if(parcelLayers['_zoom_TX']&&parcelLayers.TX){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>TX Parcels</div>'}
+if(parcelLayers['_zoom_WI']&&parcelLayers.WI){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(127,186,0,0.2);border:1px solid #7FBA00"></span>WI Parcels</div>'}
+if(parcelLayers['_zoom_MN']&&parcelLayers.MN){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,133,244,0.2);border:1px solid #4285F4"></span>MN Parcels</div>'}
+if(parcelLayers['_zoom_IN']&&parcelLayers.IN){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(255,152,0,0.2);border:1px solid #FF9800"></span>IN Parcels</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
 if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
 if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.9 loaded');
+console.log('Corridor Map v1.9.1 loaded');
 </script>
 </body>
 </html>
