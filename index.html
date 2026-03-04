@@ -101,6 +101,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg"><div class="lg-title">Boundaries</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#F0EDE8"></span>County Lines</span><label class="tg"><input type="checkbox" id="t-cty" onchange="tog('cty')"><span class="ts"></span></label></div>
 <div class="lz">All zoom levels</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
 </div>
 <div class="lg"><div class="lg-title">Hyperscale &amp; Major DC</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" checked onchange="tog('hs')"><span class="ts"></span></label></div>
@@ -144,13 +145,14 @@ dc:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 fld:{on:false,mz:12,ly:null},
 wet:{on:false,mz:12,ly:null},
 cty:{on:false,mz:0,ly:null},
+st:{on:false,mz:0,ly:null},
 hs:{on:true,mz:0,g:L.layerGroup().addTo(map),ld:false,ac:null}
 };
 
 function tog(n){
 var s=LS[n];s.on=!s.on;
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
-else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty')s.ly=null}}
+else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}}
 uLeg();
 }
 
@@ -165,7 +167,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
 }
 
 function bboxEnv(){
@@ -299,6 +301,21 @@ return '<b>'+p.NAME+'</b><br>'+p.STATE_ABBR+'<br>FIPS: '+p.FIPS+'<br>Pop: '+pop;
 });
 s.ly.addTo(map);s.ly.bringToBack();
 }
+function ldSt(){
+var s=LS.st;if(!s.on)return;
+if(s.ly){if(!map.hasLayer(s.ly))s.ly.addTo(map);return}
+s.ly=L.esri.featureLayer({
+url:'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Generalized_Boundaries/FeatureServer/0',
+where:'1=1',
+style:function(){return{color:'#C4854C',weight:2,opacity:0.6,fillOpacity:0,interactive:true}},
+fields:['STATE_NAME','STATE_ABBR','STATE_FIPS']
+});
+s.ly.bindPopup(function(layer){
+var p=layer.feature.properties;
+return '<b>'+p.STATE_NAME+'</b> ('+p.STATE_ABBR+')';
+});
+s.ly.addTo(map);s.ly.bringToBack();
+}
 function rFld(){
 var s=LS.fld;if(!s.on)return;
 if(map.getZoom()<s.mz){if(s.ly){map.removeLayer(s.ly);s.ly=null}return}
@@ -370,12 +387,13 @@ if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
+if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
 if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
 if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.4 loaded');
+console.log('Corridor Map v1.5 loaded');
 </script>
 </body>
 </html>
