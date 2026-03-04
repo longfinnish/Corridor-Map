@@ -455,7 +455,7 @@ function togParcel(st){
 var svc=PARCEL_SERVICES[st];if(!svc)return;
 if(parcelLayers[st]){
 if(map.hasLayer(parcelLayers[st])){map.removeLayer(parcelLayers[st])}
-else if(map.getZoom()>=14){parcelLayers[st].addTo(map)}
+else if(map.getZoom()>=12){parcelLayers[st].addTo(map)}
 uLeg();return;
 }
 var opts={url:svc.url,where:'1=1',
@@ -464,14 +464,14 @@ fields:svc.fields,pane:'overlayPane'};
 if(svc.url.indexOf('MapServer')>-1){opts.isModern=false}
 parcelLayers[st]=L.esri.featureLayer(opts);
 parcelLayers[st].bindPopup(function(layer){return svc.popup(layer.feature.properties)},{maxWidth:320});
-if(map.getZoom()>=14){parcelLayers[st].addTo(map)}
+if(map.getZoom()>=12){parcelLayers[st].addTo(map)}
 parcelLayers['_zoom_'+st]=true;
 uLeg();
 }
 map.on('zoomend',function(){
 for(var st in PARCEL_SERVICES){
 if(!parcelLayers['_zoom_'+st])continue;
-if(map.getZoom()>=14){
+if(map.getZoom()>=12){
 if(parcelLayers[st]&&!map.hasLayer(parcelLayers[st]))parcelLayers[st].addTo(map);
 }else{
 if(parcelLayers[st]&&map.hasLayer(parcelLayers[st]))map.removeLayer(parcelLayers[st]);
@@ -580,7 +580,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.9.2 loaded');
+console.log('Corridor Map v1.9.3 loaded');
 </script>
 </body>
 </html>
