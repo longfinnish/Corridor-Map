@@ -66,6 +66,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 #layer-panel::-webkit-scrollbar{width:4px}
 #layer-panel::-webkit-scrollbar-track{background:transparent}
 #layer-panel::-webkit-scrollbar-thumb{background:rgba(196,133,76,0.3);border-radius:2px}
+.parcel-tiles{filter:invert(1) brightness(2) contrast(2);mix-blend-mode:screen}
 </style>
 </head>
 <body>
@@ -415,8 +416,9 @@ var regridLayer=null;
 function togRegrid(){
 if(regridLayer){map.removeLayer(regridLayer);regridLayer=null;uLeg();return}
 regridLayer=L.tileLayer('https://tiles.arcgis.com/tiles/KzeiCaQsMoeCfoCq/arcgis/rest/services/Regrid_Nationwide_Parcel_Boundaries_v1/MapServer/tile/{z}/{y}/{x}',{
-maxZoom:21,minZoom:12,opacity:0.7,attribution:'Regrid'
-}).addTo(map);
+maxZoom:21,minZoom:12,opacity:0.85,attribution:'Regrid',className:'parcel-tiles'
+});
+regridLayer.addTo(map);
 uLeg();
 }
 var PARCEL_URLS={
@@ -580,7 +582,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v2.1 loaded');
+console.log('Corridor Map v2.1.1 loaded');
 </script>
 </body>
 </html>
