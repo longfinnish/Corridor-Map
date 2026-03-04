@@ -80,7 +80,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission 345kV+</span><label class="tg"><input type="checkbox" id="t-tx" checked onchange="tog('tx')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 8+</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" checked onchange="tog('sub')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 8+</div>
+<div class="lz">Zoom 8+ (from line endpoints)</div>
 </div>
 <div class="lg"><div class="lg-title">Pipelines</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Natural Gas</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
@@ -105,7 +105,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div id="lg"></div>
 <div id="map"></div>
 <script>
-var K='AIzaSyDHrZpNrdPBWMxYhw_ep3xhQUfFEGmKvpE';
+var TXURL='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query';
+var GASURL='https://geo.dot.gov/server/rest/services/hosted/Natural_Gas_Pipelines_US_EIA/FeatureServer/0/query';
+
 var BL={
 sat:L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
 str:L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
@@ -145,47 +147,73 @@ if(z<s.mz){if(s.g)s.g.clearLayers();return}
 if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='dc')ldDC();
 }
 
-function bboxStr(){var b=map.getBounds();return b.getWest()+','+b.getSouth()+','+b.getEast()+','+b.getNorth()}
+function bboxEnv(){
+var b=map.getBounds();
+return JSON.stringify({xmin:b.getWest(),ymin:b.getSouth(),xmax:b.getEast(),ymax:b.getNorth(),spatialReference:{wkid:4326}});
+}
 
 function ldTx(){
 var s=LS.tx;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
-var u='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Transmission_Lines/FeatureServer/0/query?'+
-'where=VOLTAGE+>=+345&geometry='+encodeURIComponent(bboxStr())+'&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects'+
-'&outFields=VOLTAGE,OWNER,SUB_1,SUB_2&returnGeometry=true&f=geojson&outSR=4326&resultRecordCount=2000';
-fetch(u,{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
-s.g.clearLayers();if(!d.features)return;
+var params=new URLSearchParams({
+where:'VOLTAGE >= 345',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
+returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
+});
+fetch(TXURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.features||!d.features.length){s.ld=false;return}
 L.geoJSON(d,{style:function(f){var v=f.properties.VOLTAGE||345;var c='#4FC3F7';if(v>=765)c='#9C27B0';else if(v>=500)c='#EF5350';return{color:c,weight:v>=500?3:2,opacity:0.85}},
-onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Transmission Line</b><br>Voltage: '+p.VOLTAGE+' kV<br>Owner: '+(p.OWNER||'—')+'<br>From: '+(p.SUB_1||'—')+'<br>To: '+(p.SUB_2||'—'))}
+onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Transmission Line</b><br>Voltage: '+p.VOLTAGE+' kV<br>Owner: '+(p.OWNER||'\u2014')+'<br>From: '+(p.SUB_1||'\u2014')+'<br>To: '+(p.SUB_2||'\u2014'))}
 }).addTo(s.g);s.ld=false;
-}).catch(function(e){if(e.name!=='AbortError')console.error(e);s.ld=false});
+}).catch(function(e){if(e.name!=='AbortError')console.error('TX error:',e);s.ld=false});
 }
 
+// Substations: derived from transmission line endpoints
 function ldSub(){
 var s=LS.sub;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
-var u='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Substations/FeatureServer/0/query?'+
-'where=MAX_VOLT+>=+345&geometry='+encodeURIComponent(bboxStr())+'&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects'+
-'&outFields=NAME,STATE,STATUS,MAX_VOLT,MIN_VOLT,LINES,COUNTY&returnGeometry=true&f=geojson&outSR=4326&resultRecordCount=2000';
-fetch(u,{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
-s.g.clearLayers();if(!d.features)return;
-d.features.forEach(function(f){var p=f.properties,c=f.geometry.coordinates,v=p.MAX_VOLT||345;
+var params=new URLSearchParams({
+where:'VOLTAGE >= 345',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
+returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
+});
+fetch(TXURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.features||!d.features.length){s.ld=false;return}
+var subs={};
+d.features.forEach(function(f){
+var p=f.properties;var coords=f.geometry.coordinates;
+if(!coords||!coords.length)return;
+// Flatten multi-line coords
+var flat=coords;
+if(typeof coords[0][0]==='object')flat=coords[0]; // MultiLineString
+var first=flat[0];var last=flat[flat.length-1];
+if(p.SUB_1&&first){var k1=p.SUB_1+'|'+first[0].toFixed(3)+','+first[1].toFixed(3);
+if(!subs[k1])subs[k1]={name:p.SUB_1,lat:first[1],lng:first[0],v:p.VOLTAGE,owner:p.OWNER};}
+if(p.SUB_2&&last){var k2=p.SUB_2+'|'+last[0].toFixed(3)+','+last[1].toFixed(3);
+if(!subs[k2])subs[k2]={name:p.SUB_2,lat:last[1],lng:last[0],v:p.VOLTAGE,owner:p.OWNER};}
+});
+Object.keys(subs).forEach(function(k){
+var sub=subs[k];var v=sub.v||345;
 var col='#FF6B6B';if(v>=765)col='#9C27B0';else if(v>=500)col='#FF8A65';
-var m=L.circleMarker([c[1],c[0]],{radius:v>=500?7:5,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
-m.bindPopup('<b>'+(p.NAME||'Substation')+'</b><br>Max: '+v+' kV<br>Min: '+(p.MIN_VOLT||'—')+' kV<br>Lines: '+(p.LINES||'—')+'<br>Status: '+(p.STATUS||'—')+'<br>County: '+(p.COUNTY||'—')+', '+(p.STATE||'—'));
-s.g.addLayer(m)});s.ld=false;
-}).catch(function(e){if(e.name!=='AbortError')console.error(e);s.ld=false});
+var m=L.circleMarker([sub.lat,sub.lng],{radius:v>=500?7:5,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
+m.bindPopup('<b>'+(sub.name||'Substation')+'</b><br>Voltage: '+v+' kV<br>Owner: '+(sub.owner||'\u2014'));
+s.g.addLayer(m);
+});
+s.ld=false;
+}).catch(function(e){if(e.name!=='AbortError')console.error('Sub error:',e);s.ld=false});
 }
 
 function ldGas(){
 var s=LS.gas;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
-var u='https://geo.dot.gov/server/rest/services/hosted/Natural_Gas_Pipelines_US_EIA/FeatureServer/0/query?'+
-'where=1=1&geometry='+encodeURIComponent(bboxStr())+'&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects'+
-'&outFields=typepipe,operator,status&returnGeometry=true&f=geojson&outSR=4326&resultRecordCount=2000';
-fetch(u,{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
-s.g.clearLayers();if(!d.features)return;
+var params=new URLSearchParams({
+where:'1=1',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+spatialRel:'esriSpatialRelIntersects',outFields:'typepipe,operator,status',
+returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
+});
+fetch(GASURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.features||!d.features.length){s.ld=false;return}
 L.geoJSON(d,{style:function(f){var t=(f.properties.typepipe||'').toLowerCase();var c='#9E9E9E';if(t.indexOf('interstate')>=0)c='#FFA726';else if(t.indexOf('intrastate')>=0)c='#FFD54F';return{color:c,weight:2,opacity:0.75}},
-onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Gas Pipeline</b><br>Type: '+(p.typepipe||'—')+'<br>Operator: '+(p.operator||'—')+'<br>Status: '+(p.status||'—'))}
+onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Gas Pipeline</b><br>Type: '+(p.typepipe||'\u2014')+'<br>Operator: '+(p.operator||'\u2014')+'<br>Status: '+(p.status||'\u2014'))}
 }).addTo(s.g);s.ld=false;
-}).catch(function(e){if(e.name!=='AbortError')console.error(e);s.ld=false});
+}).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
 }
 
 var dcCD=false;
@@ -197,10 +225,10 @@ fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+enco
 .then(function(r){return r.json()}).then(function(d){
 s.g.clearLayers();if(!d.elements)return;
 d.elements.forEach(function(el){var lat=el.lat||(el.center&&el.center.lat),lon=el.lon||(el.center&&el.center.lon);
-if(!lat||!lon)return;var nm=(el.tags&&el.tags.name)||'Data Center',op=(el.tags&&el.tags.operator)||'—';
+if(!lat||!lon)return;var nm=(el.tags&&el.tags.name)||'Data Center',op=(el.tags&&el.tags.operator)||'\u2014';
 var m=L.circleMarker([lat,lon],{radius:6,fillColor:'#AB47BC',fillOpacity:0.9,color:'#fff',weight:1.5});
 m.bindPopup('<b>\uD83C\uDFE2 '+nm+'</b><br>Operator: '+op);s.g.addLayer(m)});s.ld=false;
-}).catch(function(e){console.error(e);s.ld=false});
+}).catch(function(e){console.error('DC error:',e);s.ld=false});
 }
 
 function rFld(){
@@ -278,6 +306,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
+console.log('Corridor Map v1.1 loaded');
 </script>
 </body>
 </html>
