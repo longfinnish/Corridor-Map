@@ -458,7 +458,7 @@ fetch(PARCEL_URLS[st]+'?'+params.toString()).then(function(r){return r.json()}).
 parcelGroups[st].clearLayers();
 if(!d.features||!d.features.length){parcelLoading[st]=false;return}
 L.geoJSON(d,{
-style:function(){return{color:'#C4854C',weight:0.8,opacity:0.6,fillColor:'#C4854C',fillOpacity:0.05}},
+style:function(){return{color:'#FFB74D',weight:1.5,opacity:0.85,fillColor:'#FFB74D',fillOpacity:0.08}},
 onEachFeature:function(f,ly){ly.bindPopup(parcelPopup(st,f.properties),{maxWidth:320})}
 }).addTo(parcelGroups[st]);
 parcelLoading[st]=false;
@@ -570,7 +570,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v2.0.1 loaded');
+console.log('Corridor Map v2.0.2 loaded');
 </script>
 </body>
 </html>
