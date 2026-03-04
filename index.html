@@ -410,15 +410,13 @@ return '<b>'+p.NAME+'</b><br>'+p.STATE_ABBR+'<br>FIPS: '+p.FIPS+'<br>Pop: '+pop;
 s.ly.addTo(map);s.ly.bringToBack();
 }
 var PARCEL_SERVICES={
-TX:{url:'https://feature.tnris.org/arcgis/rest/services/Parcels/stratmap_land_parcels_48_most_recent/MapServer/0',
-color:'#C4854C',fields:['owner_name','legal_area','lgl_area_unit','mkt_value','land_value','imp_value','situs_addr','county','year_built','legal_desc'],
-popup:function(p){var h='<b style="font-size:13px">'+(p.owner_name||'Unknown Owner')+'</b><br>';
-h+='<b>Market:</b> '+(p.mkt_value?'$'+Number(p.mkt_value).toLocaleString():'\u2014')+' <b>Land:</b> '+(p.land_value?'$'+Number(p.land_value).toLocaleString():'\u2014')+'<br>';
-h+='<b>Area:</b> '+(p.legal_area?(p.legal_area+' '+(p.lgl_area_unit||'')):'\u2014')+'<br>';
-if(p.situs_addr)h+='<b>Address:</b> '+p.situs_addr+'<br>';
-if(p.county)h+='<b>County:</b> '+p.county+'<br>';
-if(p.year_built)h+='<b>Built:</b> '+p.year_built+'<br>';
-if(p.legal_desc)h+='<br><i style="color:rgba(240,237,232,0.5);font-size:10px">'+p.legal_desc+'</i>';
+TX:{url:'https://services1.arcgis.com/1mtXwieMId59thmg/arcgis/rest/services/2019_Texas_Parcels_StratMap/FeatureServer/0',
+color:'#C4854C',fields:['OWNER_NAME','LEGAL_AREA','SITUS_ADDR','LEGAL_DESC','GEO_ID','MAIL_ADDR'],
+popup:function(p){var h='<b style="font-size:13px">'+(p.OWNER_NAME||'Unknown Owner')+'</b><br>';
+if(p.LEGAL_AREA)h+='<b>Area:</b> '+p.LEGAL_AREA+' acres<br>';
+if(p.SITUS_ADDR)h+='<b>Address:</b> '+p.SITUS_ADDR+'<br>';
+if(p.MAIL_ADDR)h+='<b>Mail:</b> '+p.MAIL_ADDR+'<br>';
+if(p.LEGAL_DESC)h+='<br><i style="color:rgba(240,237,232,0.5);font-size:10px">'+p.LEGAL_DESC+'</i>';
 return h}},
 WI:{url:'https://services3.arcgis.com/n6uYoouQZW75n5WI/arcgis/rest/services/Wisconsin_Statewide_Parcels/FeatureServer/0',
 color:'#C4854C',fields:['OWNERNME1','OWNERNME2','SITEADRESS','ESTFMKVALUE','LNDVALUE','IMPVALUE','ASSDACRES','DEEDACRES','CONAME','PROPCLASS','PLACENAME'],
@@ -461,7 +459,7 @@ uLeg();return;
 var opts={url:svc.url,where:'1=1',
 style:function(){return{color:svc.color,weight:0.8,opacity:0.6,fillColor:svc.color,fillOpacity:0.05,interactive:true}},
 fields:svc.fields,pane:'overlayPane'};
-if(svc.url.indexOf('MapServer')>-1){opts.isModern=false}
+
 parcelLayers[st]=L.esri.featureLayer(opts);
 parcelLayers[st].bindPopup(function(layer){return svc.popup(layer.feature.properties)},{maxWidth:320});
 if(map.getZoom()>=12){parcelLayers[st].addTo(map)}
@@ -580,7 +578,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.9.3 loaded');
+console.log('Corridor Map v1.9.4 loaded');
 </script>
 </body>
 </html>
