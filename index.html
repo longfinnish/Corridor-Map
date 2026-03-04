@@ -449,33 +449,25 @@ if(p.tax_school)h+='<b>School:</b> '+p.tax_school;
 return h}}
 };
 var parcelLayers={};
+var parcelEnabled={};
 function togParcel(st){
 var svc=PARCEL_SERVICES[st];if(!svc)return;
-if(parcelLayers[st]){
-if(map.hasLayer(parcelLayers[st])){map.removeLayer(parcelLayers[st])}
-else if(map.getZoom()>=12){parcelLayers[st].addTo(map)}
+parcelEnabled[st]=!parcelEnabled[st];
+if(!parcelEnabled[st]){
+if(parcelLayers[st]&&map.hasLayer(parcelLayers[st]))map.removeLayer(parcelLayers[st]);
 uLeg();return;
 }
-var opts={url:svc.url,where:'1=1',
+if(!parcelLayers[st]){
+parcelLayers[st]=L.esri.featureLayer({
+url:svc.url,where:'1=1',
 style:function(){return{color:svc.color,weight:0.8,opacity:0.6,fillColor:svc.color,fillOpacity:0.05,interactive:true}},
-fields:svc.fields,pane:'overlayPane'};
-
-parcelLayers[st]=L.esri.featureLayer(opts);
+fields:svc.fields
+});
 parcelLayers[st].bindPopup(function(layer){return svc.popup(layer.feature.properties)},{maxWidth:320});
-if(map.getZoom()>=12){parcelLayers[st].addTo(map)}
-parcelLayers['_zoom_'+st]=true;
+}
+parcelLayers[st].addTo(map);
 uLeg();
 }
-map.on('zoomend',function(){
-for(var st in PARCEL_SERVICES){
-if(!parcelLayers['_zoom_'+st])continue;
-if(map.getZoom()>=12){
-if(parcelLayers[st]&&!map.hasLayer(parcelLayers[st]))parcelLayers[st].addTo(map);
-}else{
-if(parcelLayers[st]&&map.hasLayer(parcelLayers[st]))map.removeLayer(parcelLayers[st]);
-}
-}
-});
 function ldSt(){
 var s=LS.st;if(!s.on)return;
 if(s.ly){if(!map.hasLayer(s.ly))s.ly.addTo(map);return}
@@ -570,7 +562,7 @@ if(LS.gi.types.gicon)h+='<div class="lgi"><span class="ld" style="background:#EC
 }
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
-var anyParcels=false;for(var _ps in PARCEL_SERVICES){if(parcelLayers['_zoom_'+_ps])anyParcels=true}
+var anyParcels=false;for(var _ps in PARCEL_SERVICES){if(parcelEnabled[_ps])anyParcels=true}
 if(anyParcels){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>Parcels</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
 if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
@@ -578,7 +570,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.9.4 loaded');
+console.log('Corridor Map v2.0 loaded');
 </script>
 </body>
 </html>
