@@ -105,7 +105,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div id="lg"></div>
 <div id="map"></div>
 <script>
-var TXURL='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query';
+var TXURL='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/ArcGIS/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query';
 var GASURL='https://geo.dot.gov/server/rest/services/hosted/Natural_Gas_Pipelines_US_EIA/FeatureServer/0/query';
 
 var BL={
@@ -149,14 +149,14 @@ if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n
 
 function bboxEnv(){
 var b=map.getBounds();
-return JSON.stringify({xmin:b.getWest(),ymin:b.getSouth(),xmax:b.getEast(),ymax:b.getNorth(),spatialReference:{wkid:4326}});
+return b.getWest()+','+b.getSouth()+','+b.getEast()+','+b.getNorth();
 }
 
 function ldTx(){
 var s=LS.tx;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
 var params=new URLSearchParams({
 where:'VOLTAGE >= 345',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
-spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
+spatialRel:'esriSpatialRelIntersects',inSR:'4326',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
 returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
 fetch(TXURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
@@ -172,7 +172,7 @@ function ldSub(){
 var s=LS.sub;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
 var params=new URLSearchParams({
 where:'VOLTAGE >= 345',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
-spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
+spatialRel:'esriSpatialRelIntersects',inSR:'4326',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
 returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
 fetch(TXURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
@@ -205,7 +205,7 @@ function ldGas(){
 var s=LS.gas;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
 var params=new URLSearchParams({
 where:'1=1',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
-spatialRel:'esriSpatialRelIntersects',outFields:'typepipe,operator,status',
+spatialRel:'esriSpatialRelIntersects',inSR:'4326',outFields:'typepipe,operator,status',
 returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
 fetch(GASURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
