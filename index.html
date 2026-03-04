@@ -93,6 +93,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg"><div class="lg-title">Pipelines</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Natural Gas</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 8+</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 10+ — diameter, operator, name</div>
 </div>
 <div class="lg"><div class="lg-title">Digital</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
@@ -141,6 +143,7 @@ var LS={
 tx:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
 sub:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
 gas:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
+osmpipe:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 dc:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 fld:{on:false,mz:12,ly:null},
 wet:{on:false,mz:12,ly:null},
@@ -167,7 +170,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
 }
 
 function bboxEnv(){
@@ -243,6 +246,36 @@ onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Gas Pipeline</b
 }).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
 }
 
+var osmPipeCD=false;
+function ldOSMPipe(){
+var s=LS.osmpipe;if(osmPipeCD||s.ld)return;s.ld=true;osmPipeCD=true;setTimeout(function(){osmPipeCD=false},8000);
+var b=map.getBounds();var bb=b.getSouth()+','+b.getWest()+','+b.getNorth()+','+b.getEast();
+var q='[out:json][timeout:30];(way["man_made"="pipeline"]["substance"="gas"]('+bb+'););out geom tags;';
+fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q)})
+.then(function(r){return r.json()}).then(function(d){
+s.g.clearLayers();if(!d.elements||!d.elements.length){s.ld=false;return}
+d.elements.forEach(function(el){
+if(!el.geometry||!el.geometry.length)return;
+var coords=el.geometry.map(function(p){return[p.lat,p.lon]});
+var t=el.tags||{};
+var diam=parseFloat(t.diameter)||0;
+var col='#E040FB';var wt=1.5;
+if(diam>=30){col='#E040FB';wt=4}
+else if(diam>=20){col='#CE93D8';wt=3}
+else if(diam>=10){col='#BA68C8';wt=2}
+else if(diam>0){col='#9E9E9E';wt=1.5}
+var line=L.polyline(coords,{color:col,weight:wt,opacity:0.8});
+var popup='<b>'+(t.name||'Gas Pipeline')+'</b>';
+if(diam)popup+='<br><b>Diameter:</b> '+t.diameter;
+popup+='<br><b>Operator:</b> '+(t.operator||'\u2014');
+if(t.usage)popup+='<br><b>Usage:</b> '+t.usage;
+if(t.ref)popup+='<br><b>Ref:</b> '+t.ref;
+line.bindPopup(popup);
+s.g.addLayer(line);
+});
+s.ld=false;
+}).catch(function(e){console.error('OSM pipe error:',e);s.ld=false});
+}
 var dcCD=false;
 function ldDC(){
 var s=LS.dc;if(dcCD||s.ld)return;s.ld=true;dcCD=true;setTimeout(function(){dcCD=false},5000);
@@ -385,6 +418,7 @@ var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
 if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>';if(txVolts[500])h+='<div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div>';if(txVolts[345])h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div>';if(txVolts[230])h+='<div class="lgi"><span class="lgl" style="background:#66BB6A"></span>230 kV</div>';if(txVolts[161])h+='<div class="lgi"><span class="lgl" style="background:#FDD835"></span>161 kV</div>';if(txVolts[138])h+='<div class="lgi"><span class="lgl" style="background:#BDBDBD"></span>138 kV</div>'}
 if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#4FC3F7"></span>Substations</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
+if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
@@ -393,7 +427,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.5 loaded');
+console.log('Corridor Map v1.6 loaded');
 </script>
 </body>
 </html>
