@@ -77,8 +77,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#FF9800"></span>OpenStreetMap</span><label class="tg"><input type="radio" name="bm" value="osm" onchange="switchBase('osm')"><span class="ts"></span></label></div>
 </div>
 <div class="lg"><div class="lg-title">Power Infrastructure</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission 345kV+</span><label class="tg"><input type="checkbox" id="t-tx" checked onchange="tog('tx')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 8+</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission Lines</span><label class="tg"><input type="checkbox" id="t-tx" checked onchange="tog('tx')"><span class="ts"></span></label></div>
+<div class="lz">Zoom 8+ — toggle voltages:</div>
+<div style="margin-left:16px;margin-bottom:4px">
+<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(765,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(500,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(345,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>230 kV</span><label class="tg"><input type="checkbox" onchange="togV(230,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" onchange="togV(161,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
+</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" checked onchange="tog('sub')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 8+ (from line endpoints)</div>
 </div>
@@ -121,6 +129,9 @@ var map=L.map('map',{center:[33.5,-97.5],zoom:6,layers:[BL.sat]});
 var cBase='sat';
 function switchBase(n){map.removeLayer(BL[cBase]);BL[n].addTo(map);cBase=n;document.querySelectorAll('input[name="bm"]').forEach(function(r){r.checked=(r.value===n)})}
 
+var txVolts={765:true,500:true,345:true,230:false,161:false,138:false};
+function togV(v,on){txVolts[v]=on;if(LS.tx.on){LS.tx.g.clearLayers();LS.sub.g.clearLayers();ldTx();ldSub()}uLeg()}
+function minSelectedV(){var vs=[765,500,345,230,161,138];for(var i=vs.length-1;i>=0;i--){if(txVolts[vs[i]])return vs[i]}return 9999}
 var LS={
 tx:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
 sub:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
@@ -157,16 +168,20 @@ var b=map.getBounds();
 return JSON.stringify({xmin:b.getWest(),ymin:b.getSouth(),xmax:b.getEast(),ymax:b.getNorth(),spatialReference:{wkid:4326}});
 }
 
+function vColor(v){if(v>=765)return'#9C27B0';if(v>=500)return'#EF5350';if(v>=345)return'#4FC3F7';if(v>=230)return'#66BB6A';if(v>=161)return'#FDD835';return'#BDBDBD'}
+function vMatch(v){if(v>=765)return txVolts[765];if(v>=500)return txVolts[500];if(v>=345)return txVolts[345];if(v>=230)return txVolts[230];if(v>=161)return txVolts[161];if(v>=138)return txVolts[138];return false}
 function ldTx(){
 var s=LS.tx;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
+var mv=minSelectedV();
 var params=new URLSearchParams({
-where:'VOLTAGE >= 345',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+where:'VOLTAGE >= '+mv,geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
 returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
 fetch(TXURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
 s.g.clearLayers();if(!d.features||!d.features.length){s.ld=false;return}
-L.geoJSON(d,{style:function(f){var v=f.properties.VOLTAGE||345;var c='#4FC3F7';if(v>=765)c='#9C27B0';else if(v>=500)c='#EF5350';return{color:c,weight:v>=500?3:2,opacity:0.85}},
+L.geoJSON(d,{filter:function(f){return vMatch(f.properties.VOLTAGE||0)},
+style:function(f){var v=f.properties.VOLTAGE||138;return{color:vColor(v),weight:v>=500?3:v>=345?2:1.5,opacity:0.85}},
 onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Transmission Line</b><br>Voltage: '+p.VOLTAGE+' kV<br>Owner: '+(p.OWNER||'\u2014')+'<br>From: '+(p.SUB_1||'\u2014')+'<br>To: '+(p.SUB_2||'\u2014'))}
 }).addTo(s.g);s.ld=false;
 }).catch(function(e){if(e.name!=='AbortError')console.error('TX error:',e);s.ld=false});
@@ -176,7 +191,7 @@ onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Transmission Li
 function ldSub(){
 var s=LS.sub;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
 var params=new URLSearchParams({
-where:'VOLTAGE >= 345',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+where:'VOLTAGE >= '+minSelectedV(),geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
 returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
@@ -197,7 +212,7 @@ if(!subs[k2])subs[k2]={name:p.SUB_2,lat:last[1],lng:last[0],v:p.VOLTAGE,owner:p.
 });
 Object.keys(subs).forEach(function(k){
 var sub=subs[k];var v=sub.v||345;
-var col='#FF6B6B';if(v>=765)col='#9C27B0';else if(v>=500)col='#FF8A65';
+var col=vColor(v);if(!vMatch(v))return;
 var m=L.circleMarker([sub.lat,sub.lng],{radius:v>=500?7:5,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
 m.bindPopup('<b>'+(sub.name||'Substation')+'</b><br>Voltage: '+v+' kV<br>Owner: '+(sub.owner||'\u2014'));
 s.g.addLayer(m);
@@ -328,8 +343,8 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&mOn)togMeas
 // Legend
 function uLeg(){
 var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
-if(LS.tx.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div><div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div><div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>'}
-if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF6B6B"></span>Sub 345kV</div><div class="lgi"><span class="ld" style="background:#FF8A65"></span>Sub 500kV+</div>'}
+if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>';if(txVolts[500])h+='<div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div>';if(txVolts[345])h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div>';if(txVolts[230])h+='<div class="lgi"><span class="lgl" style="background:#66BB6A"></span>230 kV</div>';if(txVolts[161])h+='<div class="lgi"><span class="lgl" style="background:#FDD835"></span>161 kV</div>';if(txVolts[138])h+='<div class="lgi"><span class="lgl" style="background:#BDBDBD"></span>138 kV</div>'}
+if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#4FC3F7"></span>Substations</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
@@ -337,7 +352,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v1.2 loaded');
+console.log('Corridor Map v1.3 loaded');
 </script>
 </body>
 </html>
