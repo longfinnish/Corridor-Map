@@ -312,7 +312,15 @@ function renderLumen(){
 lumenLayer=L.geoJSON(lumenData,{
 style:function(){return{color:'#FF6D00',weight:1.5,opacity:0.7}},
 onEachFeature:function(f,ly){
-ly.bindPopup('<b style="font-size:13px">Lumen / CenturyLink</b><br><b>State:</b> '+f.properties.state);
+ly.bindPopup(function(){
+var p=f.properties;
+var h='<b style="font-size:13px">Lumen / CenturyLink</b><br>';
+if(p.legacy)h+='<b>Network:</b> '+p.legacy+'<br>';
+if(p.status){var s=p.status.replace(/_/g,' ');h+='<b>Fiber:</b> '+s+'<br>'}
+if(p.install)h+='<b>Install:</b> '+p.install+'<br>';
+if(p.state)h+='<b>State:</b> '+p.state;
+return h;
+},{maxWidth:280});
 }
 }).addTo(map);
 uLeg();
@@ -635,7 +643,7 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v2.4 loaded');
+console.log('Corridor Map v2.4.1 loaded');
 </script>
 </body>
 </html>
