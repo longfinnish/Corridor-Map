@@ -687,6 +687,7 @@ fetch(ctyUrl+ctyParams).then(function(r){return r.json()}).then(function(d){
 var ctyName='',stAbbr='';
 if(d.features&&d.features.length){ctyName=d.features[0].attributes.NAME.replace(/ County$/i,'').replace(/ Parish$/i,'');stAbbr=d.features[0].attributes.STATE_ABBR}
 _lastCounty={county:ctyName,state:stAbbr};
+_pendingSite={lat:lat,lng:parseFloat(lon),county:ctyName,state:stAbbr};
 setMIContext(ctyName,stAbbr);
 var h='<div style="text-align:center;padding:4px">';
 if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:4px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
@@ -697,7 +698,7 @@ if(ctyName&&stAbbr){
 h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
 h+='</div>';
-h+='<div style="margin-top:6px;text-align:center"><a href="#" onclick="showSaveModal('+lat+','+lon+',\''+ctyName+'\',\''+stAbbr+'\');return false" style="display:inline-block;background:rgba(102,187,106,0.15);color:#66BB6A;padding:5px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:10px;border:1px solid rgba(102,187,106,0.3)">+ Save to Pipeline</a></div>';
+h+='<div style="margin-top:6px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.15);color:#66BB6A;padding:5px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:10px;border:1px solid rgba(102,187,106,0.3)">+ Save to Pipeline</a></div>';
 h+='</div>';
 L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(h).openOn(map);
 }).catch(function(){
@@ -1268,8 +1269,8 @@ renderPipeline();
 // Save modal — shown from parcel popup
 var _pendingSite=null;
 function showSaveModal(lat,lng,county,state){
-_pendingSite={lat:lat,lng:lng,county:county||'',state:state||''};
-setTimeout(function(){
+if(arguments.length>=4){_pendingSite={lat:lat,lng:lng,county:county||'',state:state||''};}
+if(!_pendingSite){return}
 map.closePopup();
 loadPipeline().then(function(){
 var modal=document.getElementById('pl-save-modal');
@@ -1292,7 +1293,6 @@ modal.innerHTML=h;
 modal.style.display='flex';
 setTimeout(function(){document.getElementById('pl-save-name').select()},100);
 });
-},50);
 }
 
 function closeSaveModal(){
