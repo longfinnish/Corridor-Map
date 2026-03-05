@@ -1,0 +1,106 @@
+{
+  "timestamp": "2026-03-05 15:15:00-06:00",
+  "interval": "2026-03-05 15:30:00-06:00",
+  "stats": {
+    "mean_rn_price": 9.56,
+    "min_rn_price": -66.65,
+    "max_rn_price": 146.66,
+    "negative_count": 396,
+    "total_nodes": 1072
+  },
+  "zones": [
+    {
+      "id": "LZ_NORTH",
+      "label": "North",
+      "lat": 32.8,
+      "lng": -96.8,
+      "price": 12.33
+    },
+    {
+      "id": "LZ_SOUTH",
+      "label": "South",
+      "lat": 28.5,
+      "lng": -97.5,
+      "price": 15.8
+    },
+    {
+      "id": "LZ_WEST",
+      "label": "West",
+      "lat": 31.5,
+      "lng": -101.5,
+      "price": -2.73
+    },
+    {
+      "id": "LZ_HOUSTON",
+      "label": "Houston",
+      "lat": 29.75,
+      "lng": -95.35,
+      "price": 22.69
+    },
+    {
+      "id": "LZ_AEN",
+      "label": "Austin Energy",
+      "lat": 30.3,
+      "lng": -97.7,
+      "price": 16.71
+    },
+    {
+      "id": "LZ_CPS",
+      "label": "CPS Energy",
+      "lat": 29.45,
+      "lng": -98.5,
+      "price": 17.76
+    },
+    {
+      "id": "LZ_LCRA",
+      "label": "LCRA",
+      "lat": 30.7,
+      "lng": -98.2,
+      "price": 16.11
+    },
+    {
+      "id": "LZ_RAYBN",
+      "label": "Rayburn",
+      "lat": 33.2,
+      "lng": -96.1,
+      "price": 17.7
+    }
+  ],
+  "hubs": [
+    {
+      "id": "HB_NORTH",
+      "label": "Hub: North",
+      "lat": 33.5,
+      "lng": -97.5,
+      "price": 13.72
+    },
+    {
+      "id": "HB_SOUTH",
+      "label": "Hub: South",
+      "lat": 27.8,
+      "lng": -97.8,
+      "price": 10.69
+    },
+    {
+      "id": "HB_WEST",
+      "label": "Hub: West",
+      "lat": 32.0,
+      "lng": -102.5,
+      "price": -3.63
+    },
+    {
+      "id": "HB_HOUSTON",
+      "label": "Hub: Houston",
+      "lat": 30.3,
+      "lng": -95.0,
+      "price": 15.04
+    },
+    {
+      "id": "HB_PAN",
+      "label": "Hub: Panhandle",
+      "lat": 35.0,
+      "lng": -101.8,
+      "price": -4.03
+    }
+  ]
+}
