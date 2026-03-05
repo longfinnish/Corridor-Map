@@ -71,17 +71,27 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 #layer-panel::-webkit-scrollbar-track{background:transparent}
 #layer-panel::-webkit-scrollbar-thumb{background:rgba(196,133,76,0.3);border-radius:2px}
 .parcel-tiles{filter:invert(1) brightness(2) contrast(2);mix-blend-mode:screen}
+.lg-group{border-bottom:1px solid rgba(196,133,76,0.15)}
+.lg-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;cursor:pointer;user-select:none}
+.lg-group-hdr:hover{background:rgba(240,237,232,0.04)}
+.lg-group-hdr .lg-title{margin:0}
+.lg-arrow{font-size:8px;color:rgba(240,237,232,0.4);transition:transform 0.2s}
+.lg-group.collapsed .lg-arrow{transform:rotate(-90deg)}
+.lg-group.collapsed .lg-body{display:none}
 </style>
 </head>
 <body>
 <div id="layer-panel">
-<div id="panel-header"><h1>CO RR IDOR</h1><button id="panel-toggle" onclick="document.getElementById('layer-panel').classList.toggle('collapsed');this.textContent=document.getElementById('layer-panel').classList.contains('collapsed')?'\u25B6':'\u25C0'">&laquo;</button></div>
+<div id="panel-header"><h1>CO<span style="color:#C4854C">RR</span>IDOR</h1><button id="panel-toggle" onclick="document.getElementById('layer-panel').classList.toggle('collapsed');this.textContent=document.getElementById('layer-panel').classList.contains('collapsed')?'\u25B6':'\u25C0'">&laquo;</button></div>
 <div class="lg"><div class="lg-title">Base Map</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#4A90D9"></span>Google Satellite</span><label class="tg"><input type="radio" name="bm" value="sat" checked onchange="switchBase('sat')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#8BC34A"></span>Google Streets</span><label class="tg"><input type="radio" name="bm" value="str" onchange="switchBase('str')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF9800"></span>OpenStreetMap</span><label class="tg"><input type="radio" name="bm" value="osm" onchange="switchBase('osm')"><span class="ts"></span></label></div>
 </div>
-<div class="lg"><div class="lg-title">Power Infrastructure</div>
+<div class="lg-group" id="grp-power">
+<div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Power &amp; Infrastructure</div><span class="lg-arrow">&#x25BC;</span></div>
+<div class="lg-body">
+<div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission Lines</span><label class="tg"><input type="checkbox" id="t-tx" checked onchange="tog('tx')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 8+ — toggle voltages:</div>
 <div style="margin-left:16px;margin-bottom:4px">
@@ -93,15 +103,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" checked onchange="tog('sub')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 8+ (from line endpoints)</div>
-</div>
-<div class="lg"><div class="lg-title">Pipelines</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Natural Gas</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 8+</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 10+ — diameter, operator, name</div>
 </div>
-<div class="lg"><div class="lg-title">Gas Infrastructure</div>
+<div class="lg">
+<div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">PIPELINES</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Natural Gas (EIA)</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
+<div class="lz">Diameter, operator, name — zoom 10+</div>
+</div>
+<div class="lg">
+<div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">GAS FACILITIES</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Compressor Stations</span><label class="tg"><input type="checkbox" id="t-gcomp" onchange="togGI('gcomp')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery Pts</span><label class="tg"><input type="checkbox" id="t-grdp" onchange="togGI('grdp')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00BCD4"></span>Processing Plants</span><label class="tg"><input type="checkbox" id="t-gproc" onchange="togGI('gproc')"><span class="ts"></span></label></div>
@@ -109,39 +120,49 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#EC407A"></span>Interconnects</span><label class="tg"><input type="checkbox" id="t-gicon" onchange="togGI('gicon')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 8+</div>
 </div>
-<div class="lg"><div class="lg-title">Fiber Networks</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>Long Haul Fiber</span><label class="tg"><input type="checkbox" id="t-fiber" onchange="togFiber()"><span class="ts"></span></label></div>
-<div class="lz">Infrapedia — click for carrier name</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FF6D00"></span>Lumen / Level3</span><label class="tg"><input type="checkbox" id="t-lumen" onchange="togLumen()"><span class="ts"></span></label></div>
-<div class="lz">53K+ routes — click for details</div>
 </div>
-<div class="lg"><div class="lg-title">Digital</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
+</div>
+<div class="lg-group" id="grp-fiber">
+<div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Fiber Networks</div><span class="lg-arrow">&#x25BC;</span></div>
+<div class="lg-body">
+<div class="lg">
+<div class="li"><span class="ll"><span class="ld" style="background:#FF6D00"></span>All Fiber Routes</span><label class="tg"><input type="checkbox" id="t-fiber" onchange="togAllFiber()"><span class="ts"></span></label></div>
+<div class="lz">129 carriers + Lumen — click for details</div>
+</div>
+</div>
+</div>
+<div class="lg-group" id="grp-dc">
+<div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Hyperscalers &amp; Data Centers</div><span class="lg-arrow">&#x25BC;</span></div>
+<div class="lg-body">
+<div class="lg">
+<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" checked onchange="tog('hs')"><span class="ts"></span></label></div>
+<div class="lz">AWS, Google, Meta, Microsoft, xAI, OpenAI</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (OSM)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 10+</div>
 </div>
-<div class="lg"><div class="lg-title">Boundaries</div>
+</div>
+</div>
+<div class="lg-group collapsed" id="grp-prop">
+<div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Property</div><span class="lg-arrow">&#x25BC;</span></div>
+<div class="lg-body">
+<div class="lg">
+<div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>Parcel Boundaries</span><label class="tg"><input type="checkbox" id="t-regrid" onchange="togRegrid()"><span class="ts"></span></label></div>
+<div class="lz">Zoom 15+ — click for owner lookup</div>
+</div>
+</div>
+</div>
+<div class="lg-group collapsed" id="grp-env">
+<div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Boundaries &amp; Environmental</div><span class="lg-arrow">&#x25BC;</span></div>
+<div class="lg-body">
+<div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#F0EDE8"></span>County Lines</span><label class="tg"><input type="checkbox" id="t-cty" onchange="tog('cty')"><span class="ts"></span></label></div>
-<div class="lz">All zoom levels</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
-</div>
-<div class="lg"><div class="lg-title">Property</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>All Parcels (US)</span><label class="tg"><input type="checkbox" id="t-regrid" onchange="togRegrid()"><span class="ts"></span></label></div>
-<div class="lz">Zoom 15+ — click parcel for owner/value</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Texas Parcels</span><label class="tg"><input type="checkbox" id="t-parcels" onchange="togParcel('TX')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Wisconsin Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsWI" onchange="togParcel('WI')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Minnesota Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsMN" onchange="togParcel('MN')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Indiana Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsIN" onchange="togParcel('IN')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 14+ — click for details</div>
-</div>
-<div class="lg"><div class="lg-title">Hyperscale &amp; Major DC</div>
-<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" checked onchange="tog('hs')"><span class="ts"></span></label></div>
-<div class="lz">All zoom levels</div>
-</div>
-<div class="lg"><div class="lg-title">Environmental</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>FEMA Flood Zones</span><label class="tg"><input type="checkbox" id="t-fld" onchange="tog('fld')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 12+</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="tog('wet')"><span class="ts"></span></label></div>
 <div class="lz">Zoom 12+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="search-box"><input type="text" id="search-input" placeholder="Search address, city, county, or lat,lng..." autocomplete="off"><button id="search-btn" onclick="doSearch()">&#x2315;</button><div id="sr"></div></div>
@@ -278,15 +299,21 @@ onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Gas Pipeline</b
 }
 
 var fiberLayer=null;
-function togFiber(){
-if(fiberLayer){map.removeLayer(fiberLayer);fiberLayer=null;uLeg();return}
+var lumenLayer=null;var lumenData=null;
+function togAllFiber(){
+if(fiberLayer||lumenLayer){
+if(fiberLayer){map.removeLayer(fiberLayer);fiberLayer=null}
+if(lumenLayer){map.removeLayer(lumenLayer);lumenLayer=null}
+uLeg();return;
+}
+// Load Infrapedia
 fiberLayer=L.vectorGrid.protobuf('https://www.infrapedia.com/map/cables/{z}/{x}/{y}.pbf',{
 maxZoom:16,minZoom:3,
 vectorTileLayerStyles:{
 cables:function(p){
 var t=p.category==='terrestrial'||String(p.terrestrial).toLowerCase()==='true';
 if(!t)return{weight:0,opacity:0};
-return{weight:2,opacity:0.8,color:'#00E5FF',fill:false}
+return{weight:2,opacity:0.8,color:'#FF6D00',fill:false}
 }
 },
 interactive:true,
@@ -302,15 +329,10 @@ if(p.length)h+='<b>Length:</b> '+Number(p.length).toLocaleString()+' km';
 L.popup().setLatLng(e.latlng).setContent(h).openOn(map);
 });
 fiberLayer.addTo(map);
+// Load Lumen
+if(lumenData){renderLumen()}
+else{fetch('data/lumen_routes.json').then(function(r){return r.json()}).then(function(d){lumenData=d;renderLumen()}).catch(function(e){console.error('Lumen load error:',e)})}
 uLeg();
-}
-var lumenLayer=null;var lumenData=null;
-function togLumen(){
-if(lumenLayer){map.removeLayer(lumenLayer);lumenLayer=null;uLeg();return}
-if(lumenData){renderLumen();return}
-fetch('data/lumen_routes.json').then(function(r){return r.json()}).then(function(d){
-lumenData=d;renderLumen();
-}).catch(function(e){console.error('Lumen load error:',e)});
 }
 function renderLumen(){
 lumenLayer=L.geoJSON(lumenData,{
@@ -685,8 +707,7 @@ if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" sty
 if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#4FC3F7"></span>Substations</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
-if(fiberLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#00E5FF"></span>Fiber</div>'}
-if(lumenLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Lumen</div>'}
+if(fiberLayer||lumenLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Fiber Routes</div>'}
 if(LS.gi.on){has=true;
 if(LS.gi.types.gcomp)h+='<div class="lgi"><span class="ld" style="background:#FF5722"></span>Compressor</div>';
 if(LS.gi.types.grdp)h+='<div class="lgi"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery</div>';
