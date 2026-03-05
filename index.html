@@ -257,7 +257,15 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" onchange="togV(161,this.checked)"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
-<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>Substations (Queue Activity)</span><label class="tg"><input type="checkbox" id="t-sub" onchange="tog('sub')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" onchange="togSub()"><span class="ts"></span></label></div>
+<div id="sub-volts" style="margin-left:16px;margin-bottom:4px;display:none">
+<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(765,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(500,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(345,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>230 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(230,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(161,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(138,this.checked)"><span class="ts"></span></label></div>
+</div>
 <div class="li"><span class="ll"><span class="ld" style="background:linear-gradient(90deg,#EF5350,#FF9800,#FDD835,#66BB6A)"></span>Capacity Heat Map</span><label class="tg"><input type="checkbox" id="t-cap" onchange="togCapMap()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>Planned Transmission</span><label class="tg"><input type="checkbox" id="t-planned" onchange="togPlanned()"><span class="ts"></span></label></div>
 </div>
@@ -341,7 +349,24 @@ var cBase='sat';
 function switchBase(n){map.removeLayer(BL[cBase]);BL[n].addTo(map);cBase=n;document.querySelectorAll('input[name="bm"]').forEach(function(r){r.checked=(r.value===n)})}
 
 var txVolts={765:false,500:false,345:false,230:false,161:false,138:false};
-function togV(v,on){txVolts[v]=on;if(LS.tx.on){LS.tx.g.clearLayers();LS.sub.g.clearLayers();ldTx();ldSub()}if(plannedLayer){map.removeLayer(plannedLayer);plannedLayer=null;renderPlanned()}uLeg()}
+function togV(v,on){txVolts[v]=on;if(LS.tx.on){LS.tx.g.clearLayers();ldTx()}if(plannedLayer){map.removeLayer(plannedLayer);plannedLayer=null;renderPlanned()}uLeg()}
+
+// Substation voltage toggles (independent from transmission lines)
+var subVolts={765:true,500:true,345:true,230:true,161:true,138:true};
+function togSub(){
+var s=LS.sub;s.on=!s.on;
+var subVoltsDiv=document.getElementById('sub-volts');
+if(s.on){
+subVoltsDiv.style.display='block';
+s.g.addTo(map);rl('sub');
+}else{
+subVoltsDiv.style.display='none';
+map.removeLayer(s.g);s.g.clearLayers();
+}
+uLeg();
+}
+function togSubV(v,on){subVolts[v]=on;if(LS.sub.on){LS.sub.g.clearLayers();ldSub()}uLeg()}
+function subVMatch(v){if(v>=765)return subVolts[765];if(v>=500)return subVolts[500];if(v>=345)return subVolts[345];if(v>=230)return subVolts[230];if(v>=161)return subVolts[161];if(v>=138)return subVolts[138];return false}
 function minSelectedV(){var vs=[765,500,345,230,161,138];for(var i=vs.length-1;i>=0;i--){if(txVolts[vs[i]])return vs[i]}return 9999}
 var LS={
 tx:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
@@ -367,10 +392,8 @@ if(n==='tx'){
 var allOn=s.on;
 [765,500,345,230,161,138].forEach(function(v){txVolts[v]=allOn});
 document.querySelectorAll('[onchange*="togV"]').forEach(function(cb){cb.checked=allOn});
-// Also toggle substations with transmission
-LS.sub.on=allOn;document.getElementById('t-sub').checked=allOn;
-if(allOn){LS.sub.g.addTo(map);s.g.addTo(map);rl('tx');rl('sub')}
-else{map.removeLayer(s.g);s.g.clearLayers();map.removeLayer(LS.sub.g);LS.sub.g.clearLayers()}
+if(allOn){s.g.addTo(map);rl('tx')}
+else{map.removeLayer(s.g);s.g.clearLayers()}
 uLeg();return;
 }
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
@@ -444,11 +467,13 @@ if(activeMW>0)return 'Low';
 return '\u2014';
 }
 
+function minSelectedSubV(){var vs=[765,500,345,230,161,138];for(var i=vs.length-1;i>=0;i--){if(subVolts[vs[i]])return vs[i]}return 9999}
+
 function ldSub(){
 var s=LS.sub;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
 loadQueueCongestion();
 var params=new URLSearchParams({
-where:'VOLTAGE >= '+minSelectedV(),geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+where:'VOLTAGE >= '+minSelectedSubV(),geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
 returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
@@ -490,11 +515,10 @@ return null;
 }
 Object.keys(subs).forEach(function(k){
 var sub=subs[k];var v=sub.v||345;
-if(!vMatch(v))return;
+if(!subVMatch(v))return;
 var ctyInfo=findCounty(sub.lat,sub.lng);
 var county=ctyInfo?ctyInfo.county:'';
 var state=ctyInfo?ctyInfo.state:'';
-// Try substation-level match first, then county fallback
 var subName=(sub.name||'').toUpperCase();
 var qSub=queueBySub?queueBySub[subName]:null;
 var qKey=county+'|'+state;
@@ -503,32 +527,31 @@ var activeMW=qSub?qSub.active_mw:(qCty?qCty.active_mw:0);
 var completedMW=qSub?qSub.completed_mw:(qCty?qCty.completed_mw:0);
 var projects=qSub?qSub.projects:(qCty?qCty.projects:0);
 var dataLevel=qSub?'Substation':'County';
-var col=congestionColor(activeMW);
-var radius=v>=500?7:v>=345?6:5;
-if(activeMW>=2000)radius+=2;
-else if(activeMW>=500)radius+=1;
-var m=L.circleMarker([sub.lat,sub.lng],{radius:radius,fillColor:col,fillOpacity:0.9,color:qSub?'#fff':'rgba(255,255,255,0.5)',weight:qSub?2:1});
+var col=vColor(v);
+var radius=v>=765?9:v>=500?8:v>=345?7:v>=230?6:5;
+var m=L.circleMarker([sub.lat,sub.lng],{radius:radius,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
 var popup='<b>'+(sub.name||'Substation')+'</b><br>Voltage: '+v+' kV<br>Owner: '+(sub.owner||'\u2014');
 if(county)popup+='<br>County: '+county+(state==='LA'?' Parish':' County')+', '+state;
 popup+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
 popup+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">QUEUE ACTIVITY <span style="color:rgba(240,237,232,0.3);font-weight:400">('+dataLevel+'-level)</span></div>';
-popup+='<div style="display:flex;justify-content:space-between"><span>Active in Queue</span><b style="color:'+col+'">'+activeMW.toLocaleString()+' MW</b></div>';
+var qCol=congestionColor(activeMW);
+popup+='<div style="display:flex;justify-content:space-between"><span>Active in Queue</span><b style="color:'+qCol+'">'+activeMW.toLocaleString()+' MW</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Built / Completed</span><b>'+completedMW.toLocaleString()+' MW</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Total Projects</span><b>'+projects+'</b></div>';
-popup+='<div style="display:flex;justify-content:space-between"><span>Congestion</span><b style="color:'+col+'">'+congestionLabel(activeMW)+'</b></div>';
+popup+='<div style="display:flex;justify-content:space-between"><span>Congestion</span><b style="color:'+qCol+'">'+congestionLabel(activeMW)+'</b></div>';
 if(sub.lng>=-107&&sub.lng<=-93&&sub.lat>=25&&sub.lat<=37){
 popup+='<div style="margin-top:8px;text-align:center"><button onclick="screenCapacity('+sub.lat+','+sub.lng+',this)" style="background:rgba(196,133,76,0.15);color:#C4854C;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(196,133,76,0.3);cursor:pointer;font-family:inherit;width:100%">&#x26A1; Screen Capacity</button></div>';
 }else{
 popup+='<div style="margin-top:6px;text-align:center;font-size:9px;color:rgba(240,237,232,0.25)">Power flow screening available for ERCOT region</div>';
 }
-m.bindPopup(popup,{maxWidth:300,maxHeight:350,autoPan:true});
+m.bindPopup(popup,{maxWidth:300,maxHeight:400,autoPan:true});
 s.g.addLayer(m);
 });
 }).catch(function(){
 // Fallback: render without congestion data
 Object.keys(subs).forEach(function(k){
 var sub=subs[k];var v=sub.v||345;
-if(!vMatch(v))return;
+if(!subVMatch(v))return;
 var col=vColor(v);
 var m=L.circleMarker([sub.lat,sub.lng],{radius:v>=500?7:5,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
 m.bindPopup('<b>'+(sub.name||'Substation')+'</b><br>Voltage: '+v+' kV<br>Owner: '+(sub.owner||'\u2014'));
@@ -1824,7 +1847,7 @@ map.on('moveend',function(){if(document.getElementById('t-cap').checked&&capLoad
 function uLeg(){
 var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
 if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>';if(txVolts[500])h+='<div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div>';if(txVolts[345])h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div>';if(txVolts[230])h+='<div class="lgi"><span class="lgl" style="background:#66BB6A"></span>230 kV</div>';if(txVolts[161])h+='<div class="lgi"><span class="lgl" style="background:#FDD835"></span>161 kV</div>';if(txVolts[138])h+='<div class="lgi"><span class="lgl" style="background:#BDBDBD"></span>138 kV</div>'}
-if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#66BB6A"></span>Low Queue</div><div class="lgi"><span class="ld" style="background:#FDD835"></span>Moderate</div><div class="lgi"><span class="ld" style="background:#FF9800"></span>High</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>Very High</div>'}
+if(LS.sub.on){has=true;if(subVolts[765])h+='<div class="lgi"><span class="ld" style="background:#9C27B0"></span>765 kV</div>';if(subVolts[500])h+='<div class="lgi"><span class="ld" style="background:#EF5350"></span>500 kV</div>';if(subVolts[345])h+='<div class="lgi"><span class="ld" style="background:#4FC3F7"></span>345 kV</div>';if(subVolts[230])h+='<div class="lgi"><span class="ld" style="background:#66BB6A"></span>230 kV</div>';if(subVolts[161])h+='<div class="lgi"><span class="ld" style="background:#FDD835"></span>161 kV</div>';if(subVolts[138])h+='<div class="lgi"><span class="ld" style="background:#BDBDBD"></span>138 kV</div>'}
 if(document.getElementById('t-cap')&&document.getElementById('t-cap').checked){has=true;h+='<div class="lgi"><span class="ld" style="background:#66BB6A"></span>1000+ MW</div><div class="lgi"><span class="ld" style="background:#FDD835"></span>300-499 MW</div><div class="lgi"><span class="ld" style="background:#FF9800"></span>200-299 MW</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>&lt;200 MW</div>'}
 if(plannedLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#00E676"></span>New Lines</div><div class="lgi"><span class="lgl" style="background:#FFB74D"></span>Upgrades</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
