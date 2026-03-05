@@ -121,12 +121,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
-<div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">GAS FACILITIES</div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Gas Facilities</span><label class="tg"><input type="checkbox" id="t-gi-all" onchange="togGIAll(this.checked)"><span class="ts"></span></label></div>
+<div style="margin-left:16px">
 <div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Compressor Stations</span><label class="tg"><input type="checkbox" id="t-gcomp" onchange="togGI('gcomp')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery Pts</span><label class="tg"><input type="checkbox" id="t-grdp" onchange="togGI('grdp')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00BCD4"></span>Processing Plants</span><label class="tg"><input type="checkbox" id="t-gproc" onchange="togGI('gproc')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#5C6BC0"></span>Storage Facilities</span><label class="tg"><input type="checkbox" id="t-gstor" onchange="togGI('gstor')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#EC407A"></span>Interconnects</span><label class="tg"><input type="checkbox" id="t-gicon" onchange="togGI('gicon')"><span class="ts"></span></label></div>
+</div>
 </div>
 </div>
 </div>
@@ -372,6 +374,14 @@ gproc:{svc:'Natural_Gas_Processing_Plants',color:'#00BCD4',fields:'NAME,OPERATOR
 gstor:{svc:'Natural_Gas_Storage_Facilities',color:'#5C6BC0',fields:'NAME,OPERATOR,STATUS,COUNTY,STATE,TYPE',label:'Storage Facility'},
 gicon:{svc:'Oil_and_Natural_Gas_Interconnects',color:'#EC407A',fields:'NAME,OPERATOR,STATUS,COUNTY,STATE,TYPE',label:'Interconnect'}
 };
+function togGIAll(on){
+var s=LS.gi;
+var types=['gcomp','grdp','gproc','gstor','gicon'];
+types.forEach(function(t){s.types[t]=on;document.getElementById('t-'+t).checked=on});
+if(on&&!s.on){s.on=true;s.g.addTo(map)}
+if(!on&&s.on){s.on=false;map.removeLayer(s.g);s.g.clearLayers()}
+loadGI();uLeg();
+}
 function togGI(t){
 var s=LS.gi;s.types[t]=!s.types[t];
 var anyOn=false;for(var k in s.types)if(s.types[k])anyOn=true;
