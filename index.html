@@ -10,6 +10,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
+<script src="https://unpkg.com/@tmcw/togeojson@5.8.1/dist/togeojson.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
@@ -73,6 +75,25 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .parcel-tiles{filter:invert(1) brightness(2) contrast(2);mix-blend-mode:screen}
 .cty-label{background:none!important;border:none!important}
 .cty-label span{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:rgba(240,237,232,0.8);text-shadow:0 0 6px rgba(0,0,0,0.9),0 0 3px rgba(0,0,0,1),0 1px 2px rgba(0,0,0,0.8);white-space:nowrap;pointer-events:none;letter-spacing:1px}
+.panel-tabs{display:flex;border-bottom:1px solid rgba(196,133,76,0.2);margin:0 0 0 0}
+.panel-tab{flex:1;padding:8px 0;text-align:center;font-size:11px;font-weight:600;letter-spacing:1px;color:rgba(240,237,232,0.4);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;text-transform:uppercase}
+.panel-tab:hover{color:rgba(240,237,232,0.6);background:rgba(240,237,232,0.03)}
+.panel-tab.active{color:#C4854C;border-bottom-color:#C4854C}
+.panel-content{display:none}
+.panel-content.active{display:block}
+#custom-drop{border:2px dashed rgba(196,133,76,0.3);border-radius:8px;padding:20px 12px;text-align:center;margin:8px 12px;cursor:pointer;transition:all 0.2s}
+#custom-drop:hover,#custom-drop.dragover{border-color:#C4854C;background:rgba(196,133,76,0.08)}
+#custom-drop-text{font-size:11px;color:rgba(240,237,232,0.4);line-height:1.6}
+#custom-drop-text b{color:rgba(240,237,232,0.6)}
+#custom-list{padding:4px 12px}
+.custom-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(240,237,232,0.06)}
+.custom-item-name{font-size:11.5px;color:#F0EDE8;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:8px}
+.custom-item-actions{display:flex;align-items:center;gap:6px}
+.custom-zoom{background:none;border:none;color:rgba(240,237,232,0.4);cursor:pointer;font-size:13px;padding:2px}
+.custom-zoom:hover{color:#C4854C}
+.custom-remove{background:none;border:none;color:rgba(240,237,232,0.3);cursor:pointer;font-size:13px;padding:2px}
+.custom-remove:hover{color:#EF5350}
+.custom-color{width:12px;height:12px;border-radius:50%;margin-right:8px;flex-shrink:0}
 .lg-group{border-bottom:1px solid rgba(196,133,76,0.15)}
 .lg-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;cursor:pointer;user-select:none}
 .lg-group-hdr:hover{background:rgba(240,237,232,0.04)}
@@ -115,6 +136,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div id="beta-badge" style="position:fixed;bottom:8px;left:50%;transform:translateX(calc(-50% + 40px));z-index:1000;background:rgba(196,133,76,0.9);color:#1B2B3A;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;pointer-events:none">BETA</div>
 <div id="layer-panel">
 <div id="panel-header"><h1>CO<span style="color:#C4854C">RR</span>IDOR</h1><button id="panel-toggle" onclick="document.getElementById('layer-panel').classList.toggle('collapsed');this.textContent=document.getElementById('layer-panel').classList.contains('collapsed')?'\u25B6':'\u25C0';var ip=document.getElementById('intel-panel');if(ip.classList.contains('open')){if(document.getElementById('layer-panel').classList.contains('collapsed'))ip.classList.add('sidebar-collapsed');else ip.classList.remove('sidebar-collapsed')}">&laquo;</button></div>
+<div class="panel-tabs">
+<div class="panel-tab active" onclick="switchPanelTab('layers')">Layers</div>
+<div class="panel-tab" onclick="switchPanelTab('custom')">Custom</div>
+</div>
+<div id="panel-layers" class="panel-content active">
 <div class="lg"><div class="lg-title">Base Map</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#4A90D9"></span>Google Satellite</span><label class="tg"><input type="radio" name="bm" value="sat" checked onchange="switchBase('sat')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#8BC34A"></span>Google Streets</span><label class="tg"><input type="radio" name="bm" value="str" onchange="switchBase('str')"><span class="ts"></span></label></div>
@@ -188,6 +214,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>Wetlands &amp; Water</span><label class="tg"><input type="checkbox" id="t-wet" onchange="togWetWater()"><span class="ts"></span></label></div>
 </div>
 </div>
+</div>
+</div><!-- end panel-layers -->
+<div id="panel-custom" class="panel-content">
+<div id="custom-drop" onclick="document.getElementById('custom-file').click()">
+<div id="custom-drop-text"><b>Drop files here</b><br>or click to upload<br><span style="font-size:9px;color:rgba(240,237,232,0.3)">KMZ &bull; KML &bull; GeoJSON</span></div>
+<input type="file" id="custom-file" accept=".kmz,.kml,.geojson,.json" multiple style="display:none" onchange="handleCustomFiles(this.files)">
+</div>
+<div id="custom-list"></div>
 </div>
 </div>
 <div id="search-box"><input type="text" id="search-input" placeholder="Search address, city, county, or lat,lng..." autocomplete="off"><button id="search-btn" onclick="doSearch()">&#x2315;</button><div id="sr"></div></div>
@@ -823,6 +857,135 @@ shade.classList.remove('open');
 setTimeout(function(){document.getElementById('intel-frame').src='about:blank'},400);
 }
 
+// Panel tabs
+function switchPanelTab(tab){
+document.querySelectorAll('.panel-tab').forEach(function(t){t.classList.remove('active')});
+document.querySelectorAll('.panel-content').forEach(function(c){c.classList.remove('active')});
+document.querySelector('.panel-tab[onclick*="'+tab+'"]').classList.add('active');
+document.getElementById('panel-'+tab).classList.add('active');
+}
+
+// Custom layers
+var customLayers=[];
+var customColors=['#E91E63','#00BCD4','#FFEB3B','#8BC34A','#FF5722','#9C27B0','#03A9F4','#FF9800','#4CAF50','#F44336'];
+var customColorIdx=0;
+
+// Drag and drop
+var dropZone=document.getElementById('custom-drop');
+if(dropZone){
+['dragenter','dragover'].forEach(function(ev){
+dropZone.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();dropZone.classList.add('dragover')})});
+['dragleave','drop'].forEach(function(ev){
+dropZone.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();dropZone.classList.remove('dragover')})});
+dropZone.addEventListener('drop',function(e){handleCustomFiles(e.dataTransfer.files)});
+}
+
+function handleCustomFiles(files){
+for(var i=0;i<files.length;i++){loadCustomFile(files[i])}
+document.getElementById('custom-file').value='';
+}
+
+function loadCustomFile(file){
+var name=file.name;
+var ext=name.split('.').pop().toLowerCase();
+var reader=new FileReader();
+
+if(ext==='kmz'){
+reader.onload=function(e){
+JSZip.loadAsync(e.target.result).then(function(zip){
+var kmlFile=null;
+zip.forEach(function(path,entry){if(path.match(/\.kml$/i)&&!kmlFile)kmlFile=entry});
+if(!kmlFile){alert('No KML found in KMZ');return}
+kmlFile.async('text').then(function(kmlText){
+var parser=new DOMParser();
+var doc=parser.parseFromString(kmlText,'text/xml');
+var gj=toGeoJSON.kml(doc);
+addCustomLayer(name,gj);
+});
+});
+};
+reader.readAsArrayBuffer(file);
+}else if(ext==='kml'){
+reader.onload=function(e){
+var parser=new DOMParser();
+var doc=parser.parseFromString(e.target.result,'text/xml');
+var gj=toGeoJSON.kml(doc);
+addCustomLayer(name,gj);
+};
+reader.readAsText(file);
+}else if(ext==='geojson'||ext==='json'){
+reader.onload=function(e){
+try{var gj=JSON.parse(e.target.result);addCustomLayer(name,gj)}
+catch(err){alert('Invalid GeoJSON: '+err.message)}
+};
+reader.readAsText(file);
+}else{
+alert('Unsupported file type: .'+ext);
+}
+}
+
+function addCustomLayer(name,geojson){
+var color=customColors[customColorIdx%customColors.length];
+customColorIdx++;
+var layer=L.geoJSON(geojson,{
+style:function(){return{color:color,weight:2.5,opacity:0.9,fillColor:color,fillOpacity:0.2}},
+pointToLayer:function(f,ll){return L.circleMarker(ll,{radius:6,fillColor:color,color:'#fff',weight:1.5,fillOpacity:0.8})},
+onEachFeature:function(f,ly){
+var props=f.properties||{};
+var h='';
+for(var k in props){if(props[k]&&k!=='styleUrl'&&k!=='styleHash')h+='<b>'+k+':</b> '+props[k]+'<br>'}
+if(h)ly.bindPopup(h);
+}
+});
+layer.addTo(map);
+var id='cl_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
+var item={id:id,name:name,layer:layer,color:color,visible:true};
+customLayers.push(item);
+renderCustomList();
+try{map.fitBounds(layer.getBounds(),{padding:[50,50],maxZoom:14})}catch(e){}
+uLeg();
+}
+
+function togCustomLayer(id){
+var item=customLayers.find(function(c){return c.id===id});
+if(!item)return;
+item.visible=!item.visible;
+if(item.visible)item.layer.addTo(map);
+else map.removeLayer(item.layer);
+renderCustomList();uLeg();
+}
+
+function zoomCustomLayer(id){
+var item=customLayers.find(function(c){return c.id===id});
+if(!item)return;
+try{map.fitBounds(item.layer.getBounds(),{padding:[50,50],maxZoom:14})}catch(e){}
+}
+
+function removeCustomLayer(id){
+var item=customLayers.find(function(c){return c.id===id});
+if(!item)return;
+if(item.layer&&map.hasLayer(item.layer))map.removeLayer(item.layer);
+customLayers=customLayers.filter(function(c){return c.id!==id});
+renderCustomList();uLeg();
+}
+
+function renderCustomList(){
+var el=document.getElementById('custom-list');
+if(!customLayers.length){el.innerHTML='';return}
+var h='';
+customLayers.forEach(function(c){
+h+='<div class="custom-item">';
+h+='<div class="custom-color" style="background:'+c.color+'"></div>';
+h+='<div class="custom-item-name" title="'+c.name+'">'+c.name+'</div>';
+h+='<div class="custom-item-actions">';
+h+='<button class="custom-zoom" onclick="zoomCustomLayer(\''+c.id+'\')" title="Zoom to">&#x1F50D;</button>';
+h+='<label class="tg" style="margin:0"><input type="checkbox" '+(c.visible?'checked':'')+' onchange="togCustomLayer(\''+c.id+'\')"><span class="ts"></span></label>';
+h+='<button class="custom-remove" onclick="removeCustomLayer(\''+c.id+'\')" title="Remove">&times;</button>';
+h+='</div></div>';
+});
+el.innerHTML=h;
+}
+
 // Legend
 function uLeg(){
 var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
@@ -846,6 +1009,7 @@ if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#
 if(LS.fld100.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(74,127,181,0.6)"></span>100-Yr Flood</div>'}
 if(LS.fld500.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(232,168,72,0.5)"></span>500-Yr Flood</div>'}
 if(LS.wet.on||LS.wtr.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands & Water</div>'}
+customLayers.forEach(function(c){if(c.visible){has=true;h+='<div class="lgi"><span class="ld" style="background:'+c.color+'"></span>'+c.name.replace(/\.[^.]+$/,'')+'</div>'}});
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
