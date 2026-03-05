@@ -480,62 +480,20 @@ maxZoom:21,minZoom:12,opacity:0.85,attribution:'Regrid',className:'parcel-tiles'
 regridLayer.addTo(map);
 uLeg();
 }
-// Regrid parcel lookup on click
-var _rgLast=0;var _rgPending=false;
-function regridLookup(latlng){
-var now=Date.now();if(now-_rgLast<1200||_rgPending)return;
-if(!regridLayer||!map.hasLayer(regridLayer))return;
-if(map.getZoom()<14)return;
-_rgLast=now;_rgPending=true;
-var lat=latlng.lat.toFixed(5),lon=latlng.lng.toFixed(5);
-var proxyUrl='/api/regrid?lat='+lat+'&lon='+lon;
-fetch(proxyUrl).then(function(r){return r.json()}).then(function(d){
-_rgPending=false;
-if(!d||d.error||!d.fields)return;
-var f=d.fields;
-var h='<div style="max-width:340px">';
-h+='<b style="font-size:14px;color:#C4854C">'+(f.owner||'Unknown Owner')+'</b><br>';
-if(f.address)h+='<span style="color:rgba(240,237,232,0.7)">'+f.address+'</span><br>';
-h+='<div style="margin:6px 0;border-top:1px solid rgba(196,133,76,0.25);padding-top:6px">';
-if(f.ll_gisacre)h+='<b>Acres:</b> '+Number(f.ll_gisacre).toFixed(2)+'<br>';
-else if(f.ll_gissqft)h+='<b>Sq Ft:</b> '+Number(f.ll_gissqft).toLocaleString()+'<br>';
-if(f.parval)h+='<b>Assessed:</b> $'+Number(f.parval).toLocaleString()+'<br>';
-if(f.landval)h+='<b>Land Value:</b> $'+Number(f.landval).toLocaleString()+'<br>';
-if(f.saleprice)h+='<b>Last Sale:</b> $'+Number(f.saleprice).toLocaleString()+(f.saledate?' ('+f.saledate+')':'')+'<br>';
-h+='</div>';
-if(f.zoning_description||f.usedesc){
-h+='<div style="margin:4px 0;border-top:1px solid rgba(196,133,76,0.25);padding-top:5px">';
-if(f.zoning_description)h+='<b>Zoning:</b> '+f.zoning_description+'<br>';
-if(f.usedesc)h+='<b>Use:</b> '+f.usedesc+'<br>';
-h+='</div>';
-}
-if(f.mailadd||f.mail_city){
-h+='<div style="margin:4px 0;border-top:1px solid rgba(196,133,76,0.25);padding-top:5px;color:rgba(240,237,232,0.6);font-size:10.5px">';
-h+='<b>Mail:</b> ';
-if(f.mailadd)h+=f.mailadd;
-if(f.mail_city)h+=', '+f.mail_city;
-if(f.mail_state2)h+=', '+f.mail_state2;
-if(f.mail_zip)h+=' '+f.mail_zip;
-h+='</div>';
-}
-if(f.yearbuilt||f.numstories||f.own_occ){
-h+='<div style="margin:4px 0;border-top:1px solid rgba(196,133,76,0.25);padding-top:5px;font-size:10.5px;color:rgba(240,237,232,0.6)">';
-if(f.yearbuilt)h+='Built '+f.yearbuilt+' ';
-if(f.numstories)h+=f.numstories+' stories ';
-if(f.own_occ==='Y')h+='(Owner occ.)';
-else if(f.own_occ==='N')h+='(Non-owner occ.)';
-h+='</div>';
-}
-h+='<div style="margin-top:5px;font-size:9px;color:rgba(240,237,232,0.3)">Parcel: '+(f.parcelnumb||'')+'</div>';
-h+='</div>';
-L.popup({maxWidth:380,className:''}).setLatLng(latlng).setContent(h).openOn(map);
-}).catch(function(e){console.error('Regrid lookup error:',e);_rgPending=false});
-}
+// Regrid parcel lookup — opens Regrid in new tab at clicked location
+var _rgLast=0;
 map.on('click',function(e){
 if(mOn)return;
-if(regridLayer&&map.hasLayer(regridLayer)&&map.getZoom()>=14){
-regridLookup(e.latlng);
-}
+if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<14)return;
+var now=Date.now();if(now-_rgLast<1200)return;
+_rgLast=now;
+var lat=e.latlng.lat.toFixed(5),lon=e.latlng.lng.toFixed(5);
+var h='<div style="text-align:center;padding:4px">';
+h+='<div style="color:rgba(240,237,232,0.5);font-size:10px;margin-bottom:6px">'+lat+', '+lon+'</div>';
+h+='<a href="https://app.regrid.com/us/#map=17/'+lat+'/'+lon+'" target="_blank" rel="noopener" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:600;font-size:12px">Open in Regrid</a>';
+h+='<div style="color:rgba(240,237,232,0.35);font-size:9px;margin-top:5px">Owner, value, zoning, acreage</div>';
+h+='</div>';
+L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(h).openOn(map);
 });
 var PARCEL_URLS={
 TX:'https://services1.arcgis.com/1mtXwieMId59thmg/arcgis/rest/services/2019_Texas_Parcels_StratMap/FeatureServer/0/query',
