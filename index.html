@@ -21,10 +21,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 #panel-toggle{background:none;border:none;color:#F0EDE8;cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px}
 #panel-toggle:hover{background:rgba(240,237,232,0.1)}
 .lg{padding:6px 16px}
-.lg-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C4854C;margin-bottom:4px;margin-top:4px}
+.lg-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C4854C;margin-bottom:4px;margin-top:4px}
 .li{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
-.ll{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:500;color:#F0EDE8;flex:1}
-.ld{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.ll{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:#F0EDE8;flex:1}
+.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .lz{font-size:8px;color:rgba(240,237,232,0.35);margin-left:16px;margin-top:-1px;margin-bottom:1px}
 .tg{position:relative;width:32px;height:17px;flex-shrink:0}
 .tg input{opacity:0;width:0;height:0}
@@ -93,7 +93,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg-body">
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission Lines</span><label class="tg"><input type="checkbox" id="t-tx" checked onchange="tog('tx')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 8+ — toggle voltages:</div>
 <div style="margin-left:16px;margin-bottom:4px">
 <div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(765,this.checked)"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(500,this.checked)"><span class="ts"></span></label></div>
@@ -103,13 +102,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" checked onchange="tog('sub')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 8+</div>
 </div>
 <div class="lg">
 <div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">PIPELINES</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Natural Gas (EIA)</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
-<div class="lz">Diameter, operator, name — zoom 10+</div>
 </div>
 <div class="lg">
 <div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">GAS FACILITIES</div>
@@ -118,7 +115,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#00BCD4"></span>Processing Plants</span><label class="tg"><input type="checkbox" id="t-gproc" onchange="togGI('gproc')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#5C6BC0"></span>Storage Facilities</span><label class="tg"><input type="checkbox" id="t-gstor" onchange="togGI('gstor')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#EC407A"></span>Interconnects</span><label class="tg"><input type="checkbox" id="t-gicon" onchange="togGI('gicon')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 8+</div>
 </div>
 </div>
 </div>
@@ -127,7 +123,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg-body">
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#FF6D00"></span>All Fiber Routes</span><label class="tg"><input type="checkbox" id="t-fiber" onchange="togAllFiber()"><span class="ts"></span></label></div>
-<div class="lz">129 carriers + Lumen — click for details</div>
 </div>
 </div>
 </div>
@@ -136,31 +131,26 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg-body">
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" checked onchange="tog('hs')"><span class="ts"></span></label></div>
-<div class="lz">AWS, Google, Meta, Microsoft, xAI, OpenAI</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (OSM)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 10+</div>
 </div>
 </div>
 </div>
-<div class="lg-group collapsed" id="grp-prop">
+<div class="lg-group" id="grp-prop">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Property</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>Parcel Boundaries</span><label class="tg"><input type="checkbox" id="t-regrid" onchange="togRegrid()"><span class="ts"></span></label></div>
-<div class="lz">Zoom 15+ — click for owner lookup</div>
 </div>
 </div>
 </div>
-<div class="lg-group collapsed" id="grp-env">
+<div class="lg-group" id="grp-env">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Boundaries &amp; Environmental</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#F0EDE8"></span>County Lines</span><label class="tg"><input type="checkbox" id="t-cty" onchange="tog('cty')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>FEMA Flood Zones</span><label class="tg"><input type="checkbox" id="t-fld" onchange="tog('fld')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 12+</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="tog('wet')"><span class="ts"></span></label></div>
-<div class="lz">Zoom 12+</div>
 </div>
 </div>
 </div>
