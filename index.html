@@ -78,6 +78,23 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .lg-arrow{font-size:8px;color:rgba(240,237,232,0.4);transition:transform 0.2s}
 .lg-group.collapsed .lg-arrow{transform:rotate(-90deg)}
 .lg-group.collapsed .lg-body{display:none}
+#intel-panel{position:absolute;top:0;right:0;width:70%;height:100%;z-index:1500;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),width 0.3s ease;display:flex;flex-direction:column;pointer-events:none}
+#intel-panel.open{transform:translateX(0);pointer-events:all}
+#intel-panel.open.sidebar-collapsed{width:85%}
+#intel-shade{position:absolute;inset:0;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;z-index:1499}
+#intel-shade.open{background:rgba(0,0,0,0.35);pointer-events:all}
+#intel-inner{flex:1;display:flex;flex-direction:column;background:#0f1923;border-left:1px solid rgba(196,133,76,0.3);box-shadow:-8px 0 40px rgba(0,0,0,0.6);overflow:hidden;border-radius:12px 0 0 12px}
+#intel-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(135deg,#1B2B3A,#253545);border-bottom:1px solid rgba(196,133,76,0.2);flex-shrink:0}
+#intel-bar-left{display:flex;align-items:center;gap:10px}
+#intel-bar-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase}
+#intel-bar-county{font-size:14px;font-weight:600;color:#F0EDE8}
+#intel-bar-close{background:none;border:1px solid rgba(240,237,232,0.15);color:rgba(240,237,232,0.6);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+#intel-bar-close:hover{background:rgba(240,237,232,0.1);color:#F0EDE8;border-color:rgba(240,237,232,0.3)}
+#intel-frame{flex:1;border:none;width:100%;background:#0f1923}
+#intel-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0f1923;z-index:2}
+#intel-loading .spinner{width:28px;height:28px;border:3px solid rgba(196,133,76,0.2);border-top-color:#C4854C;border-radius:50%;animation:ispin 0.8s linear infinite}
+@keyframes ispin{to{transform:rotate(360deg)}}
+#intel-loading span{color:rgba(240,237,232,0.5);font-size:11px;margin-left:10px;letter-spacing:0.5px}
 </style>
 </head>
 <body>
@@ -94,7 +111,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div id="main-app">
 <div id="beta-badge" style="position:fixed;bottom:8px;left:50%;transform:translateX(calc(-50% + 40px));z-index:1000;background:rgba(196,133,76,0.9);color:#1B2B3A;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;pointer-events:none">BETA</div>
 <div id="layer-panel">
-<div id="panel-header"><h1>CO<span style="color:#C4854C">RR</span>IDOR</h1><button id="panel-toggle" onclick="document.getElementById('layer-panel').classList.toggle('collapsed');this.textContent=document.getElementById('layer-panel').classList.contains('collapsed')?'\u25B6':'\u25C0'">&laquo;</button></div>
+<div id="panel-header"><h1>CO<span style="color:#C4854C">RR</span>IDOR</h1><button id="panel-toggle" onclick="document.getElementById('layer-panel').classList.toggle('collapsed');this.textContent=document.getElementById('layer-panel').classList.contains('collapsed')?'\u25B6':'\u25C0';var ip=document.getElementById('intel-panel');if(ip.classList.contains('open')){if(document.getElementById('layer-panel').classList.contains('collapsed'))ip.classList.add('sidebar-collapsed');else ip.classList.remove('sidebar-collapsed')}">&laquo;</button></div>
 <div class="lg"><div class="lg-title">Base Map</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#4A90D9"></span>Google Satellite</span><label class="tg"><input type="radio" name="bm" value="sat" checked onchange="switchBase('sat')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#8BC34A"></span>Google Streets</span><label class="tg"><input type="radio" name="bm" value="str" onchange="switchBase('str')"><span class="ts"></span></label></div>
@@ -556,7 +573,7 @@ h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent
 h+='<div style="display:flex;gap:6px;justify-content:center">';
 h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px">Open Regrid</a>';
 if(ctyName&&stAbbr){
-h+='<a href="#" onclick="window.open(\'https://corridor-intel.pages.dev?key=corr1dor2026&state='+stAbbr+'&county='+encodeURIComponent(ctyName)+'\',\'corridor-intel\');return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
+h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
 h+='</div>';
 h+='<div style="color:rgba(240,237,232,0.3);font-size:9px;margin-top:5px">Click coords to copy → paste in Regrid search</div>';
@@ -709,7 +726,7 @@ r.innerHTML='<b style="color:#C4854C">'+mi+' mi</b> ('+km+' km)';r.style.display
 });
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&mOn)togMeasure()});
 
-// Market Intel button
+// Market Intel panel
 var _miCounty=null,_miState=null;
 function setMIContext(county,state){
 _miCounty=county;_miState=state;
@@ -718,9 +735,36 @@ if(county&&state){btn.innerHTML='&#x26A1; Market Intel <span class="mi-county">'
 else{btn.innerHTML='&#x26A1; Market Intel'}
 }
 function openMarketIntel(){
+var panel=document.getElementById('intel-panel');
+var shade=document.getElementById('intel-shade');
+var frame=document.getElementById('intel-frame');
+var loading=document.getElementById('intel-loading');
+var countyEl=document.getElementById('intel-bar-county');
 var url='https://corridor-intel.pages.dev?key=corr1dor2026';
-if(_miCounty&&_miState){url+='&state='+_miState+'&county='+encodeURIComponent(_miCounty)}
-window.open(url,'corridor-intel');
+if(_miCounty&&_miState){
+url+='&state='+_miState+'&county='+encodeURIComponent(_miCounty);
+countyEl.textContent=_miCounty+(_miState==='LA'?' Parish, ':' County, ')+_miState;
+}else{
+countyEl.textContent='';
+}
+// Check if sidebar is collapsed for wider panel
+if(document.getElementById('layer-panel').classList.contains('collapsed')){
+panel.classList.add('sidebar-collapsed');
+}else{
+panel.classList.remove('sidebar-collapsed');
+}
+loading.style.display='flex';
+frame.src=url;
+frame.onload=function(){loading.style.display='none'};
+panel.classList.add('open');
+shade.classList.add('open');
+}
+function closeIntelPanel(){
+var panel=document.getElementById('intel-panel');
+var shade=document.getElementById('intel-shade');
+panel.classList.remove('open');
+shade.classList.remove('open');
+setTimeout(function(){document.getElementById('intel-frame').src='about:blank'},400);
 }
 
 // Legend
@@ -763,6 +807,22 @@ else map.setView([res[0].lat,res[0].lon],11);
 }
 console.log('Corridor Map v3.0.0 loaded');
 </script>
+<div id="intel-shade" onclick="closeIntelPanel()"></div>
+<div id="intel-panel">
+<div id="intel-inner">
+<div id="intel-bar">
+<div id="intel-bar-left">
+<div id="intel-bar-label">Market Intel</div>
+<div id="intel-bar-county"></div>
+</div>
+<button id="intel-bar-close" onclick="closeIntelPanel()">&times;</button>
+</div>
+<div style="position:relative;flex:1">
+<div id="intel-loading"><div class="spinner"></div><span>Loading intelligence...</span></div>
+<iframe id="intel-frame" src="about:blank"></iframe>
+</div>
+</div>
+</div>
 </div><!-- end main-app -->
 <script>
 var MAP_AUTH_HASH='a2a1213c426466cab21ed65603520ba8c37c809b45988919c30be07ad28fd817';
