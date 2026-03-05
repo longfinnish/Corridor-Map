@@ -183,6 +183,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>FEMA Flood Zones</span><label class="tg"><input type="checkbox" id="t-fld" onchange="tog('fld')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="tog('wet')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#42A5F5"></span>Water Bodies &amp; Rivers</span><label class="tg"><input type="checkbox" id="t-wtr" onchange="tog('wtr')"><span class="ts"></span></label></div>
 </div>
 </div>
 </div>
@@ -220,6 +221,7 @@ gi:{on:false,mz:8,g:L.layerGroup(),types:{gcomp:false,grdp:false,gproc:false,gst
 dc:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 fld:{on:false,mz:12,ly:null},
 wet:{on:false,mz:12,ly:null},
+wtr:{on:false,mz:0,ly:null},
 cty:{on:false,mz:0,ly:null},
 
 st:{on:false,mz:0,ly:null},
@@ -253,7 +255,7 @@ function rAll(){clearTimeout(rT);rT=setTimeout(function(){for(var n in LS)rl(n)}
 
 function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
-if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}
+if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}if(n==='wtr'){rWtr();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
 if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
 }
@@ -680,6 +682,13 @@ s.ly=L.esri.dynamicMapLayer({url:'https://fwspublicservices.wim.usgs.gov/wetland
 s.ly.bringToBack();
 }
 
+function rWtr(){
+var s=LS.wtr;if(!s.on)return;
+if(s.ly)map.removeLayer(s.ly);
+s.ly=L.esri.dynamicMapLayer({url:'https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer',layers:[4,6,10,12],opacity:0.55,f:'image'}).addTo(map);
+s.ly.bringToBack();
+}
+
 // Search
 var si=document.getElementById('search-input'),srEl=document.getElementById('sr');
 si.addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
@@ -790,6 +799,7 @@ if(anyParcels){has=true;h+='<div class="lgi"><span class="lgs" style="background
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
 if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
 if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
+if(LS.wtr.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,165,245,0.5)"></span>Water</div>'}
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
