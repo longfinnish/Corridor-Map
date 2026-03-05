@@ -182,6 +182,40 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 #intel-loading .spinner{width:28px;height:28px;border:3px solid rgba(196,133,76,0.2);border-top-color:#C4854C;border-radius:50%;animation:ispin 0.8s linear infinite}
 @keyframes ispin{to{transform:rotate(360deg)}}
 #intel-loading span{color:rgba(240,237,232,0.5);font-size:11px;margin-left:10px;letter-spacing:0.5px}
+#pf-panel{position:fixed;top:0;right:0;width:50%;max-width:560px;height:100vh;z-index:1500;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;pointer-events:none}
+#pf-panel.open{transform:translateX(0);pointer-events:all}
+#pf-shade{position:fixed;inset:0;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;z-index:1499}
+#pf-shade.open{background:rgba(0,0,0,0.35);pointer-events:all}
+#pf-inner{flex:1;display:flex;flex-direction:column;background:#0f1923;border-left:1px solid rgba(196,133,76,0.3);box-shadow:-8px 0 40px rgba(0,0,0,0.6);overflow:hidden;border-radius:12px 0 0 12px}
+#pf-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg,#1B2B3A,#253545);border-bottom:1px solid rgba(196,133,76,0.2);flex-shrink:0}
+#pf-bar-left{display:flex;align-items:center;gap:10px}
+#pf-bar-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase}
+#pf-bar-sub{font-size:14px;font-weight:600;color:#F0EDE8}
+#pf-bar-close{background:none;border:1px solid rgba(240,237,232,0.15);color:rgba(240,237,232,0.6);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+#pf-bar-close:hover{background:rgba(240,237,232,0.1);color:#F0EDE8;border-color:rgba(240,237,232,0.3)}
+#pf-body{flex:1;overflow-y:auto;padding:20px}
+.pf-section{margin-bottom:20px}
+.pf-section-title{font-size:9px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase;margin-bottom:8px}
+.pf-hero{text-align:center;padding:16px 0;margin-bottom:16px;border-bottom:1px solid rgba(240,237,232,0.08)}
+.pf-hero-label{font-size:10px;color:rgba(240,237,232,0.4);margin-bottom:4px}
+.pf-hero-value{font-size:32px;font-weight:700}
+.pf-hero-sub{font-size:11px;color:rgba(240,237,232,0.4);margin-top:4px}
+.pf-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(240,237,232,0.04);font-size:11px}
+.pf-stat-label{color:rgba(240,237,232,0.5)}
+.pf-stat-value{font-weight:600;color:#F0EDE8}
+.pf-step{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:4px;border-radius:6px;font-size:11px;background:rgba(240,237,232,0.02)}
+.pf-step-ok{border-left:3px solid #66BB6A}
+.pf-step-fail{border-left:3px solid #EF5350}
+.pf-step-mw{font-weight:700;width:60px;color:#F0EDE8}
+.pf-step-status{font-weight:600;width:20px}
+.pf-step-detail{flex:1;color:rgba(240,237,232,0.4);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf-overload{padding:6px 10px;margin-bottom:3px;border-radius:4px;background:rgba(239,83,80,0.08);font-size:10px;display:flex;justify-content:space-between}
+.pf-overload-line{color:rgba(240,237,232,0.6)}
+.pf-overload-pct{color:#EF5350;font-weight:700}
+.pf-disclaimer{font-size:9px;color:rgba(240,237,232,0.2);text-align:center;padding:12px 0;border-top:1px solid rgba(240,237,232,0.05);margin-top:16px;line-height:1.5}
+.pf-loading{display:flex;align-items:center;justify-content:center;padding:60px 0;gap:10px}
+.pf-loading .spinner{width:24px;height:24px;border:3px solid rgba(196,133,76,0.2);border-top-color:#C4854C;border-radius:50%;animation:ispin 0.8s linear infinite}
+.pf-loading span{color:rgba(240,237,232,0.4);font-size:11px}
 </style>
 </head>
 <body>
@@ -1610,40 +1644,113 @@ showSaveModal();
 
 // Power Flow Screening
 var SCREEN_API='https://corridor-powerflow.onrender.com';
+function closePFPanel(){
+document.getElementById('pf-panel').classList.remove('open');
+document.getElementById('pf-shade').classList.remove('open');
+}
+
 function screenCapacity(lat,lng,btn){
 btn.textContent='Screening...';
 btn.disabled=true;
 btn.style.opacity='0.5';
+// Open the panel immediately with loading state
+var panel=document.getElementById('pf-panel');
+var shade=document.getElementById('pf-shade');
+var body=document.getElementById('pf-body');
+var subLabel=document.getElementById('pf-bar-sub');
+subLabel.textContent='Analyzing...';
+body.innerHTML='<div class="pf-loading"><div class="spinner"></div><span>Running DC power flow analysis...</span></div>';
+panel.classList.add('open');
+shade.classList.add('open');
+map.closePopup();
+
 fetch(SCREEN_API+'/screen?lat='+lat+'&lng='+lng+'&steps=50,100,200,300,500,700,1000').then(function(r){return r.json()}).then(function(d){
-if(d.error){btn.textContent='Error: '+d.error;return}
+btn.textContent='\u26A1 Screen Capacity';
+btn.disabled=false;
+btn.style.opacity='1';
+if(d.error){body.innerHTML='<div style="text-align:center;padding:40px;color:#EF5350">'+d.error+'</div>';return}
 var sc=d.screening;
 var sub=d.substation;
-var h='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,237,232,0.15)">POWER FLOW SCREENING</div>';
-h+='<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px">Safe Capacity</span><b style="font-size:13px;color:#66BB6A">~'+sc.safe_capacity_mw+' MW</b></div>';
+subLabel.textContent=sub.name+(sub.voltage_kv?' \u2022 '+sub.voltage_kv+'kV':'');
+
+var h='';
+// Hero: Safe Capacity
+var heroColor=sc.safe_capacity_mw>=500?'#66BB6A':sc.safe_capacity_mw>=200?'#FDD835':'#EF5350';
+h+='<div class="pf-hero">';
+h+='<div class="pf-hero-label">ESTIMATED SAFE CAPACITY</div>';
+h+='<div class="pf-hero-value" style="color:'+heroColor+'">~'+sc.safe_capacity_mw.toLocaleString()+' MW</div>';
 if(sc.first_constraint_mw){
-h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px">First Constraint</span><b style="font-size:10px;color:#FF9800">'+sc.first_constraint_mw+' MW</b></div>';
-}
-h+='<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-bottom:4px">Load Steps</div>';
-sc.steps.forEach(function(step){
-var color=step.status==='OK'?'#66BB6A':'#EF5350';
-var icon=step.status==='OK'?'&#x2713;':'&#x2717;';
-h+='<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:10px">';
-h+='<span style="color:'+color+';font-weight:700;width:14px">'+icon+'</span>';
-h+='<span style="width:55px">'+step.load_mw+' MW</span>';
-if(step.overloads&&step.overloads.length){
-var ol=step.overloads[0];
-h+='<span style="color:rgba(240,237,232,0.4);font-size:9px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+ol.from.substring(0,15)+' → '+ol.to.substring(0,15)+' ('+ol.loading_pct+'%)</span>';
+h+='<div class="pf-hero-sub">First constraint at '+sc.first_constraint_mw.toLocaleString()+' MW</div>';
 }else{
-h+='<span style="color:rgba(240,237,232,0.3);font-size:9px">No constraints</span>';
+h+='<div class="pf-hero-sub">No constraints found up to '+sc.steps[sc.steps.length-1].load_mw.toLocaleString()+' MW</div>';
+}
+h+='</div>';
+
+// Substation Info
+h+='<div class="pf-section">';
+h+='<div class="pf-section-title">Substation</div>';
+h+='<div class="pf-stat"><span class="pf-stat-label">Name</span><span class="pf-stat-value">'+sub.bus_name+'</span></div>';
+h+='<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+sub.voltage_kv+' kV</span></div>';
+h+='<div class="pf-stat"><span class="pf-stat-label">Existing Load</span><span class="pf-stat-value">'+sub.existing_load_mw+' MW</span></div>';
+if(sub.distance_mi)h+='<div class="pf-stat"><span class="pf-stat-label">Distance from click</span><span class="pf-stat-value">'+sub.distance_mi+' mi</span></div>';
+h+='<div class="pf-stat"><span class="pf-stat-label">Model</span><span class="pf-stat-value">'+d.model.charAt(0).toUpperCase()+d.model.slice(1)+' Synthetic</span></div>';
+h+='<div class="pf-stat"><span class="pf-stat-label">Analysis time</span><span class="pf-stat-value">'+d.elapsed_seconds+'s</span></div>';
+h+='</div>';
+
+// Load Steps
+h+='<div class="pf-section">';
+h+='<div class="pf-section-title">Load Injection Steps</div>';
+sc.steps.forEach(function(step){
+var ok=step.status==='OK';
+h+='<div class="pf-step '+(ok?'pf-step-ok':'pf-step-fail')+'">';
+h+='<span class="pf-step-mw">'+step.load_mw+' MW</span>';
+h+='<span class="pf-step-status" style="color:'+(ok?'#66BB6A':'#EF5350')+'">'+(ok?'\u2713':'\u2717')+'</span>';
+if(ok){
+h+='<span class="pf-step-detail">No thermal violations</span>';
+}else{
+h+='<span class="pf-step-detail">'+step.overloads.length+' line'+(step.overloads.length>1?'s':'')+' overloaded</span>';
 }
 h+='</div>';
 });
-h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:4px;text-align:center">Synthetic model · DC power flow · screening only</div>';
-var container=btn.parentElement;
-container.innerHTML=h;
+h+='</div>';
+
+// Constraining Elements (from the first constrained step)
+var firstConstrained=sc.steps.find(function(s){return s.status!=='OK'});
+if(firstConstrained&&firstConstrained.overloads.length){
+h+='<div class="pf-section">';
+h+='<div class="pf-section-title">Constraining Elements at '+firstConstrained.load_mw+' MW</div>';
+firstConstrained.overloads.forEach(function(ol){
+h+='<div class="pf-overload">';
+h+='<span class="pf-overload-line">'+ol.from+' \u2192 '+ol.to+'</span>';
+h+='<span class="pf-overload-pct">'+ol.flow_mw+'/'+ol.rating_mw+' MW ('+ol.loading_pct+'%)</span>';
+h+='</div>';
+});
+h+='</div>';
+}
+
+// Worst case (last step)
+var lastStep=sc.steps[sc.steps.length-1];
+if(lastStep.status!=='OK'&&lastStep!==firstConstrained){
+h+='<div class="pf-section">';
+h+='<div class="pf-section-title">Constraining Elements at '+lastStep.load_mw+' MW</div>';
+lastStep.overloads.forEach(function(ol){
+h+='<div class="pf-overload">';
+h+='<span class="pf-overload-line">'+ol.from+' \u2192 '+ol.to+'</span>';
+h+='<span class="pf-overload-pct">'+ol.flow_mw+'/'+ol.rating_mw+' MW ('+ol.loading_pct+'%)</span>';
+h+='</div>';
+});
+h+='</div>';
+}
+
+// Disclaimer
+h+='<div class="pf-disclaimer">DC power flow screening on synthetic grid model (Texas A&M ACTIVSg2000)<br>Results are directional estimates, not engineering studies<br>For production analysis, actual ISO planning models (CEII) are required</div>';
+
+body.innerHTML=h;
 }).catch(function(e){
-btn.textContent='API unavailable';
-btn.style.color='#EF5350';
+btn.textContent='\u26A1 Screen Capacity';
+btn.disabled=false;
+btn.style.opacity='1';
+body.innerHTML='<div style="text-align:center;padding:40px;color:#EF5350">API unavailable — try again in 30s<br><span style="font-size:10px;color:rgba(240,237,232,0.3)">'+e.message+'</span></div>';
 });
 }
 
@@ -1718,6 +1825,19 @@ console.log('Corridor Map v3.0.0 loaded');
 <div id="intel-loading"><div class="spinner"></div><span>Loading intelligence...</span></div>
 <iframe id="intel-frame" src="about:blank"></iframe>
 </div>
+</div>
+</div>
+<div id="pf-shade" onclick="closePFPanel()"></div>
+<div id="pf-panel">
+<div id="pf-inner">
+<div id="pf-bar">
+<div id="pf-bar-left">
+<div id="pf-bar-label">Power Flow Screening</div>
+<div id="pf-bar-sub"></div>
+</div>
+<button id="pf-bar-close" onclick="closePFPanel()">&times;</button>
+</div>
+<div id="pf-body"></div>
 </div>
 </div>
 </div><!-- end main-app -->
