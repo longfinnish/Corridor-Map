@@ -104,6 +104,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .pl-stage-select{background:#1B2B3A;color:#F0EDE8;border:1px solid rgba(196,133,76,0.3);border-radius:4px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer}
 .pl-notes{width:100%;background:#1B2B3A;color:#F0EDE8;border:1px solid rgba(196,133,76,0.2);border-radius:6px;padding:8px;font-family:'DM Sans',sans-serif;font-size:11px;resize:vertical;min-height:60px;margin-top:4px}
 .pl-notes:focus{outline:none;border-color:#C4854C}
+.pl-field-input{background:#1B2B3A;color:#F0EDE8;border:1px solid rgba(196,133,76,0.2);border-radius:4px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:11px;width:120px;text-align:right}
+.pl-field-input:focus{outline:none;border-color:#C4854C}
 #pl-save-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}
 .pl-save-box{background:#1B2B3A;border-radius:10px;padding:20px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
 .pl-save-title{font-size:13px;font-weight:700;color:#C4854C;margin-bottom:12px;letter-spacing:1px}
@@ -1209,7 +1211,6 @@ if(!folder)return;
 var site=folder.sites.find(function(s){return s.id===sid});
 if(!site)return;
 map.setView([site.lat,site.lng],15);
-// Show detail panel
 var el=document.getElementById('pl-body');
 var stageOpts=STAGES.map(function(st){return '<option value="'+st.id+'"'+(st.id===site.stage?' selected':'')+'>'+st.label+'</option>'}).join('');
 var detail='<div class="pl-detail" id="pl-detail">';
@@ -1218,13 +1219,19 @@ detail+='<div class="pl-detail-row"><span class="pl-detail-label">Location</span
 detail+='<div class="pl-detail-row"><span class="pl-detail-label">County</span><span class="pl-detail-val">'+site.county+(site.state==='LA'?' Parish':' County')+', '+site.state+'</span></div>';
 detail+='<div class="pl-detail-row"><span class="pl-detail-label">Stage</span><select class="pl-stage-select" onchange="updateSiteStage(\''+fid+'\',\''+sid+'\',this.value)">'+stageOpts+'</select></div>';
 detail+='<div class="pl-detail-row"><span class="pl-detail-label">Saved</span><span class="pl-detail-val">'+new Date(site.created).toLocaleDateString()+'</span></div>';
+detail+='<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(240,237,232,0.06)">';
+detail+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase">Site Info</div>';
+detail+='<div class="pl-detail-row"><span class="pl-detail-label">Acreage</span><input class="pl-field-input" placeholder="\u2014" value="'+(site.acreage||'')+'" onchange="updateSiteField(\''+fid+'\',\''+sid+'\',\'acreage\',this.value)"></div>';
+detail+='<div class="pl-detail-row"><span class="pl-detail-label">Owner</span><input class="pl-field-input" placeholder="\u2014" value="'+(site.owner||'')+'" onchange="updateSiteField(\''+fid+'\',\''+sid+'\',\'owner\',this.value)"></div>';
+detail+='<div class="pl-detail-row"><span class="pl-detail-label">Parcel ID</span><input class="pl-field-input" placeholder="\u2014" value="'+(site.parcel_id||'')+'" onchange="updateSiteField(\''+fid+'\',\''+sid+'\',\'parcel_id\',this.value)"></div>';
+detail+='<div class="pl-detail-row"><span class="pl-detail-label">Zoning / Land Use</span><input class="pl-field-input" placeholder="\u2014" value="'+(site.zoning||'')+'" onchange="updateSiteField(\''+fid+'\',\''+sid+'\',\'zoning\',this.value)"></div>';
+detail+='</div>';
 detail+='<div style="margin-top:8px"><span class="pl-detail-label">Notes</span><textarea class="pl-notes" placeholder="Add notes..." onchange="updateSiteNotes(\''+fid+'\',\''+sid+'\',this.value)">'+(site.notes||'')+'</textarea></div>';
 detail+='<div style="margin-top:8px;display:flex;gap:6px">';
 detail+='<a href="#" onclick="setMIContext(\''+site.county+'\',\''+site.state+'\');openMarketIntel();return false" style="font-size:10px;color:#C4854C">Market Intel</a>';
 detail+='<span style="color:rgba(240,237,232,0.15)">&middot;</span>';
 detail+='<a href="#" onclick="delSite(\''+fid+'\',\''+sid+'\');return false" style="font-size:10px;color:#EF5350">Delete Site</a>';
 detail+='</div></div>';
-// Insert detail at bottom of body
 var existing=document.getElementById('pl-detail');
 if(existing)existing.remove();
 el.insertAdjacentHTML('beforeend',detail);
@@ -1253,6 +1260,16 @@ if(!folder)return;
 var site=folder.sites.find(function(s){return s.id===sid});
 if(!site)return;
 site.notes=notes;
+site.updated=Date.now();
+savePipeline();
+}
+
+function updateSiteField(fid,sid,field,value){
+var folder=plData.folders.find(function(f){return f.id===fid});
+if(!folder)return;
+var site=folder.sites.find(function(s){return s.id===sid});
+if(!site)return;
+site[field]=value;
 site.updated=Date.now();
 savePipeline();
 }
