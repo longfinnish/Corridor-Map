@@ -1,5 +1,5 @@
 # Corridor Map — Data Sources & Refresh Guide
-*Last updated: March 4, 2026 — v2.4.1*
+*Last updated: March 4, 2026 — v2.5.0*
 
 ## Fiber Routes
 
@@ -48,7 +48,16 @@
 | All US | Regrid tiles: `tiles.arcgis.com/.../Regrid_Nationwide_Parcel_Boundaries_v1/MapServer/tile/{z}/{y}/{x}` | No (boundaries only) | No | Yes |
 
 ### States NOT found (statewide with owner):
-LA, MS, OK, AR, IL, MO, AL, MI, KY, TN, KS, NE — need county-by-county or Regrid API ($375/mo)
+LA, MS, OK, AR, IL, MO, AL, MI, KY, TN, KS, NE — now covered via Regrid JSON lookup (see below)
+
+### Regrid Parcel Lookup (nationwide, unauthenticated)
+- **Search endpoint:** `https://app.regrid.com/search.json?query={lat},{lon}&context=/us`
+- **Detail endpoint:** `https://app.regrid.com/us/{state}/{county}/{city}/{id}.json`
+- **Auth:** None — fully open, no API key needed
+- **Rate limit:** Self-imposed 1.2s between calls to stay under radar
+- **Returns:** Owner name, mailing address, assessed value, land value, sale price/date, acreage, zoning, use description, year built, parcel geometry
+- **Coverage:** All 50 states — replaces need for state-by-state ArcGIS parcel layers for owner data
+- **Integration:** Click handler on Regrid tile layer at zoom 14+ → search.json → detail.json → popup
 
 ### Regrid API Token (sandbox — does NOT return data):
 `[REGRID_SANDBOX_TOKEN - see project knowledge]`
