@@ -47,13 +47,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 #ctx{position:absolute;z-index:2000;background:#1B2B3A;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:none;overflow:hidden;min-width:170px}
 .ci{padding:9px 14px;font-size:11.5px;color:#F0EDE8;cursor:pointer;display:flex;align-items:center;gap:7px}
 .ci:hover{background:rgba(196,133,76,0.15)}
-#mb{position:absolute;top:12px;right:12px;z-index:1000;background:#1B2B3A;color:#F0EDE8;border:none;border-radius:8px;padding:9px 13px;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:5px}
+#mb{background:#1B2B3A;color:#F0EDE8;border:none;border-radius:8px;padding:9px 13px;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:5px}
 #mb:hover{background:#253545}
 #mb.active{background:#C4854C;color:#1B2B3A}
-#mi-btn{position:absolute;top:12px;right:120px;z-index:1000;background:#C4854C;color:#1B2B3A;border:none;border-radius:8px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:6px;transition:background 0.2s;letter-spacing:0.5px}
+#top-btns{position:absolute;top:12px;right:12px;z-index:1000;display:flex;gap:8px;align-items:center}
+#mi-btn{background:#C4854C;color:#1B2B3A;border:none;border-radius:8px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:6px;transition:background 0.2s;letter-spacing:0.5px}
 #mi-btn:hover{background:#d4955c}
 #mi-btn .mi-county{font-weight:500;opacity:0.85;font-size:11px;margin-left:3px}
-#pl-btn{position:absolute;top:12px;right:290px;z-index:1000;background:#1B2B3A;color:#C4854C;border:1px solid #C4854C;border-radius:8px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:6px;transition:background 0.2s;letter-spacing:0.5px}
+#pl-btn{background:#1B2B3A;color:#C4854C;border:1px solid #C4854C;border-radius:8px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.3);display:flex;align-items:center;gap:6px;transition:background 0.2s;letter-spacing:0.5px}
 #pl-btn:hover{background:#253545}
 #pl-panel{position:fixed;top:0;right:0;width:420px;height:100vh;z-index:1500;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;pointer-events:none}
 #pl-panel.open{transform:translateX(0);pointer-events:all}
@@ -286,9 +287,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div>
 </div>
 <div id="search-box"><input type="text" id="search-input" placeholder="Search address, city, county, or lat,lng..." autocomplete="off"><button id="search-btn" onclick="doSearch()">&#x2315;</button><div id="sr"></div></div>
-<button id="mi-btn" onclick="openMarketIntel()">&#x26A1; Market Intel</button>
+<div id="top-btns">
 <button id="pl-btn" onclick="openPipeline()">&#x1F4CB; Pipeline</button>
+<button id="mi-btn" onclick="openMarketIntel()">&#x26A1; Market Intel</button>
 <button id="mb" onclick="togMeasure()">&#x1F4CF; Measure</button>
+</div>
 <div id="mr"></div>
 <div id="bb"><div id="cd">&mdash;</div><div id="zd">Z: 6</div></div>
 <div id="ctx"><div class="ci" onclick="openSV()">&#x1F6E3;&#xFE0F; Street View</div><div class="ci" onclick="copyC()">&#x1F4CB; Copy Coords</div><div class="ci" onclick="openGM()">&#x1F5FA;&#xFE0F; Google Maps</div></div>
@@ -1263,12 +1266,16 @@ renderPipeline();
 }
 
 // Save modal — shown from parcel popup
+var _pendingSite=null;
 function showSaveModal(lat,lng,county,state){
+_pendingSite={lat:lat,lng:lng,county:county||'',state:state||''};
+setTimeout(function(){
 map.closePopup();
 loadPipeline().then(function(){
 var modal=document.getElementById('pl-save-modal');
+var p=_pendingSite;
 var folderOpts=plData.folders.map(function(f){return '<option value="'+f.id+'">'+f.name+'</option>'}).join('');
-var autoName=county+(state==='LA'?' Parish':' County')+' — '+lat.toFixed(4)+', '+lng.toFixed(4);
+var autoName=p.county+(p.state==='LA'?' Parish':' County')+' \u2014 '+p.lat.toFixed(4)+', '+p.lng.toFixed(4);
 var h='<div class="pl-save-box">';
 h+='<div class="pl-save-title">SAVE TO PIPELINE</div>';
 h+='<input class="pl-save-input" id="pl-save-name" placeholder="Site name" value="'+autoName+'">';
@@ -1279,18 +1286,23 @@ h+='<input class="pl-save-input" id="pl-save-newfolder" placeholder="Create fold
 }
 h+='<div class="pl-save-btns">';
 h+='<button class="pl-save-btn secondary" onclick="closeSaveModal()">Cancel</button>';
-h+='<button class="pl-save-btn primary" onclick="doSaveSite('+lat+','+lng+',\''+county+'\',\''+state+'\')">Save</button>';
+h+='<button class="pl-save-btn primary" onclick="doSaveSite()">Save</button>';
 h+='</div></div>';
 modal.innerHTML=h;
 modal.style.display='flex';
+setTimeout(function(){document.getElementById('pl-save-name').select()},100);
 });
+},50);
 }
 
 function closeSaveModal(){
 document.getElementById('pl-save-modal').style.display='none';
+_pendingSite=null;
 }
 
-function doSaveSite(lat,lng,county,state){
+function doSaveSite(){
+if(!_pendingSite)return;
+var p=_pendingSite;
 var name=document.getElementById('pl-save-name').value.trim()||'Unnamed Site';
 var folderId;
 var folderSelect=document.getElementById('pl-save-folder');
@@ -1309,10 +1321,10 @@ if(!folder){alert('Select a folder');return}
 folder.sites.push({
 id:'s_'+Date.now(),
 name:name,
-lat:lat,
-lng:lng,
-county:county,
-state:state,
+lat:p.lat,
+lng:p.lng,
+county:p.county,
+state:p.state,
 stage:'identified',
 notes:'',
 created:Date.now(),
