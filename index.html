@@ -123,7 +123,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div>
 <div class="lg"><div class="lg-title">Property</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>All Parcels (US)</span><label class="tg"><input type="checkbox" id="t-regrid" onchange="togRegrid()"><span class="ts"></span></label></div>
-<div class="lz">Zoom 14+ — click parcel for owner/value</div>
+<div class="lz">Zoom 15+ — click parcel for owner/value</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Texas Parcels</span><label class="tg"><input type="checkbox" id="t-parcels" onchange="togParcel('TX')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Wisconsin Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsWI" onchange="togParcel('WI')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>Minnesota Parcels</span><label class="tg"><input type="checkbox" id="t-parcelsMN" onchange="togParcel('MN')"><span class="ts"></span></label></div>
@@ -475,7 +475,7 @@ var regridLayer=null;
 function togRegrid(){
 if(regridLayer){map.removeLayer(regridLayer);regridLayer=null;uLeg();return}
 regridLayer=L.tileLayer('https://tiles.arcgis.com/tiles/KzeiCaQsMoeCfoCq/arcgis/rest/services/Regrid_Nationwide_Parcel_Boundaries_v1/MapServer/tile/{z}/{y}/{x}',{
-maxZoom:21,minZoom:12,opacity:0.85,attribution:'Regrid',className:'parcel-tiles'
+maxZoom:21,minZoom:15,opacity:0.85,attribution:'Regrid',className:'parcel-tiles'
 });
 regridLayer.addTo(map);
 uLeg();
@@ -484,7 +484,7 @@ uLeg();
 var _rgLast=0;
 map.on('click',function(e){
 if(mOn)return;
-if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<14)return;
+if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<15)return;
 var now=Date.now();if(now-_rgLast<1200)return;
 _rgLast=now;
 var lat=e.latlng.lat.toFixed(5),lon=e.latlng.lng.toFixed(5);
