@@ -1020,16 +1020,15 @@ map.on('moveend',function(){
 for(var st in PARCEL_URLS){if(parcelEnabled[st])loadParcels(st)}
 });
 function ldSt(){
-// State lines are always-on, only load once
 if(LS.st.ly)return;
-LS.st.ly=L.esri.featureLayer({
-url:'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Generalized_Boundaries/FeatureServer/0',
-where:'1=1',
+fetch('data/states.geojson').then(function(r){return r.json()}).then(function(data){
+LS.st.ly=L.geoJSON(data,{
 style:function(){return{color:'#C4854C',weight:2,opacity:0.5,fillOpacity:0,interactive:false}},
-fields:['STATE_NAME','STATE_ABBR'],
 pane:'overlayPane'
 });
-LS.st.ly.addTo(map);LS.st.ly.bringToBack();
+LS.st.ly.addTo(map);
+LS.st.ly.bringToBack();
+});
 }
 // FEMA Flood Zones via ESRI Dynamic Map
 function togFlood(which){
