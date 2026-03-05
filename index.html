@@ -679,7 +679,7 @@ s.ly=L.esri.dynamicMapLayer({
 url:'https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer',
 layers:[28],
 layerDefs:defs,
-opacity:which==='fld100'?0.65:0.55,
+opacity:which==='fld100'?0.75:0.65,
 format:'png32',
 useCors:false,
 attribution:'FEMA NFHL'
@@ -688,14 +688,13 @@ s.ly.addTo(map);
 uLeg();
 }
 
-// NWI Wetlands — USFWS via ESRI Dynamic Map
+// NWI Wetlands — USFWS Raster
 function togWet(){
 var s=LS.wet;s.on=!s.on;
 if(!s.on){if(s.ly){map.removeLayer(s.ly);s.ly=null}uLeg();return}
-s.ly=L.esri.dynamicMapLayer({
-url:'https://fwsprimary.wim.usgs.gov/server/rest/services/Wetlands/MapServer',
-opacity:0.65,
-format:'png32',
+s.ly=L.esri.imageMapLayer({
+url:'https://fwsprimary.wim.usgs.gov/server/rest/services/Wetlands_Raster/ImageServer',
+opacity:0.75,
 useCors:false,
 attribution:'USFWS NWI'
 });
