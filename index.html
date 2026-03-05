@@ -481,6 +481,7 @@ popup+='<div style="display:flex;justify-content:space-between"><span>Active in 
 popup+='<div style="display:flex;justify-content:space-between"><span>Built / Completed</span><b>'+completedMW.toLocaleString()+' MW</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Total Projects</span><b>'+projects+'</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Congestion</span><b style="color:'+col+'">'+congestionLabel(activeMW)+'</b></div>';
+popup+='<div style="margin-top:8px;text-align:center"><button onclick="screenCapacity(\''+sub.name.replace(/'/g,"\\'")+'\',this)" style="background:rgba(196,133,76,0.15);color:#C4854C;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(196,133,76,0.3);cursor:pointer;font-family:inherit;width:100%">&#x26A1; Screen Capacity</button></div>';
 m.bindPopup(popup);
 s.g.addLayer(m);
 });
@@ -1602,6 +1603,45 @@ e.stopPropagation();
 showSaveModal();
 }
 });
+
+// Power Flow Screening
+var SCREEN_API='https://corridor-powerflow.onrender.com';
+function screenCapacity(subName,btn){
+btn.textContent='Screening...';
+btn.disabled=true;
+btn.style.opacity='0.5';
+fetch(SCREEN_API+'/screen?sub='+encodeURIComponent(subName)+'&steps=50,100,200,300,500,700,1000').then(function(r){return r.json()}).then(function(d){
+if(d.error){btn.textContent='Error: '+d.error;return}
+var sc=d.screening;
+var sub=d.substation;
+var h='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(240,237,232,0.15)">POWER FLOW SCREENING</div>';
+h+='<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px">Safe Capacity</span><b style="font-size:13px;color:#66BB6A">~'+sc.safe_capacity_mw+' MW</b></div>';
+if(sc.first_constraint_mw){
+h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px">First Constraint</span><b style="font-size:10px;color:#FF9800">'+sc.first_constraint_mw+' MW</b></div>';
+}
+h+='<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-bottom:4px">Load Steps</div>';
+sc.steps.forEach(function(step){
+var color=step.status==='OK'?'#66BB6A':'#EF5350';
+var icon=step.status==='OK'?'&#x2713;':'&#x2717;';
+h+='<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:10px">';
+h+='<span style="color:'+color+';font-weight:700;width:14px">'+icon+'</span>';
+h+='<span style="width:55px">'+step.load_mw+' MW</span>';
+if(step.overloads&&step.overloads.length){
+var ol=step.overloads[0];
+h+='<span style="color:rgba(240,237,232,0.4);font-size:9px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+ol.from.substring(0,15)+' → '+ol.to.substring(0,15)+' ('+ol.loading_pct+'%)</span>';
+}else{
+h+='<span style="color:rgba(240,237,232,0.3);font-size:9px">No constraints</span>';
+}
+h+='</div>';
+});
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:4px;text-align:center">Synthetic model · DC power flow · screening only</div>';
+var container=btn.parentElement;
+container.innerHTML=h;
+}).catch(function(e){
+btn.textContent='API unavailable';
+btn.style.color='#EF5350';
+});
+}
 
 // Legend
 function uLeg(){
