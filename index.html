@@ -793,9 +793,10 @@ var dx=(sLng-ptLng)*54.6;var dy=(sLat-ptLat)*69.0;
 var dist=Math.sqrt(dx*dx+dy*dy);
 if(dist>25)return;
 var name=(a.NAME||'').trim();
-var isNamed=name&&!name.startsWith('UNKNOWN')&&!name.startsWith('TAP');
+var isNamed=name&&!name.startsWith('UNKNOWN')&&!name.startsWith('TAP')&&!name.startsWith('DEADEND');
 var maxV=a.MAX_VOLT||0;
 if(maxV<0)maxV=0;
+if(maxV>0&&maxV<100)return; // skip 69kV and below
 nearby.push({name:isNamed?name:'Unnamed Substation',lat:sLat,lng:sLng,county:(a.COUNTY||'').replace(/ County$/i,'').replace(/ Parish$/i,''),state:a.STATE||'',v:maxV>0?Math.round(maxV):0,lines:a.LINES||0,dist:dist,isNamed:isNamed});
 });
 // Sort by distance, take top 5, prefer named
@@ -837,7 +838,11 @@ var nameStyle=s.isNamed?'font-weight:600;color:#F0EDE8':'font-weight:400;color:r
 h+='<div style="'+nameStyle+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name;
 if(s.v>0)h+=' <span style="color:rgba(240,237,232,0.3);font-weight:400;font-style:normal">'+s.v+'kV</span>';
 h+='</div>';
-h+='<div style="color:rgba(240,237,232,0.4);font-size:9px">'+s.dist.toFixed(1)+' mi &middot; '+s.activeMW.toLocaleString()+' MW in queue &middot; <span style="color:'+s.col+'">'+s.congLabel+'</span></div>';
+h+='<div style="color:rgba(240,237,232,0.4);font-size:9px">'+s.dist.toFixed(1)+' mi';
+if(s.activeMW>0)h+=' &middot; <span style="color:'+s.col+'">'+s.activeMW.toLocaleString()+' MW in queue</span> &middot; <span style="color:'+s.col+'">'+s.congLabel+'</span>';
+else if(s.projects>0)h+=' &middot; '+s.completedMW.toLocaleString()+' MW built &middot; <span style="color:#66BB6A">Queue clear</span>';
+else h+=' &middot; <span style="color:rgba(240,237,232,0.25)">No queue data</span>';
+h+='</div>';
 h+='</div></div>';
 });
 h+='</div>';
