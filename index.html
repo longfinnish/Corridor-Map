@@ -267,6 +267,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
 <div class="li"><span class="ll"><span class="ld" style="background:linear-gradient(90deg,#EF5350,#FF9800,#FDD835,#66BB6A)"></span>Capacity Heat Map</span><label class="tg"><input type="checkbox" id="t-cap" onchange="togCapMap()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>LMP Prices (ERCOT)</span><label class="tg"><input type="checkbox" id="t-lmp" onchange="togLMP()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>Planned Transmission</span><label class="tg"><input type="checkbox" id="t-planned" onchange="togPlanned()"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
@@ -1775,6 +1776,65 @@ btn.disabled=false;
 btn.style.opacity='1';
 body.innerHTML='<div style="text-align:center;padding:40px;color:#EF5350">API unavailable — try again in 30s<br><span style="font-size:10px;color:rgba(240,237,232,0.3)">'+e.message+'</span></div>';
 });
+}
+
+// LMP Prices Layer
+var lmpLayer=L.layerGroup();
+var lmpLoaded=false;
+function lmpColor(price){
+if(price<0)return '#7C4DFF';
+if(price<10)return '#66BB6A';
+if(price<20)return '#FDD835';
+if(price<35)return '#FF9800';
+if(price<50)return '#EF5350';
+return '#B71C1C';
+}
+function togLMP(){
+var on=document.getElementById('t-lmp').checked;
+if(on){
+if(!lmpLoaded){
+fetch('data/ercot_lmp.json').then(function(r){return r.json()}).then(function(data){
+lmpLoaded=true;
+renderLMP(data);
+});
+}else{
+lmpLayer.addTo(map);
+}
+}else{
+map.removeLayer(lmpLayer);
+}
+uLeg();
+}
+function renderLMP(data){
+lmpLayer.clearLayers();
+// Zone markers — large labeled circles
+data.zones.forEach(function(z){
+var col=lmpColor(z.price);
+var priceStr=z.price<0?'-$'+Math.abs(z.price).toFixed(2):'$'+z.price.toFixed(2);
+var icon=L.divIcon({
+className:'',
+html:'<div style="background:'+col+';color:#1B2B3A;padding:4px 8px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.8);text-align:center;line-height:1.3"><div style="font-size:9px;font-weight:400;opacity:0.7">'+z.label+'</div>'+priceStr+'/MWh</div>',
+iconSize:[null,null],
+iconAnchor:[50,20]
+});
+var m=L.marker([z.lat,z.lng],{icon:icon,interactive:true,pane:'tooltipPane'});
+m.bindPopup('<b>'+z.label+'</b> ('+z.id+')<br>Settlement Price: <b style="color:'+col+'">'+priceStr+'/MWh</b><br><span style="font-size:10px;color:rgba(240,237,232,0.4)">'+data.interval+'</span>');
+lmpLayer.addLayer(m);
+});
+// Hub markers — smaller
+data.hubs.forEach(function(h){
+var col=lmpColor(h.price);
+var priceStr=h.price<0?'-$'+Math.abs(h.price).toFixed(2):'$'+h.price.toFixed(2);
+var icon=L.divIcon({
+className:'',
+html:'<div style="background:rgba(27,43,58,0.85);color:'+col+';padding:3px 6px;border-radius:4px;font-family:DM Sans,sans-serif;font-size:10px;font-weight:600;white-space:nowrap;border:1px solid '+col+';text-align:center">'+h.label+' '+priceStr+'</div>',
+iconSize:[null,null],
+iconAnchor:[50,15]
+});
+var m=L.marker([h.lat,h.lng],{icon:icon,interactive:true,pane:'tooltipPane'});
+lmpLayer.addLayer(m);
+});
+lmpLayer.addTo(map);
 }
 
 // Capacity Heat Map
