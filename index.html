@@ -196,6 +196,17 @@ hs:{on:false,mz:0,g:L.layerGroup(),ld:false,ac:null}
 
 function tog(n){
 var s=LS[n];s.on=!s.on;
+if(n==='tx'){
+// Master switch — toggle all voltages on/off
+var allOn=s.on;
+[765,500,345,230,161,138].forEach(function(v){txVolts[v]=allOn});
+document.querySelectorAll('[onchange*="togV"]').forEach(function(cb){cb.checked=allOn});
+// Also toggle substations with transmission
+LS.sub.on=allOn;document.getElementById('t-sub').checked=allOn;
+if(allOn){LS.sub.g.addTo(map);s.g.addTo(map);rl('tx');rl('sub')}
+else{map.removeLayer(s.g);s.g.clearLayers();map.removeLayer(LS.sub.g);LS.sub.g.clearLayers()}
+uLeg();return;
+}
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
 else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}}
 uLeg();
