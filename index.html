@@ -74,7 +74,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .lg-group{border-bottom:1px solid rgba(196,133,76,0.15)}
 .lg-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;cursor:pointer;user-select:none}
 .lg-group-hdr:hover{background:rgba(240,237,232,0.04)}
-.lg-group-hdr .lg-title{margin:0}
+.lg-group-hdr .lg-title{margin:0;font-size:12px;letter-spacing:2px}
 .lg-arrow{font-size:8px;color:rgba(240,237,232,0.4);transition:transform 0.2s}
 .lg-group.collapsed .lg-arrow{transform:rotate(-90deg)}
 .lg-group.collapsed .lg-body{display:none}
@@ -88,20 +88,20 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#8BC34A"></span>Google Streets</span><label class="tg"><input type="radio" name="bm" value="str" onchange="switchBase('str')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF9800"></span>OpenStreetMap</span><label class="tg"><input type="radio" name="bm" value="osm" onchange="switchBase('osm')"><span class="ts"></span></label></div>
 </div>
-<div class="lg-group" id="grp-power">
+<div class="lg-group collapsed" id="grp-power">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Power &amp; Infrastructure</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
-<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission Lines</span><label class="tg"><input type="checkbox" id="t-tx" checked onchange="tog('tx')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission Lines</span><label class="tg"><input type="checkbox" id="t-tx" onchange="tog('tx')"><span class="ts"></span></label></div>
 <div style="margin-left:16px;margin-bottom:4px">
-<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(765,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(500,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" checked onchange="togV(345,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" onchange="togV(765,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" onchange="togV(500,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" onchange="togV(345,this.checked)"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>230 kV</span><label class="tg"><input type="checkbox" onchange="togV(230,this.checked)"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" onchange="togV(161,this.checked)"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" checked onchange="tog('sub')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" onchange="tog('sub')"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
 <div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">PIPELINES</div>
@@ -118,7 +118,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div>
 </div>
 </div>
-<div class="lg-group" id="grp-fiber">
+<div class="lg-group collapsed" id="grp-fiber">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Fiber Networks</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
@@ -126,16 +126,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div>
 </div>
 </div>
-<div class="lg-group" id="grp-dc">
+<div class="lg-group collapsed" id="grp-dc">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Hyperscalers &amp; Data Centers</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
-<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" checked onchange="tog('hs')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" onchange="tog('hs')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (OSM)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
 </div>
 </div>
 </div>
-<div class="lg-group" id="grp-prop">
+<div class="lg-group collapsed" id="grp-prop">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Property</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
@@ -143,7 +143,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div>
 </div>
 </div>
-<div class="lg-group" id="grp-env">
+<div class="lg-group collapsed" id="grp-env">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Boundaries &amp; Environmental</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
@@ -176,12 +176,12 @@ var map=L.map('map',{center:[33.5,-97.5],zoom:6,layers:[BL.sat]});
 var cBase='sat';
 function switchBase(n){map.removeLayer(BL[cBase]);BL[n].addTo(map);cBase=n;document.querySelectorAll('input[name="bm"]').forEach(function(r){r.checked=(r.value===n)})}
 
-var txVolts={765:true,500:true,345:true,230:false,161:false,138:false};
+var txVolts={765:false,500:false,345:false,230:false,161:false,138:false};
 function togV(v,on){txVolts[v]=on;if(LS.tx.on){LS.tx.g.clearLayers();LS.sub.g.clearLayers();ldTx();ldSub()}uLeg()}
 function minSelectedV(){var vs=[765,500,345,230,161,138];for(var i=vs.length-1;i>=0;i--){if(txVolts[vs[i]])return vs[i]}return 9999}
 var LS={
-tx:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
-sub:{on:true,mz:8,g:L.layerGroup().addTo(map),ld:false,ac:null},
+tx:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
+sub:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
 gas:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
 osmpipe:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 gi:{on:false,mz:8,g:L.layerGroup(),types:{gcomp:false,grdp:false,gproc:false,gstor:false,gicon:false}},
@@ -191,7 +191,7 @@ wet:{on:false,mz:12,ly:null},
 cty:{on:false,mz:0,ly:null},
 
 st:{on:false,mz:0,ly:null},
-hs:{on:true,mz:0,g:L.layerGroup().addTo(map),ld:false,ac:null}
+hs:{on:false,mz:0,g:L.layerGroup(),ld:false,ac:null}
 };
 
 function tog(n){
