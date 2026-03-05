@@ -308,7 +308,7 @@ var cBase='sat';
 function switchBase(n){map.removeLayer(BL[cBase]);BL[n].addTo(map);cBase=n;document.querySelectorAll('input[name="bm"]').forEach(function(r){r.checked=(r.value===n)})}
 
 var txVolts={765:false,500:false,345:false,230:false,161:false,138:false};
-function togV(v,on){txVolts[v]=on;if(LS.tx.on){LS.tx.g.clearLayers();LS.sub.g.clearLayers();ldTx();ldSub()}uLeg()}
+function togV(v,on){txVolts[v]=on;if(LS.tx.on){LS.tx.g.clearLayers();LS.sub.g.clearLayers();ldTx();ldSub()}if(plannedLayer){map.removeLayer(plannedLayer);plannedLayer=null;renderPlanned()}uLeg()}
 function minSelectedV(){var vs=[765,500,345,230,161,138];for(var i=vs.length-1;i>=0;i--){if(txVolts[vs[i]])return vs[i]}return 9999}
 var LS={
 tx:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
@@ -839,6 +839,10 @@ plannedLayer=L.layerGroup();
 plannedData.forEach(function(p){
 if(!p.from_lat||!p.to_lat)return;
 var kv=p.kv||0;
+// Respect voltage toggles — if any voltages are active, filter by them
+var anyVoltOn=false;
+for(var v in txVolts){if(txVolts[v])anyVoltOn=true}
+if(anyVoltOn&&!vMatch(kv))return;
 // Color: green for new, orange for upgrade, gray for other
 var color='#78909C';
 if(p.ftype==='Line New')color='#00E676';
