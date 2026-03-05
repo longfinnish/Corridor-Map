@@ -308,7 +308,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg-body">
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#F0EDE8"></span>County Lines</span><label class="tg"><input type="checkbox" id="t-cty" onchange="tog('cty')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
+
 <div class="li"><span class="ll"><span class="ld" style="background:#4A7FB5"></span>100-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld100" onchange="togFlood('fld100')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E8A848"></span>500-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld500" onchange="togFlood('fld500')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>Wetlands &amp; Water</span><label class="tg"><input type="checkbox" id="t-wet" onchange="togWetWater()"><span class="ts"></span></label></div>
@@ -381,7 +381,7 @@ wet:{on:false,ly:null},
 wtr:{on:false,mz:0,ly:null},
 cty:{on:false,mz:0,ly:null},
 
-st:{on:false,mz:0,ly:null},
+st:{on:true,mz:0,ly:null},
 hs:{on:false,mz:0,g:L.layerGroup(),ld:false,ac:null}
 };
 
@@ -404,6 +404,8 @@ uLeg();
 map.on('mousemove',function(e){document.getElementById('cd').textContent=e.latlng.lat.toFixed(5)+', '+e.latlng.lng.toFixed(5)});
 map.on('zoomend',function(){document.getElementById('zd').textContent='Z: '+map.getZoom();rAll()});
 map.on('moveend',rAll);
+// Load state lines immediately
+ldSt();
 
 var rT=null;
 function rAll(){clearTimeout(rT);rT=setTimeout(function(){for(var n in LS)rl(n)},400)}
@@ -1017,17 +1019,14 @@ map.on('moveend',function(){
 for(var st in PARCEL_URLS){if(parcelEnabled[st])loadParcels(st)}
 });
 function ldSt(){
-var s=LS.st;if(!s.on)return;
+var s=LS.st;
 if(s.ly){if(!map.hasLayer(s.ly))s.ly.addTo(map);return}
 s.ly=L.esri.featureLayer({
 url:'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_States_Generalized_Boundaries/FeatureServer/0',
 where:'1=1',
-style:function(){return{color:'#C4854C',weight:2,opacity:0.6,fillOpacity:0,interactive:true}},
-fields:['STATE_NAME','STATE_ABBR','STATE_FIPS']
-});
-s.ly.bindPopup(function(layer){
-var p=layer.feature.properties;
-return '<b>'+p.STATE_NAME+'</b> ('+p.STATE_ABBR+')';
+style:function(){return{color:'#C4854C',weight:2,opacity:0.5,fillOpacity:0,interactive:false}},
+fields:['STATE_NAME','STATE_ABBR'],
+pane:'overlayPane'
 });
 s.ly.addTo(map);s.ly.bringToBack();
 }
@@ -1864,7 +1863,7 @@ if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#A
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
 var anyParcels=regridLayer?true:false;for(var _ps in PARCEL_URLS){if(parcelEnabled[_ps])anyParcels=true}
 if(anyParcels){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>Parcels</div>'}
-if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
+
 if(LS.fld100.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(74,127,181,0.6)"></span>100-Yr Flood</div>'}
 if(LS.fld500.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(232,168,72,0.5)"></span>500-Yr Flood</div>'}
 if(LS.wet.on||LS.wtr.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands & Water</div>'}
