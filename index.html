@@ -817,8 +817,24 @@ s.activeMW=qSub?qSub.active_mw:(qCty?qCty.active_mw:0);
 s.completedMW=qSub?qSub.completed_mw:(qCty?qCty.completed_mw:0);
 s.projects=qSub?qSub.projects:(qCty?qCty.projects:0);
 s.dataLevel=qSub?'POI':'County';
-s.col=congestionColor(s.activeMW);
-s.congLabel=congestionLabel(s.activeMW);
+// Estimate thermal capacity based on voltage and line count
+// Standard SIL ratings: 765kV~2200MW, 500kV~900MW, 345kV~400MW, 230kV~150MW, 138kV~50MW per line
+var mwPerLine=50;
+if(s.v>=765)mwPerLine=2200;
+else if(s.v>=500)mwPerLine=900;
+else if(s.v>=345)mwPerLine=400;
+else if(s.v>=230)mwPerLine=150;
+else if(s.v>=138)mwPerLine=50;
+var lineCount=s.lines||1;
+s.estCapacity=mwPerLine*Math.max(lineCount,1);
+s.utilization=s.estCapacity>0?Math.min(Math.round((s.activeMW/s.estCapacity)*100),999):0;
+// Color by utilization rather than raw MW
+if(s.utilization>=80)s.col='#EF5350';
+else if(s.utilization>=50)s.col='#FF9800';
+else if(s.utilization>=20)s.col='#FDD835';
+else if(s.activeMW>0)s.col='#66BB6A';
+else s.col='#4FC3F7';
+s.congLabel=s.utilization>=80?'Constrained':s.utilization>=50?'Busy':s.utilization>=20?'Moderate':s.activeMW>0?'Available':'No data';
 });
 return subList;
 }).catch(function(){return[]}).then(function(subList){
@@ -839,9 +855,20 @@ h+='<div style="'+nameStyle+';white-space:nowrap;overflow:hidden;text-overflow:e
 if(s.v>0)h+=' <span style="color:rgba(240,237,232,0.3);font-weight:400;font-style:normal">'+s.v+'kV</span>';
 h+='</div>';
 h+='<div style="color:rgba(240,237,232,0.4);font-size:9px">'+s.dist.toFixed(1)+' mi';
-if(s.activeMW>0)h+=' &middot; <span style="color:'+s.col+'">'+s.activeMW.toLocaleString()+' MW in queue</span> &middot; <span style="color:'+s.col+'">'+s.congLabel+'</span>';
-else if(s.projects>0)h+=' &middot; '+s.completedMW.toLocaleString()+' MW built &middot; <span style="color:#66BB6A">Queue clear</span>';
-else h+=' &middot; <span style="color:rgba(240,237,232,0.25)">No queue data</span>';
+if(s.v>0)h+=' &middot; '+s.v+'kV';
+if(s.lines>0)h+=' &middot; '+s.lines+' lines';
+if(s.estCapacity>0)h+=' &middot; ~'+s.estCapacity.toLocaleString()+' MW est.';
+h+='</div>';
+h+='<div style="font-size:9px">';
+if(s.activeMW>0){
+h+='<span style="color:'+s.col+'">'+s.activeMW.toLocaleString()+' MW queued</span>';
+if(s.estCapacity>0)h+=' <span style="color:rgba(240,237,232,0.3)">('+s.utilization+'% util)</span>';
+h+=' &middot; <span style="color:'+s.col+'">'+s.congLabel+'</span>';
+}else if(s.projects>0){
+h+='<span style="color:#66BB6A">Queue clear</span> &middot; '+s.completedMW.toLocaleString()+' MW built';
+}else{
+h+='<span style="color:rgba(240,237,232,0.25)">No queue data</span>';
+}
 h+='</div>';
 h+='</div></div>';
 });
