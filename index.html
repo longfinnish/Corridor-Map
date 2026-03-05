@@ -826,27 +826,52 @@ console.log('Corridor Map v3.0.0 loaded');
 </div>
 </div><!-- end main-app -->
 <script>
-var MAP_AUTH_HASH='a2a1213c426466cab21ed65603520ba8c37c809b45988919c30be07ad28fd817';
-var MAP_TEMP=[['2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea','2026-03-15']];
-async function sha256m(msg){var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));return[...new Uint8Array(buf)].map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
 async function checkMapAuth(){
 var pw=document.getElementById('auth-pw').value;
-var hash=await sha256m(pw);
-var today=new Date().toISOString().split('T')[0];
-var valid=(hash===MAP_AUTH_HASH);
-if(!valid){for(var i=0;i<MAP_TEMP.length;i++){if(hash===MAP_TEMP[i][0]&&today<=MAP_TEMP[i][1]){valid=true;break}}}
-if(valid){sessionStorage.setItem('corridor_map_auth','1');document.getElementById('auth-gate').style.display='none';document.getElementById('main-app').style.display='block'}
-else{document.getElementById('auth-error').style.display='block';document.getElementById('auth-pw').value=''}
-}
-var _mapUrlParams=new URLSearchParams(window.location.search);
-if(sessionStorage.getItem('corridor_map_auth')==='1'||_mapUrlParams.get('key')==='corr1dor2026'){
-sessionStorage.setItem('corridor_map_auth','1');
+if(!pw)return;
+try{
+var resp=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+var data=await resp.json();
+if(data.valid){
+sessionStorage.setItem('corridor_auth_token',data.token);
 document.getElementById('auth-gate').style.display='none';
 document.getElementById('main-app').style.display='block';
+}else{
+document.getElementById('auth-error').style.display='block';
+document.getElementById('auth-pw').value='';
+}
+}catch(e){
+document.getElementById('auth-error').style.display='block';
+document.getElementById('auth-pw').value='';
+}
+}
+async function checkKeyParam(key){
+try{
+var resp=await fetch('/api/auth?key='+encodeURIComponent(key));
+var data=await resp.json();
+if(data.valid){
+sessionStorage.setItem('corridor_auth_token',data.token);
+return true;
+}
+}catch(e){}
+return false;
+}
+(async function(){
+var token=sessionStorage.getItem('corridor_auth_token');
+var _p=new URLSearchParams(window.location.search);
+var keyParam=_p.get('key');
+if(token){
+document.getElementById('auth-gate').style.display='none';
+document.getElementById('main-app').style.display='block';
+}else if(keyParam){
+var ok=await checkKeyParam(keyParam);
+if(ok){document.getElementById('auth-gate').style.display='none';document.getElementById('main-app').style.display='block'}
+else{document.getElementById('auth-gate').style.display='flex';document.getElementById('main-app').style.display='none'}
 }else{
 document.getElementById('auth-gate').style.display='flex';
 document.getElementById('main-app').style.display='none';
 }
+})();
 </script>
 </body>
 </html>
