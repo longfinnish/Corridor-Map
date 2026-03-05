@@ -482,22 +482,44 @@ uLeg();
 }
 // Regrid parcel lookup — opens Regrid in new tab at clicked location
 var _rgLast=0;
+var _lastCounty=null;
 map.on('click',function(e){
 if(mOn)return;
 if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<15)return;
 var now=Date.now();if(now-_rgLast<1200)return;
 _rgLast=now;
-// Close any other popup (state/county) and show ours after a tick
+// Resolve county via ArcGIS spatial query
 setTimeout(function(){
 map.closePopup();
 var lat=e.latlng.lat.toFixed(5),lon=e.latlng.lng.toFixed(5);
 var coords=lat+', '+lon;
+// Query county boundaries to get county name + state
+var ctyUrl='https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized_Boundaries/FeatureServer/0/query';
+var ctyParams='?where=1%3D1&geometry='+lon+','+lat+'&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects&outFields=NAME,STATE_ABBR&returnGeometry=false&f=json';
+fetch(ctyUrl+ctyParams).then(function(r){return r.json()}).then(function(d){
+var ctyName='',stAbbr='';
+if(d.features&&d.features.length){ctyName=d.features[0].attributes.NAME;stAbbr=d.features[0].attributes.STATE_ABBR}
+_lastCounty={county:ctyName,state:stAbbr};
 var h='<div style="text-align:center;padding:4px">';
-h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';setTimeout(function(){document.querySelector(\'._rgc\').textContent=\''+coords+'\'},1200)" class="_rgc" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.2)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
-h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:600;font-size:12px">Open Regrid</a>';
+if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:4px">'+ctyName+' County, '+stAbbr+'</div>';
+h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.2)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
+h+='<div style="display:flex;gap:6px;justify-content:center">';
+h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px">Open Regrid</a>';
+if(ctyName&&stAbbr){
+h+='<a href="#" onclick="window.open(\'https://intel.thecorridor.io?state='+stAbbr+'&county='+encodeURIComponent(ctyName)+'\',\'corridor-intel\');return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
+}
+h+='</div>';
 h+='<div style="color:rgba(240,237,232,0.3);font-size:9px;margin-top:5px">Click coords to copy → paste in Regrid search</div>';
 h+='</div>';
+L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(h).openOn(map);
+}).catch(function(){
+// Fallback without county info
+var h='<div style="text-align:center;padding:4px">';
+h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px" title="Click to copy">'+coords+'</div>';
+h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:600;font-size:12px">Open Regrid</a>';
+h+='</div>';
 L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(h).openOn(map);
+});
 },50);
 });
 var PARCEL_URLS={
@@ -663,7 +685,20 @@ if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
-console.log('Corridor Map v2.4.1 loaded');
+// Handle URL param: ?locate=County+Name,+ST
+var _urlParams=new URLSearchParams(window.location.search);
+var _locateQ=_urlParams.get('locate');
+if(_locateQ){
+fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(_locateQ)+'&format=json&limit=1&countrycodes=us')
+.then(function(r){return r.json()}).then(function(res){
+if(res.length){
+var b=res[0].boundingbox;
+if(b)map.fitBounds([[b[0],b[2]],[b[1],b[3]]]);
+else map.setView([res[0].lat,res[0].lon],11);
+}
+});
+}
+console.log('Corridor Map v2.6.0 loaded');
 </script>
 </body>
 </html>
