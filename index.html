@@ -384,9 +384,13 @@ onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Transmission Li
 // Substations: derived from transmission line endpoints
 // Queue congestion data
 var queueCongestion=null;
+var queueBySub=null;
 function loadQueueCongestion(){
-if(queueCongestion)return Promise.resolve();
-return fetch('data/queue_by_county.json').then(function(r){return r.json()}).then(function(d){queueCongestion=d});
+if(queueCongestion&&queueBySub)return Promise.resolve();
+return Promise.all([
+fetch('data/queue_by_county.json').then(function(r){return r.json()}).then(function(d){queueCongestion=d}),
+fetch('data/queue_by_substation.json').then(function(r){return r.json()}).then(function(d){queueBySub=d})
+]);
 }
 
 function congestionColor(activeMW){
@@ -455,20 +459,24 @@ if(!vMatch(v))return;
 var ctyInfo=findCounty(sub.lat,sub.lng);
 var county=ctyInfo?ctyInfo.county:'';
 var state=ctyInfo?ctyInfo.state:'';
+// Try substation-level match first, then county fallback
+var subName=(sub.name||'').toUpperCase();
+var qSub=queueBySub?queueBySub[subName]:null;
 var qKey=county+'|'+state;
-var qData=queueCongestion?queueCongestion[qKey]:null;
-var activeMW=qData?qData.active_mw:0;
-var completedMW=qData?qData.completed_mw:0;
-var projects=qData?qData.projects:0;
+var qCty=queueCongestion?queueCongestion[qKey]:null;
+var activeMW=qSub?qSub.active_mw:(qCty?qCty.active_mw:0);
+var completedMW=qSub?qSub.completed_mw:(qCty?qCty.completed_mw:0);
+var projects=qSub?qSub.projects:(qCty?qCty.projects:0);
+var dataLevel=qSub?'Substation':'County';
 var col=congestionColor(activeMW);
 var radius=v>=500?7:v>=345?6:5;
 if(activeMW>=2000)radius+=2;
 else if(activeMW>=500)radius+=1;
-var m=L.circleMarker([sub.lat,sub.lng],{radius:radius,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
+var m=L.circleMarker([sub.lat,sub.lng],{radius:radius,fillColor:col,fillOpacity:0.9,color:qSub?'#fff':'rgba(255,255,255,0.5)',weight:qSub?2:1});
 var popup='<b>'+(sub.name||'Substation')+'</b><br>Voltage: '+v+' kV<br>Owner: '+(sub.owner||'\u2014');
 if(county)popup+='<br>County: '+county+(state==='LA'?' Parish':' County')+', '+state;
 popup+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
-popup+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">QUEUE ACTIVITY</div>';
+popup+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">QUEUE ACTIVITY <span style="color:rgba(240,237,232,0.3);font-weight:400">('+dataLevel+'-level)</span></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Active in Queue</span><b style="color:'+col+'">'+activeMW.toLocaleString()+' MW</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Built / Completed</span><b>'+completedMW.toLocaleString()+' MW</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Total Projects</span><b>'+projects+'</b></div>';
