@@ -488,14 +488,10 @@ if(!regridLayer||!map.hasLayer(regridLayer))return;
 if(map.getZoom()<14)return;
 _rgLast=now;_rgPending=true;
 var lat=latlng.lat.toFixed(5),lon=latlng.lng.toFixed(5);
-var searchUrl='https://app.regrid.com/search.json?query='+lat+','+lon+'&context=/us';
-fetch(searchUrl).then(function(r){return r.json()}).then(function(results){
-if(!results||!results.length||!results[0].path){_rgPending=false;return}
-var best=results[0];
-var detailUrl='https://app.regrid.com'+best.path+'.json';
-return fetch(detailUrl).then(function(r){return r.json()}).then(function(d){
+var proxyUrl='/api/regrid?lat='+lat+'&lon='+lon;
+fetch(proxyUrl).then(function(r){return r.json()}).then(function(d){
 _rgPending=false;
-if(!d||!d.fields)return;
+if(!d||d.error||!d.fields)return;
 var f=d.fields;
 var h='<div style="max-width:340px">';
 h+='<b style="font-size:14px;color:#C4854C">'+(f.owner||'Unknown Owner')+'</b><br>';
@@ -533,7 +529,6 @@ h+='</div>';
 h+='<div style="margin-top:5px;font-size:9px;color:rgba(240,237,232,0.3)">Parcel: '+(f.parcelnumb||'')+'</div>';
 h+='</div>';
 L.popup({maxWidth:380,className:''}).setLatLng(latlng).setContent(h).openOn(map);
-});
 }).catch(function(e){console.error('Regrid lookup error:',e);_rgPending=false});
 }
 map.on('click',function(e){
