@@ -487,6 +487,9 @@ if(mOn)return;
 if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<15)return;
 var now=Date.now();if(now-_rgLast<1200)return;
 _rgLast=now;
+// Close any other popup (state/county) and show ours after a tick
+setTimeout(function(){
+map.closePopup();
 var lat=e.latlng.lat.toFixed(5),lon=e.latlng.lng.toFixed(5);
 var coords=lat+', '+lon;
 var h='<div style="text-align:center;padding:4px">';
@@ -495,6 +498,7 @@ h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'
 h+='<div style="color:rgba(240,237,232,0.3);font-size:9px;margin-top:5px">Click coords to copy → paste in Regrid search</div>';
 h+='</div>';
 L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(h).openOn(map);
+},50);
 });
 var PARCEL_URLS={
 TX:'https://services1.arcgis.com/1mtXwieMId59thmg/arcgis/rest/services/2019_Texas_Parcels_StratMap/FeatureServer/0/query',
