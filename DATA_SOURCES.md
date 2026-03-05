@@ -62,6 +62,13 @@ LA, MS, OK, AR, IL, MO, AL, MI, KY, TN, KS, NE — now covered via Regrid JSON l
 ### Regrid API Token (sandbox — does NOT return data):
 `[REGRID_SANDBOX_TOKEN - see project knowledge]`
 
+### Regrid Paid API ($375/mo — not yet active)
+- **What it solves:** National queryable FeatureServer — search parcels by acreage, owner, zoning, value, use code across all 50 states. Enables "show me every 200+ acre parcel in this county" queries and draw-a-zone spatial search.
+- **What it doesn't solve:** Proximity to infrastructure (transmission, gas, fiber). That requires chaining Regrid results with HIFLD/EIA/Infrapedia spatial queries — custom code regardless of tier.
+- **When to upgrade:** When you're actively screening parcels and manually scanning the map feels slow. The trigger is needing to filter parcels by criteria across a county, not just clicking individual ones.
+- **Growth path:** Backbone of an automated site screening pipeline — feed in criteria, get ranked parcels. Scales to multiple developer clients.
+- **Free tier ceiling:** Click-to-copy-coords workflow handles 5-10 site evaluations. Breaks down for bulk screening.
+
 ## Other Live Layers
 - **Transmission Lines:** HIFLD `services1.arcgis.com/.../Electric_Power_Transmission_Lines/FeatureServer/0`
 - **Gas Pipelines (EIA):** `geo.dot.gov/.../Natural_Gas_Pipelines_US_EIA/FeatureServer/0`
