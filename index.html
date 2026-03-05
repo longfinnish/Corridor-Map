@@ -223,7 +223,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" onchange="togV(161,this.checked)"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" onchange="tog('sub')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>Substations (Queue Activity)</span><label class="tg"><input type="checkbox" id="t-sub" onchange="tog('sub')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>Planned Transmission</span><label class="tg"><input type="checkbox" id="t-planned" onchange="togPlanned()"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
@@ -382,8 +382,32 @@ onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Transmission Li
 }
 
 // Substations: derived from transmission line endpoints
+// Queue congestion data
+var queueCongestion=null;
+function loadQueueCongestion(){
+if(queueCongestion)return Promise.resolve();
+return fetch('data/queue_by_county.json').then(function(r){return r.json()}).then(function(d){queueCongestion=d});
+}
+
+function congestionColor(activeMW){
+if(activeMW>=5000)return '#EF5350'; // very congested — red
+if(activeMW>=2000)return '#FF9800'; // congested — orange
+if(activeMW>=500)return '#FDD835';  // moderate — yellow
+if(activeMW>0)return '#66BB6A';     // light — green
+return '#4FC3F7';                    // no queue data — default blue
+}
+
+function congestionLabel(activeMW){
+if(activeMW>=5000)return 'Very High';
+if(activeMW>=2000)return 'High';
+if(activeMW>=500)return 'Moderate';
+if(activeMW>0)return 'Low';
+return '\u2014';
+}
+
 function ldSub(){
 var s=LS.sub;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
+loadQueueCongestion();
 var params=new URLSearchParams({
 where:'VOLTAGE >= '+minSelectedV(),geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',outFields:'VOLTAGE,OWNER,SUB_1,SUB_2',
@@ -395,21 +419,73 @@ var subs={};
 d.features.forEach(function(f){
 var p=f.properties;var coords=f.geometry.coordinates;
 if(!coords||!coords.length)return;
-// Flatten multi-line coords
 var flat=coords;
-if(typeof coords[0][0]==='object')flat=coords[0]; // MultiLineString
+if(typeof coords[0][0]==='object')flat=coords[0];
 var first=flat[0];var last=flat[flat.length-1];
 if(p.SUB_1&&first){var k1=p.SUB_1+'|'+first[0].toFixed(3)+','+first[1].toFixed(3);
 if(!subs[k1])subs[k1]={name:p.SUB_1,lat:first[1],lng:first[0],v:p.VOLTAGE,owner:p.OWNER};}
 if(p.SUB_2&&last){var k2=p.SUB_2+'|'+last[0].toFixed(3)+','+last[1].toFixed(3);
 if(!subs[k2])subs[k2]={name:p.SUB_2,lat:last[1],lng:last[0],v:p.VOLTAGE,owner:p.OWNER};}
 });
+// Batch county lookup: query county boundaries for the visible bbox
+var bbox=bboxEnv();
+var ctyUrl='https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized_Boundaries/FeatureServer/0/query';
+var ctyParams=new URLSearchParams({
+where:'1=1',geometry:bbox,geometryType:'esriGeometryEnvelope',
+spatialRel:'esriSpatialRelIntersects',outFields:'NAME,STATE_ABBR',
+returnGeometry:'true',f:'geojson',outSR:'4326'
+});
+fetch(ctyUrl+'?'+ctyParams.toString()).then(function(r){return r.json()}).then(function(ctyData){
+// Build a simple point-in-polygon lookup using county polygons
+var counties=ctyData.features||[];
+function findCounty(lat,lng){
+var pt=L.latLng(lat,lng);
+for(var i=0;i<counties.length;i++){
+var poly=L.geoJSON(counties[i]);
+if(poly.getBounds().contains(pt)){
+// rough check via bounds — good enough for county-level
+return{county:counties[i].properties.NAME.replace(/ County$/i,'').replace(/ Parish$/i,''),state:counties[i].properties.STATE_ABBR};
+}
+}
+return null;
+}
 Object.keys(subs).forEach(function(k){
 var sub=subs[k];var v=sub.v||345;
-var col=vColor(v);if(!vMatch(v))return;
+if(!vMatch(v))return;
+var ctyInfo=findCounty(sub.lat,sub.lng);
+var county=ctyInfo?ctyInfo.county:'';
+var state=ctyInfo?ctyInfo.state:'';
+var qKey=county+'|'+state;
+var qData=queueCongestion?queueCongestion[qKey]:null;
+var activeMW=qData?qData.active_mw:0;
+var completedMW=qData?qData.completed_mw:0;
+var projects=qData?qData.projects:0;
+var col=congestionColor(activeMW);
+var radius=v>=500?7:v>=345?6:5;
+if(activeMW>=2000)radius+=2;
+else if(activeMW>=500)radius+=1;
+var m=L.circleMarker([sub.lat,sub.lng],{radius:radius,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
+var popup='<b>'+(sub.name||'Substation')+'</b><br>Voltage: '+v+' kV<br>Owner: '+(sub.owner||'\u2014');
+if(county)popup+='<br>County: '+county+(state==='LA'?' Parish':' County')+', '+state;
+popup+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
+popup+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">QUEUE ACTIVITY</div>';
+popup+='<div style="display:flex;justify-content:space-between"><span>Active in Queue</span><b style="color:'+col+'">'+activeMW.toLocaleString()+' MW</b></div>';
+popup+='<div style="display:flex;justify-content:space-between"><span>Built / Completed</span><b>'+completedMW.toLocaleString()+' MW</b></div>';
+popup+='<div style="display:flex;justify-content:space-between"><span>Total Projects</span><b>'+projects+'</b></div>';
+popup+='<div style="display:flex;justify-content:space-between"><span>Congestion</span><b style="color:'+col+'">'+congestionLabel(activeMW)+'</b></div>';
+m.bindPopup(popup);
+s.g.addLayer(m);
+});
+}).catch(function(){
+// Fallback: render without congestion data
+Object.keys(subs).forEach(function(k){
+var sub=subs[k];var v=sub.v||345;
+if(!vMatch(v))return;
+var col=vColor(v);
 var m=L.circleMarker([sub.lat,sub.lng],{radius:v>=500?7:5,fillColor:col,fillOpacity:0.9,color:'#fff',weight:1.5});
 m.bindPopup('<b>'+(sub.name||'Substation')+'</b><br>Voltage: '+v+' kV<br>Owner: '+(sub.owner||'\u2014'));
 s.g.addLayer(m);
+});
 });
 s.ld=false;
 }).catch(function(e){if(e.name!=='AbortError')console.error('Sub error:',e);s.ld=false});
@@ -1420,7 +1496,7 @@ showSaveModal();
 function uLeg(){
 var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
 if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>';if(txVolts[500])h+='<div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div>';if(txVolts[345])h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div>';if(txVolts[230])h+='<div class="lgi"><span class="lgl" style="background:#66BB6A"></span>230 kV</div>';if(txVolts[161])h+='<div class="lgi"><span class="lgl" style="background:#FDD835"></span>161 kV</div>';if(txVolts[138])h+='<div class="lgi"><span class="lgl" style="background:#BDBDBD"></span>138 kV</div>'}
-if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#4FC3F7"></span>Substations</div>'}
+if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#66BB6A"></span>Low Queue</div><div class="lgi"><span class="ld" style="background:#FDD835"></span>Moderate</div><div class="lgi"><span class="ld" style="background:#FF9800"></span>High</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>Very High</div>'}
 if(plannedLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#00E676"></span>New Lines</div><div class="lgi"><span class="lgl" style="background:#FFB74D"></span>Upgrades</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
