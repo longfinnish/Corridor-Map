@@ -81,6 +81,18 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </style>
 </head>
 <body>
+<div id="auth-gate" style="display:none;position:fixed;inset:0;background:#1B2B3A;z-index:9999;align-items:center;justify-content:center;flex-direction:column">
+<div style="text-align:center">
+<div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#F0EDE8;margin-bottom:6px">CO<span style="color:#C4854C">RR</span>IDOR</div>
+<div style="font-size:11px;color:rgba(240,237,232,0.4);letter-spacing:2px;margin-bottom:30px">INFRASTRUCTURE INTELLIGENCE</div>
+<input type="password" id="auth-pw" placeholder="Access code" style="padding:10px 16px;background:#253545;border:1px solid rgba(196,133,76,0.3);border-radius:6px;color:#F0EDE8;font-family:DM Sans,sans-serif;font-size:13px;width:220px;text-align:center;outline:none" onkeydown="if(event.key==='Enter')checkMapAuth()">
+<div style="margin-top:10px"><button onclick="checkMapAuth()" style="background:#C4854C;color:#1B2B3A;border:none;padding:8px 24px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer">Enter</button></div>
+<div id="auth-error" style="color:#EF5350;font-size:12px;margin-top:10px;display:none">Invalid access code</div>
+<div style="font-size:9px;color:rgba(240,237,232,0.2);margin-top:24px;letter-spacing:1px">BETA</div>
+</div>
+</div>
+<div id="main-app">
+<div id="beta-badge" style="position:fixed;bottom:8px;left:50%;transform:translateX(calc(-50% + 40px));z-index:1000;background:rgba(196,133,76,0.9);color:#1B2B3A;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;pointer-events:none">BETA</div>
 <div id="layer-panel">
 <div id="panel-header"><h1>CO<span style="color:#C4854C">RR</span>IDOR</h1><button id="panel-toggle" onclick="document.getElementById('layer-panel').classList.toggle('collapsed');this.textContent=document.getElementById('layer-panel').classList.contains('collapsed')?'\u25B6':'\u25C0'">&laquo;</button></div>
 <div class="lg"><div class="lg-title">Base Map</div>
@@ -739,7 +751,31 @@ else map.setView([res[0].lat,res[0].lon],11);
 }
 });
 }
-console.log('Corridor Map v2.6.0 loaded');
+console.log('Corridor Map v3.0.0 loaded');
+</script>
+</div><!-- end main-app -->
+<script>
+var MAP_AUTH_HASH='a2a1213c426466cab21ed65603520ba8c37c809b45988919c30be07ad28fd817';
+var MAP_TEMP=[['2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea','2026-03-15']];
+async function sha256m(msg){var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));return[...new Uint8Array(buf)].map(function(b){return b.toString(16).padStart(2,'0')}).join('')}
+async function checkMapAuth(){
+var pw=document.getElementById('auth-pw').value;
+var hash=await sha256m(pw);
+var today=new Date().toISOString().split('T')[0];
+var valid=(hash===MAP_AUTH_HASH);
+if(!valid){for(var i=0;i<MAP_TEMP.length;i++){if(hash===MAP_TEMP[i][0]&&today<=MAP_TEMP[i][1]){valid=true;break}}}
+if(valid){sessionStorage.setItem('corridor_map_auth','1');document.getElementById('auth-gate').style.display='none';document.getElementById('main-app').style.display='block'}
+else{document.getElementById('auth-error').style.display='block';document.getElementById('auth-pw').value=''}
+}
+var _mapUrlParams=new URLSearchParams(window.location.search);
+if(sessionStorage.getItem('corridor_map_auth')==='1'||_mapUrlParams.get('key')==='corr1dor2026'){
+sessionStorage.setItem('corridor_map_auth','1');
+document.getElementById('auth-gate').style.display='none';
+document.getElementById('main-app').style.display='block';
+}else{
+document.getElementById('auth-gate').style.display='flex';
+document.getElementById('main-app').style.display='none';
+}
 </script>
 </body>
 </html>
