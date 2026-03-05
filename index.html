@@ -699,21 +699,9 @@ if(ctyName&&stAbbr){
 h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
 h+='</div>';
-h+='<div style="margin-top:6px;text-align:center"><button id="pl-save-trigger" style="background:rgba(102,187,106,0.15);color:#66BB6A;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(102,187,106,0.3);cursor:pointer;font-family:inherit">+ Save to Pipeline</button></div>';
+h+='<div style="margin-top:6px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.15);color:#66BB6A;padding:5px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:10px;border:1px solid rgba(102,187,106,0.3)">+ Save to Pipeline</a></div>';
 h+='</div>';
-var popup=L.popup({maxWidth:300,closeOnClick:false}).setLatLng(e.latlng).setContent(h).openOn(map);
-var checkBtn=setInterval(function(){
-var btn=document.getElementById('pl-save-trigger');
-if(btn){
-clearInterval(checkBtn);
-btn.addEventListener('click',function(ev){
-ev.stopPropagation();
-ev.preventDefault();
-map.closePopup();
-showSaveModal();
-});
-}
-},50);
+L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(h).openOn(map);
 }).catch(function(){
 // Fallback without county info
 var h='<div style="text-align:center;padding:4px">';
@@ -1282,14 +1270,18 @@ renderPipeline();
 // Save modal — shown from parcel popup
 var _pendingSite=null;
 function showSaveModal(lat,lng,county,state){
+try{
 if(arguments.length>=4){_pendingSite={lat:lat,lng:lng,county:county||'',state:state||''};}
-if(!_pendingSite){return}
+if(!_pendingSite){alert('No pending site data');return}
 map.closePopup();
 loadPipeline().then(function(){
 var modal=document.getElementById('pl-save-modal');
+if(!modal){alert('Modal element not found');return}
 var p=_pendingSite;
 var folderOpts=plData.folders.map(function(f){return '<option value="'+f.id+'">'+f.name+'</option>'}).join('');
-var autoName=p.county+(p.state==='LA'?' Parish':' County')+' \u2014 '+p.lat.toFixed(4)+', '+p.lng.toFixed(4);
+var latStr=Number(p.lat).toFixed(4);
+var lngStr=Number(p.lng).toFixed(4);
+var autoName=(p.county||'Site')+(p.state==='LA'?' Parish':' County')+' \u2014 '+latStr+', '+lngStr;
 var h='<div class="pl-save-box">';
 h+='<div class="pl-save-title">SAVE TO PIPELINE</div>';
 h+='<input class="pl-save-input" id="pl-save-name" placeholder="Site name" value="'+autoName+'">';
@@ -1304,8 +1296,9 @@ h+='<button class="pl-save-btn primary" onclick="doSaveSite()">Save</button>';
 h+='</div></div>';
 modal.innerHTML=h;
 modal.style.display='flex';
-setTimeout(function(){document.getElementById('pl-save-name').select()},100);
-});
+setTimeout(function(){var el=document.getElementById('pl-save-name');if(el)el.select()},100);
+}).catch(function(err){alert('Pipeline load error: '+err.message)});
+}catch(ex){alert('showSaveModal error: '+ex.message)}
 }
 
 function closeSaveModal(){
