@@ -258,6 +258,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
 <div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>Substations (Queue Activity)</span><label class="tg"><input type="checkbox" id="t-sub" onchange="tog('sub')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:linear-gradient(90deg,#EF5350,#FF9800,#FDD835,#66BB6A)"></span>Capacity Heat Map</span><label class="tg"><input type="checkbox" id="t-cap" onchange="togCapMap()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>Planned Transmission</span><label class="tg"><input type="checkbox" id="t-planned" onchange="togPlanned()"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
@@ -1754,11 +1755,77 @@ body.innerHTML='<div style="text-align:center;padding:40px;color:#EF5350">API un
 });
 }
 
+// Capacity Heat Map
+var capLayer=L.layerGroup();
+var capLoaded=false;
+var capData=null;
+function capColor(mw){
+if(mw>=1000)return '#66BB6A';
+if(mw>=500)return '#8BC34A';
+if(mw>=300)return '#FDD835';
+if(mw>=200)return '#FF9800';
+if(mw>=100)return '#EF5350';
+return '#B71C1C';
+}
+function togCapMap(){
+var on=document.getElementById('t-cap').checked;
+if(on){
+if(!capLoaded){
+fetch('data/capacity_screening.json').then(function(r){return r.json()}).then(function(data){
+capData=data;
+capLoaded=true;
+renderCapMap();
+});
+}else{
+renderCapMap();
+}
+capLayer.addTo(map);
+}else{
+map.removeLayer(capLayer);
+capLayer.clearLayers();
+}
+uLeg();
+}
+function renderCapMap(){
+capLayer.clearLayers();
+if(!capData)return;
+var z=map.getZoom();
+var bounds=map.getBounds();
+capData.forEach(function(s){
+if(!bounds.contains([s.lat,s.lng]))return;
+var col=capColor(s.safe_mw);
+var radius=z>=10?8:z>=8?6:4;
+if(s.safe_mw>=700)radius+=1;
+if(s.safe_mw<100)radius+=1;
+var m=L.circleMarker([s.lat,s.lng],{radius:radius,fillColor:col,fillOpacity:0.85,color:'#fff',weight:1.5,pane:'markerPane'});
+var popup='<b>'+s.name+'</b><br>'+s.kv+' kV';
+popup+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
+popup+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">CAPACITY SCREENING</div>';
+popup+='<div style="display:flex;justify-content:space-between"><span>Safe Capacity</span><b style="color:'+col+';font-size:14px">~'+s.safe_mw.toLocaleString()+' MW</b></div>';
+if(s.first_constraint_mw){
+popup+='<div style="display:flex;justify-content:space-between"><span>First Constraint</span><b style="color:#FF9800">'+s.first_constraint_mw.toLocaleString()+' MW</b></div>';
+}else{
+popup+='<div style="display:flex;justify-content:space-between"><span>Constraint</span><b style="color:#66BB6A">None at 1000 MW</b></div>';
+}
+if(s.constraints&&s.constraints.length){
+popup+='<div style="margin-top:4px;font-size:9px;color:rgba(240,237,232,0.4)">Limiting: '+s.constraints[0].from+' \u2192 '+s.constraints[0].to+' ('+s.constraints[0].pct+'%)</div>';
+}
+popup+='<div style="display:flex;justify-content:space-between;margin-top:4px"><span>Existing Load</span><b>'+s.existing_load+' MW</b></div>';
+if(s.kv>=115&&s.lng>=-107&&s.lng<=-93&&s.lat>=25&&s.lat<=37){
+popup+='<div style="margin-top:8px;text-align:center"><button onclick="screenCapacity('+s.lat+','+s.lng+',this)" style="background:rgba(196,133,76,0.15);color:#C4854C;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(196,133,76,0.3);cursor:pointer;font-family:inherit;width:100%">&#x26A1; Full Screening Report</button></div>';
+}
+m.bindPopup(popup,{maxWidth:300});
+capLayer.addLayer(m);
+});
+}
+map.on('moveend',function(){if(document.getElementById('t-cap').checked&&capLoaded)renderCapMap()});
+
 // Legend
 function uLeg(){
 var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
 if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>';if(txVolts[500])h+='<div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div>';if(txVolts[345])h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div>';if(txVolts[230])h+='<div class="lgi"><span class="lgl" style="background:#66BB6A"></span>230 kV</div>';if(txVolts[161])h+='<div class="lgi"><span class="lgl" style="background:#FDD835"></span>161 kV</div>';if(txVolts[138])h+='<div class="lgi"><span class="lgl" style="background:#BDBDBD"></span>138 kV</div>'}
 if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#66BB6A"></span>Low Queue</div><div class="lgi"><span class="ld" style="background:#FDD835"></span>Moderate</div><div class="lgi"><span class="ld" style="background:#FF9800"></span>High</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>Very High</div>'}
+if(document.getElementById('t-cap')&&document.getElementById('t-cap').checked){has=true;h+='<div class="lgi"><span class="ld" style="background:#66BB6A"></span>1000+ MW</div><div class="lgi"><span class="ld" style="background:#FDD835"></span>300-499 MW</div><div class="lgi"><span class="ld" style="background:#FF9800"></span>200-299 MW</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>&lt;200 MW</div>'}
 if(plannedLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#00E676"></span>New Lines</div><div class="lgi"><span class="lgl" style="background:#FFB74D"></span>Upgrades</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
