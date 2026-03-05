@@ -556,7 +556,7 @@ h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent
 h+='<div style="display:flex;gap:6px;justify-content:center">';
 h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px">Open Regrid</a>';
 if(ctyName&&stAbbr){
-h+='<a href="#" onclick="window.open(\'https://intel.thecorridor.io?key=corr1dor2026&state='+stAbbr+'&county='+encodeURIComponent(ctyName)+'\',\'corridor-intel\');return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
+h+='<a href="#" onclick="window.open(\'https://corridor-intel.pages.dev?key=corr1dor2026&state='+stAbbr+'&county='+encodeURIComponent(ctyName)+'\',\'corridor-intel\');return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
 h+='</div>';
 h+='<div style="color:rgba(240,237,232,0.3);font-size:9px;margin-top:5px">Click coords to copy → paste in Regrid search</div>';
@@ -718,7 +718,7 @@ if(county&&state){btn.innerHTML='&#x26A1; Market Intel <span class="mi-county">'
 else{btn.innerHTML='&#x26A1; Market Intel'}
 }
 function openMarketIntel(){
-var url='https://intel.thecorridor.io?key=corr1dor2026';
+var url='https://corridor-intel.pages.dev?key=corr1dor2026';
 if(_miCounty&&_miState){url+='&state='+_miState+'&county='+encodeURIComponent(_miCounty)}
 window.open(url,'corridor-intel');
 }
