@@ -491,7 +491,7 @@ var lat=e.latlng.lat.toFixed(5),lon=e.latlng.lng.toFixed(5);
 var coords=lat+', '+lon;
 var h='<div style="text-align:center;padding:4px">';
 h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';setTimeout(function(){document.querySelector(\'._rgc\').textContent=\''+coords+'\'},1200)" class="_rgc" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.2)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
-h+='<a href="https://app.regrid.com/us" target="_blank" rel="noopener" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:600;font-size:12px">Open Regrid</a>';
+h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:600;font-size:12px">Open Regrid</a>';
 h+='<div style="color:rgba(240,237,232,0.3);font-size:9px;margin-top:5px">Click coords to copy → paste in Regrid search</div>';
 h+='</div>';
 L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(h).openOn(map);
