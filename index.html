@@ -183,8 +183,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#4A7FB5"></span>100-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld100" onchange="togFlood('fld100')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E8A848"></span>500-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld500" onchange="togFlood('fld500')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="togWet()"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#42A5F5"></span>Water Bodies &amp; Rivers</span><label class="tg"><input type="checkbox" id="t-wtr" onchange="tog('wtr')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>Wetlands &amp; Water</span><label class="tg"><input type="checkbox" id="t-wet" onchange="togWetWater()"><span class="ts"></span></label></div>
 </div>
 </div>
 </div>
@@ -688,17 +687,26 @@ s.ly.addTo(map);
 uLeg();
 }
 
-// NWI Wetlands — USFWS Raster
-function togWet(){
-var s=LS.wet;s.on=!s.on;
-if(!s.on){if(s.ly){map.removeLayer(s.ly);s.ly=null}uLeg();return}
-s.ly=L.esri.imageMapLayer({
+// NWI Wetlands + Water Bodies combined toggle
+function togWetWater(){
+var sw=LS.wet;var swtr=LS.wtr;
+var turning_on=!sw.on;
+sw.on=turning_on;swtr.on=turning_on;
+if(!turning_on){
+if(sw.ly){map.removeLayer(sw.ly);sw.ly=null}
+if(swtr.ly){map.removeLayer(swtr.ly);swtr.ly=null}
+uLeg();return;
+}
+// Load wetlands raster
+sw.ly=L.esri.imageMapLayer({
 url:'https://fwsprimary.wim.usgs.gov/server/rest/services/Wetlands_Raster/ImageServer',
 opacity:0.75,
 useCors:false,
 attribution:'USFWS NWI'
 });
-s.ly.addTo(map);
+sw.ly.addTo(map);
+// Load water bodies & rivers
+rWtr();
 uLeg();
 }
 
@@ -819,8 +827,7 @@ if(anyParcels){has=true;h+='<div class="lgi"><span class="lgs" style="background
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
 if(LS.fld100.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(74,127,181,0.6)"></span>100-Yr Flood</div>'}
 if(LS.fld500.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(232,168,72,0.5)"></span>500-Yr Flood</div>'}
-if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
-if(LS.wtr.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,165,245,0.5)"></span>Water</div>'}
+if(LS.wet.on||LS.wtr.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands & Water</div>'}
 lg.innerHTML=h;lg.style.display=has?'block':'none';
 }
 uLeg();rAll();
