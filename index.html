@@ -1270,13 +1270,12 @@ renderPipeline();
 // Save modal — shown from parcel popup
 var _pendingSite=null;
 function showSaveModal(lat,lng,county,state){
-try{
 if(arguments.length>=4){_pendingSite={lat:lat,lng:lng,county:county||'',state:state||''};}
-if(!_pendingSite){alert('No pending site data');return}
+if(!_pendingSite)return;
 map.closePopup();
 loadPipeline().then(function(){
 var modal=document.getElementById('pl-save-modal');
-if(!modal){alert('Modal element not found');return}
+if(!modal)return;
 var p=_pendingSite;
 var folderOpts=plData.folders.map(function(f){return '<option value="'+f.id+'">'+f.name+'</option>'}).join('');
 var latStr=Number(p.lat).toFixed(4);
@@ -1297,8 +1296,7 @@ h+='</div></div>';
 modal.innerHTML=h;
 modal.style.display='flex';
 setTimeout(function(){var el=document.getElementById('pl-save-name');if(el)el.select()},100);
-}).catch(function(err){alert('Pipeline load error: '+err.message)});
-}catch(ex){alert('showSaveModal error: '+ex.message)}
+});
 }
 
 function closeSaveModal(){
