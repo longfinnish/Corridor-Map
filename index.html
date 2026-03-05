@@ -1080,8 +1080,7 @@ for(var k in props){if(props[k]&&k!=='styleUrl'&&k!=='styleHash')h+='<b>'+k+':</
 if(h)ly.bindPopup(h);
 }
 });
-if(visible!==false)layer.addTo(map);
-var item={id:id,name:name,layer:layer,color:color,visible:visible!==false,geojson:geojson};
+var item={id:id,name:name,layer:layer,color:color,visible:false,geojson:geojson};
 customLayers.push(item);
 customColorIdx=Math.max(customColorIdx,customColors.indexOf(color)+1);
 renderCustomList();uLeg();
