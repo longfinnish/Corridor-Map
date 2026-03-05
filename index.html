@@ -769,49 +769,47 @@ if(d.features&&d.features.length){ctyName=d.features[0].attributes.NAME.replace(
 _lastCounty={county:ctyName,state:stAbbr};
 _pendingSite={lat:parseFloat(lat),lng:parseFloat(lon),county:ctyName,state:stAbbr};
 setMIContext(ctyName,stAbbr);
-// Query nearby substations (25 mile radius)
+// Query nearby substations (25 mile radius) from HIFLD substations point layer
 loadQueueCongestion();
-var subUrl=TXURL;
+var SUBSTATION_URL='https://services6.arcgis.com/OO2s4OoyCZkYJ6oE/arcgis/rest/services/Substations/FeatureServer/0/query';
 var ptLat=parseFloat(lat),ptLng=parseFloat(lon);
-var bufDeg=0.36; // ~25 miles in degrees
+var bufDeg=0.36; // ~25 miles
 var subParams=new URLSearchParams({
-where:'VOLTAGE >= 138 AND SUB_1 NOT LIKE \'UNKNOWN%\' AND SUB_1 NOT LIKE \'TAP%\'',
+where:'1=1',
 geometry:(ptLng-bufDeg)+','+(ptLat-bufDeg)+','+(ptLng+bufDeg)+','+(ptLat+bufDeg),
 geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',
-outFields:'SUB_1,SUB_2,VOLTAGE,OWNER',
-returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'500'
+inSR:'4326',
+outFields:'NAME,COUNTY,STATE,OWNER,LINES',
+returnGeometry:'true',f:'json',outSR:'4326',resultRecordCount:'500'
 });
-fetch(subUrl+'?'+subParams.toString()).then(function(r){return r.json()}).then(function(subData){
-// Extract unique substations with distance
-var nearby={};
+fetch(SUBSTATION_URL+'?'+subParams.toString()).then(function(r){return r.json()}).then(function(subData){
+var nearby=[];
 (subData.features||[]).forEach(function(f){
-var p=f.properties;var coords=f.geometry.coordinates;
-if(!coords||!coords.length)return;
-var flat=coords;
-if(typeof coords[0][0]==='object')flat=coords[0];
-var first=flat[0];var last=flat[flat.length-1];
-function addSub(name,lng2,lat2,v,owner){
-if(!name||name.startsWith('UNKNOWN')||name.startsWith('TAP'))return;
-var dx=(lng2-ptLng)*54.6;var dy=(lat2-ptLat)*69.0;
+var a=f.attributes;var g=f.geometry;
+if(!g)return;
+var sLat=g.y,sLng=g.x;
+var dx=(sLng-ptLng)*54.6;var dy=(sLat-ptLat)*69.0;
 var dist=Math.sqrt(dx*dx+dy*dy);
 if(dist>25)return;
-var k=name+'|'+lng2.toFixed(3);
-if(!nearby[k]||nearby[k].dist>dist){
-nearby[k]={name:name,lat:lat2,lng:lng2,v:v,owner:owner,dist:dist};
-}
-}
-if(p.SUB_1&&first)addSub(p.SUB_1,first[0],first[1],p.VOLTAGE,p.OWNER);
-if(p.SUB_2&&last)addSub(p.SUB_2,last[0],last[1],p.VOLTAGE,p.OWNER);
+var name=(a.NAME||'').trim();
+var isNamed=name&&!name.startsWith('UNKNOWN')&&!name.startsWith('TAP');
+nearby.push({name:isNamed?name:'Unnamed Substation',lat:sLat,lng:sLng,county:(a.COUNTY||'').replace(/ County$/i,'').replace(/ Parish$/i,''),state:a.STATE||'',owner:a.OWNER||'',lines:a.LINES||0,dist:dist,isNamed:isNamed});
 });
-// Sort by distance, take top 5
-var subList=Object.values(nearby).sort(function(a,b){return a.dist-b.dist}).slice(0,5);
+// Sort by distance, take top 5, prefer named
+nearby.sort(function(a,b){return a.dist-b.dist});
+var subList=nearby.slice(0,8);
 // Look up congestion for each
 subList.forEach(function(s){
 var subName=s.name.toUpperCase();
-var qSub=queueBySub?queueBySub[subName]:null;
-var qKey=ctyName+'|'+stAbbr;
-var qCty=queueCongestion?queueCongestion[qKey]:null;
+var qSub=(s.isNamed&&queueBySub)?queueBySub[subName]:null;
+var ctyKey=s.county+'|'+s.state;
+var qCty=queueCongestion?queueCongestion[ctyKey]:null;
+if(!qCty){
+// Try with the parcel's county instead
+var parcelKey=ctyName+'|'+stAbbr;
+qCty=queueCongestion?queueCongestion[parcelKey]:null;
+}
 s.activeMW=qSub?qSub.active_mw:(qCty?qCty.active_mw:0);
 s.completedMW=qSub?qSub.completed_mw:(qCty?qCty.completed_mw:0);
 s.projects=qSub?qSub.projects:(qCty?qCty.projects:0);
@@ -827,12 +825,16 @@ h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent
 // Nearby substations section
 if(subList&&subList.length){
 h+='<div style="text-align:left;margin:6px 0;padding-top:6px;border-top:1px solid rgba(240,237,232,0.1)">';
-h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:5px;text-align:center">NEAREST SUBSTATIONS</div>';
-subList.forEach(function(s){
+h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:5px;text-align:center">NEAREST SUBSTATIONS <span style="color:rgba(240,237,232,0.25);font-weight:400">(25 mi)</span></div>';
+subList.forEach(function(s,i){
+if(i>=5)return;
 h+='<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:10px">';
 h+='<div style="width:8px;height:8px;border-radius:50%;background:'+s.col+';flex-shrink:0"></div>';
 h+='<div style="flex:1;min-width:0">';
-h+='<div style="font-weight:600;color:#F0EDE8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name+' <span style="color:rgba(240,237,232,0.4)">'+s.v+'kV</span></div>';
+var nameStyle=s.isNamed?'font-weight:600;color:#F0EDE8':'font-weight:400;color:rgba(240,237,232,0.5);font-style:italic';
+h+='<div style="'+nameStyle+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name;
+if(s.isNamed&&s.owner)h+=' <span style="color:rgba(240,237,232,0.3);font-weight:400;font-style:normal">'+s.owner.split(/[,/]/)[0].trim().substring(0,20)+'</span>';
+h+='</div>';
 h+='<div style="color:rgba(240,237,232,0.4);font-size:9px">'+s.dist.toFixed(1)+' mi &middot; '+s.activeMW.toLocaleString()+' MW in queue &middot; <span style="color:'+s.col+'">'+s.congLabel+'</span></div>';
 h+='</div></div>';
 });
