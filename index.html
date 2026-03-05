@@ -639,7 +639,7 @@ if(cm){srEl.innerHTML='<div class="sri" onclick="goTo('+cm[1]+','+cm[2]+',14)">G
 clearTimeout(si._d);si._d=setTimeout(function(){
 fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(si.value)+'&format=json&limit=5&countrycodes=us')
 .then(function(r){return r.json()}).then(function(res){if(!res.length){srEl.style.display='none';return}
-srEl.innerHTML=res.map(function(r){return '<div class="sri" onclick="goTo('+r.lat+','+r.lon+',13)">'+r.display_name+'</div>'}).join('');srEl.style.display='block'})},350);
+srEl.innerHTML=res.map(function(r){var dn=r.display_name.split(',');var short=dn.slice(0,3).join(',').trim().replace(/, United States$/,'');return '<div class="sri" onclick="goTo('+r.lat+','+r.lon+',13)">'+short+'</div>'}).join('');srEl.style.display='block'})},350);
 });
 function doSearch(){
 var v=si.value.trim();if(!v)return;
