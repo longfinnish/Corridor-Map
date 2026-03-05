@@ -688,7 +688,7 @@ fetch(ctyUrl+ctyParams).then(function(r){return r.json()}).then(function(d){
 var ctyName='',stAbbr='';
 if(d.features&&d.features.length){ctyName=d.features[0].attributes.NAME.replace(/ County$/i,'').replace(/ Parish$/i,'');stAbbr=d.features[0].attributes.STATE_ABBR}
 _lastCounty={county:ctyName,state:stAbbr};
-_pendingSite={lat:lat,lng:parseFloat(lon),county:ctyName,state:stAbbr};
+_pendingSite={lat:parseFloat(lat),lng:parseFloat(lon),county:ctyName,state:stAbbr};
 setMIContext(ctyName,stAbbr);
 var h='<div style="text-align:center;padding:4px">';
 if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:4px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
