@@ -1270,8 +1270,17 @@ if(!folder)return;
 var site=folder.sites.find(function(s){return s.id===sid});
 if(!site)return;
 site[field]=value;
+if(field==='owner'&&value.trim()){
+var parts=value.trim().split(/\s+/);
+var surname=parts[parts.length-1];
+surname=surname.charAt(0).toUpperCase()+surname.slice(1).toLowerCase();
+site.name='Site '+surname;
+var nameEl=document.querySelector('.pl-detail-name');
+if(nameEl)nameEl.textContent=site.name;
+}
 site.updated=Date.now();
 savePipeline();
+renderPipeline();
 }
 
 function delSite(fid,sid){
