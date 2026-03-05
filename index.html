@@ -780,7 +780,7 @@ geometry:(ptLng-bufDeg)+','+(ptLat-bufDeg)+','+(ptLng+bufDeg)+','+(ptLat+bufDeg)
 geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',
 inSR:'4326',
-outFields:'NAME,COUNTY,STATE,OWNER,LINES',
+outFields:'NAME,COUNTY,STATE,MAX_VOLT,LINES',
 returnGeometry:'true',f:'json',outSR:'4326',resultRecordCount:'500'
 });
 fetch(SUBSTATION_URL+'?'+subParams.toString()).then(function(r){return r.json()}).then(function(subData){
@@ -794,7 +794,9 @@ var dist=Math.sqrt(dx*dx+dy*dy);
 if(dist>25)return;
 var name=(a.NAME||'').trim();
 var isNamed=name&&!name.startsWith('UNKNOWN')&&!name.startsWith('TAP');
-nearby.push({name:isNamed?name:'Unnamed Substation',lat:sLat,lng:sLng,county:(a.COUNTY||'').replace(/ County$/i,'').replace(/ Parish$/i,''),state:a.STATE||'',owner:a.OWNER||'',lines:a.LINES||0,dist:dist,isNamed:isNamed});
+var maxV=a.MAX_VOLT||0;
+if(maxV<0)maxV=0;
+nearby.push({name:isNamed?name:'Unnamed Substation',lat:sLat,lng:sLng,county:(a.COUNTY||'').replace(/ County$/i,'').replace(/ Parish$/i,''),state:a.STATE||'',v:maxV>0?Math.round(maxV):0,lines:a.LINES||0,dist:dist,isNamed:isNamed});
 });
 // Sort by distance, take top 5, prefer named
 nearby.sort(function(a,b){return a.dist-b.dist});
@@ -833,7 +835,7 @@ h+='<div style="width:8px;height:8px;border-radius:50%;background:'+s.col+';flex
 h+='<div style="flex:1;min-width:0">';
 var nameStyle=s.isNamed?'font-weight:600;color:#F0EDE8':'font-weight:400;color:rgba(240,237,232,0.5);font-style:italic';
 h+='<div style="'+nameStyle+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name;
-if(s.isNamed&&s.owner)h+=' <span style="color:rgba(240,237,232,0.3);font-weight:400;font-style:normal">'+s.owner.split(/[,/]/)[0].trim().substring(0,20)+'</span>';
+if(s.v>0)h+=' <span style="color:rgba(240,237,232,0.3);font-weight:400;font-style:normal">'+s.v+'kV</span>';
 h+='</div>';
 h+='<div style="color:rgba(240,237,232,0.4);font-size:9px">'+s.dist.toFixed(1)+' mi &middot; '+s.activeMW.toLocaleString()+' MW in queue &middot; <span style="color:'+s.col+'">'+s.congLabel+'</span></div>';
 h+='</div></div>';
