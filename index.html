@@ -208,6 +208,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#4A90D9"></span>Google Satellite</span><label class="tg"><input type="radio" name="bm" value="sat" checked onchange="switchBase('sat')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#8BC34A"></span>Google Streets</span><label class="tg"><input type="radio" name="bm" value="str" onchange="switchBase('str')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF9800"></span>OpenStreetMap</span><label class="tg"><input type="radio" name="bm" value="osm" onchange="switchBase('osm')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>Parcel Boundaries</span><label class="tg"><input type="checkbox" id="t-regrid" onchange="togRegrid()"><span class="ts"></span></label></div>
 </div>
 <div class="lg-group collapsed" id="grp-power">
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Power &amp; Infrastructure</div><span class="lg-arrow">&#x25BC;</span></div>
@@ -256,14 +257,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" onchange="tog('hs')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (OSM)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
-</div>
-</div>
-</div>
-<div class="lg-group collapsed" id="grp-prop">
-<div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Property</div><span class="lg-arrow">&#x25BC;</span></div>
-<div class="lg-body">
-<div class="lg">
-<div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>Parcel Boundaries</span><label class="tg"><input type="checkbox" id="t-regrid" onchange="togRegrid()"><span class="ts"></span></label></div>
 </div>
 </div>
 </div>
@@ -985,6 +978,20 @@ var customLayers=[];
 var customColors=['#E91E63','#00BCD4','#FFEB3B','#8BC34A','#FF5722','#9C27B0','#03A9F4','#FF9800','#4CAF50','#F44336'];
 var customColorIdx=0;
 
+// Persist custom layers to KV
+function saveCustomLayers(){
+var data=customLayers.map(function(c){return{id:c.id,name:c.name,color:c.color,visible:c.visible,geojson:c.geojson}});
+fetch('/api/custom-layers?key=corr1dor2026',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({layers:data})});
+}
+function loadCustomLayers(){
+fetch('/api/custom-layers?key=corr1dor2026').then(function(r){return r.json()}).then(function(data){
+if(!data||!data.layers)return;
+data.layers.forEach(function(c){
+restoreCustomLayer(c.id,c.name,c.geojson,c.color,c.visible);
+});
+}).catch(function(){});
+}
+
 // Drag and drop
 var dropZone=document.getElementById('custom-drop');
 if(dropZone){
@@ -1054,11 +1061,30 @@ if(h)ly.bindPopup(h);
 });
 layer.addTo(map);
 var id='cl_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);
-var item={id:id,name:name,layer:layer,color:color,visible:true};
+var item={id:id,name:name,layer:layer,color:color,visible:true,geojson:geojson};
 customLayers.push(item);
 renderCustomList();
+saveCustomLayers();
 try{map.fitBounds(layer.getBounds(),{padding:[50,50],maxZoom:14})}catch(e){}
 uLeg();
+}
+
+function restoreCustomLayer(id,name,geojson,color,visible){
+var layer=L.geoJSON(geojson,{
+style:function(){return{color:color,weight:2.5,opacity:0.9,fillColor:color,fillOpacity:0.2}},
+pointToLayer:function(f,ll){return L.circleMarker(ll,{radius:6,fillColor:color,color:'#fff',weight:1.5,fillOpacity:0.8})},
+onEachFeature:function(f,ly){
+var props=f.properties||{};
+var h='';
+for(var k in props){if(props[k]&&k!=='styleUrl'&&k!=='styleHash')h+='<b>'+k+':</b> '+props[k]+'<br>'}
+if(h)ly.bindPopup(h);
+}
+});
+if(visible!==false)layer.addTo(map);
+var item={id:id,name:name,layer:layer,color:color,visible:visible!==false,geojson:geojson};
+customLayers.push(item);
+customColorIdx=Math.max(customColorIdx,customColors.indexOf(color)+1);
+renderCustomList();uLeg();
 }
 
 function togCustomLayer(id){
@@ -1067,7 +1093,7 @@ if(!item)return;
 item.visible=!item.visible;
 if(item.visible)item.layer.addTo(map);
 else map.removeLayer(item.layer);
-renderCustomList();uLeg();
+renderCustomList();saveCustomLayers();uLeg();
 }
 
 function zoomCustomLayer(id){
@@ -1081,7 +1107,7 @@ var item=customLayers.find(function(c){return c.id===id});
 if(!item)return;
 if(item.layer&&map.hasLayer(item.layer))map.removeLayer(item.layer);
 customLayers=customLayers.filter(function(c){return c.id!==id});
-renderCustomList();uLeg();
+renderCustomList();saveCustomLayers();uLeg();
 }
 
 function renderCustomList(){
@@ -1379,8 +1405,9 @@ plMarkers.addLayer(marker);
 });
 }
 
-// Load pipeline on startup
+// Load pipeline and custom layers on startup
 loadPipeline();
+loadCustomLayers();
 
 // Event delegation for popup save button (inline onclick doesn't work in Leaflet popups)
 document.addEventListener('click',function(e){
