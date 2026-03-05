@@ -220,6 +220,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
 </div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF6B6B"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" onchange="tog('sub')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>Planned Transmission</span><label class="tg"><input type="checkbox" id="t-planned" onchange="togPlanned()"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
 <div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">PIPELINES</div>
@@ -823,6 +824,48 @@ rWtr();
 uLeg();
 }
 
+// Planned Transmission
+var plannedLayer=null;
+var plannedData=null;
+function togPlanned(){
+if(plannedLayer){map.removeLayer(plannedLayer);plannedLayer=null;uLeg();return}
+if(plannedData){renderPlanned();return}
+fetch('data/planned_transmission.json').then(function(r){return r.json()}).then(function(d){
+plannedData=d;renderPlanned();
+}).catch(function(e){console.error('Planned transmission load error:',e)});
+}
+function renderPlanned(){
+plannedLayer=L.layerGroup();
+plannedData.forEach(function(p){
+if(!p.from_lat||!p.to_lat)return;
+var kv=p.kv||0;
+// Color: green for new, orange for upgrade, gray for other
+var color='#78909C';
+if(p.ftype==='Line New')color='#00E676';
+else if(p.ftype==='Line Upgrade')color='#FFB74D';
+// Weight by voltage
+var weight=2;
+if(kv>=345)weight=3.5;
+else if(kv>=230)weight=2.5;
+var line=L.polyline([[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]],{
+color:color,weight:weight,opacity:0.8,dashArray:'8 6'
+});
+var costStr=p.cost?'$'+(p.cost>=1e9?(p.cost/1e9).toFixed(1)+'B':p.cost>=1e6?(p.cost/1e6).toFixed(1)+'M':(p.cost/1e3).toFixed(0)+'K'):'N/A';
+line.bindPopup('<div style="min-width:200px"><b style="font-size:13px">'+p.name+'</b><br>'+
+'<span style="display:inline-block;background:'+(p.ftype==='Line New'?'rgba(0,230,118,0.15);color:#00E676':p.ftype==='Line Upgrade'?'rgba(255,183,77,0.15);color:#FFB74D':'rgba(120,144,156,0.15);color:#78909C')+';padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;margin:4px 0">'+(p.ftype||'Planned')+'</span><br>'+
+'<b>Voltage:</b> '+(p.kv||'—')+'kV<br>'+
+'<b>Cost:</b> '+costStr+'<br>'+
+'<b>Status:</b> '+(p.status||'—')+'<br>'+
+'<b>Target Date:</b> '+(p.isd||'—')+'<br>'+
+'<b>ISO:</b> '+p.iso+'<br>'+
+'<b>From:</b> '+p.from_sub+'<br>'+
+'<b>To:</b> '+p.to_sub+'</div>');
+plannedLayer.addLayer(line);
+});
+plannedLayer.addTo(map);
+uLeg();
+}
+
 function rWtr(){
 var s=LS.wtr;if(!s.on)return;
 if(s.ly)map.removeLayer(s.ly);
@@ -1298,6 +1341,7 @@ function uLeg(){
 var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
 if(LS.tx.on){has=true;if(txVolts[765])h+='<div class="lgi"><span class="lgl" style="background:#9C27B0"></span>765 kV</div>';if(txVolts[500])h+='<div class="lgi"><span class="lgl" style="background:#EF5350"></span>500 kV</div>';if(txVolts[345])h+='<div class="lgi"><span class="lgl" style="background:#4FC3F7"></span>345 kV</div>';if(txVolts[230])h+='<div class="lgi"><span class="lgl" style="background:#66BB6A"></span>230 kV</div>';if(txVolts[161])h+='<div class="lgi"><span class="lgl" style="background:#FDD835"></span>161 kV</div>';if(txVolts[138])h+='<div class="lgi"><span class="lgl" style="background:#BDBDBD"></span>138 kV</div>'}
 if(LS.sub.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#4FC3F7"></span>Substations</div>'}
+if(plannedLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#00E676"></span>New Lines</div><div class="lgi"><span class="lgl" style="background:#FFB74D"></span>Upgrades</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
 if(fiberLayer||lumenLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Fiber Routes</div>'}
