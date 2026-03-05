@@ -181,8 +181,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#F0EDE8"></span>County Lines</span><label class="tg"><input type="checkbox" id="t-cty" onchange="tog('cty')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>FEMA Flood Zones</span><label class="tg"><input type="checkbox" id="t-fld" onchange="tog('fld')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="tog('wet')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>100-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld100" onchange="togFlood('fld100')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF8A65"></span>500-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld500" onchange="togFlood('fld500')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="togWet()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#42A5F5"></span>Water Bodies &amp; Rivers</span><label class="tg"><input type="checkbox" id="t-wtr" onchange="tog('wtr')"><span class="ts"></span></label></div>
 </div>
 </div>
@@ -219,8 +220,9 @@ gas:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
 osmpipe:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
 gi:{on:false,mz:8,g:L.layerGroup(),types:{gcomp:false,grdp:false,gproc:false,gstor:false,gicon:false}},
 dc:{on:false,mz:10,g:L.layerGroup(),ld:false,ac:null},
-fld:{on:false,mz:12,ly:null},
-wet:{on:false,mz:12,ly:null},
+fld100:{on:false,ly:null},
+fld500:{on:false,ly:null},
+wet:{on:false,ly:null},
 wtr:{on:false,mz:0,ly:null},
 cty:{on:false,mz:0,ly:null},
 
@@ -255,7 +257,7 @@ function rAll(){clearTimeout(rT);rT=setTimeout(function(){for(var n in LS)rl(n)}
 
 function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
-if(n==='fld'){rFld();return}if(n==='wet'){rWet();return}if(n==='wtr'){rWtr();return}
+if(n==='wtr'){rWtr();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
 if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='st')ldSt();
 }
@@ -666,20 +668,39 @@ return '<b>'+p.STATE_NAME+'</b> ('+p.STATE_ABBR+')';
 });
 s.ly.addTo(map);s.ly.bringToBack();
 }
-function rFld(){
-var s=LS.fld;if(!s.on)return;
-if(map.getZoom()<s.mz){if(s.ly){map.removeLayer(s.ly);s.ly=null}return}
-if(s.ly)map.removeLayer(s.ly);
-s.ly=L.esri.dynamicMapLayer({url:'https://hazards.fema.gov/gis/nfhl/rest/services/public/NFHL/MapServer',layers:[28],opacity:0.4,f:'image'}).addTo(map);
-s.ly.bringToBack();
+// FEMA Flood Zones via WMS
+function togFlood(which){
+var s=LS[which];s.on=!s.on;
+if(!s.on){if(s.ly){map.removeLayer(s.ly);s.ly=null}uLeg();return}
+// Use CQL_FILTER for 100yr vs 500yr
+var cql;
+if(which==='fld100'){cql='SFHA_TF=\'T\''}
+else{cql='ZONE_SUBTY=\'0.2 PCT ANNUAL CHANCE FLOOD HAZARD\''}
+s.ly=L.tileLayer.wms('https://hazards.fema.gov/arcgis/services/public/NFHLWMS/MapServer/WmsServer',{
+layers:'28',
+format:'image/png',
+transparent:true,
+opacity:which==='fld100'?0.4:0.3,
+attribution:'FEMA NFHL',
+CQL_FILTER:cql
+});
+s.ly.addTo(map);
+uLeg();
 }
 
-function rWet(){
-var s=LS.wet;if(!s.on)return;
-if(map.getZoom()<s.mz){if(s.ly){map.removeLayer(s.ly);s.ly=null}return}
-if(s.ly)map.removeLayer(s.ly);
-s.ly=L.esri.dynamicMapLayer({url:'https://fwspublicservices.wim.usgs.gov/wetlandsmapservice/rest/services/Wetlands/MapServer',layers:[0],opacity:0.4,f:'image'}).addTo(map);
-s.ly.bringToBack();
+// NWI Wetlands — USFWS WMS
+function togWet(){
+var s=LS.wet;s.on=!s.on;
+if(!s.on){if(s.ly){map.removeLayer(s.ly);s.ly=null}uLeg();return}
+s.ly=L.tileLayer.wms('https://www.fws.gov/wetlands/arcgis/services/Wetlands_Raster/ImageServer/WMSServer',{
+layers:'0',
+format:'image/png',
+transparent:true,
+opacity:0.5,
+attribution:'USFWS NWI'
+});
+s.ly.addTo(map);
+uLeg();
 }
 
 function rWtr(){
@@ -797,7 +818,8 @@ if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#F
 var anyParcels=regridLayer?true:false;for(var _ps in PARCEL_URLS){if(parcelEnabled[_ps])anyParcels=true}
 if(anyParcels){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>Parcels</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
-if(LS.fld.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>Flood Zone</div>'}
+if(LS.fld100.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>100-Yr Flood</div>'}
+if(LS.fld500.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(255,138,101,0.4)"></span>500-Yr Flood</div>'}
 if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
 if(LS.wtr.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,165,245,0.5)"></span>Water</div>'}
 lg.innerHTML=h;lg.style.display=has?'block':'none';
