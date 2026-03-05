@@ -481,7 +481,7 @@ popup+='<div style="display:flex;justify-content:space-between"><span>Active in 
 popup+='<div style="display:flex;justify-content:space-between"><span>Built / Completed</span><b>'+completedMW.toLocaleString()+' MW</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Total Projects</span><b>'+projects+'</b></div>';
 popup+='<div style="display:flex;justify-content:space-between"><span>Congestion</span><b style="color:'+col+'">'+congestionLabel(activeMW)+'</b></div>';
-popup+='<div style="margin-top:8px;text-align:center"><button onclick="screenCapacity(\''+sub.name.replace(/'/g,"\\'")+'\',this)" style="background:rgba(196,133,76,0.15);color:#C4854C;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(196,133,76,0.3);cursor:pointer;font-family:inherit;width:100%">&#x26A1; Screen Capacity</button></div>';
+popup+='<div style="margin-top:8px;text-align:center"><button onclick="screenCapacity('+sub.lat+','+sub.lng+',this)" style="background:rgba(196,133,76,0.15);color:#C4854C;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(196,133,76,0.3);cursor:pointer;font-family:inherit;width:100%">&#x26A1; Screen Capacity</button></div>';
 m.bindPopup(popup,{maxWidth:300,maxHeight:350,autoPan:true});
 s.g.addLayer(m);
 });
@@ -1606,11 +1606,11 @@ showSaveModal();
 
 // Power Flow Screening
 var SCREEN_API='https://corridor-powerflow.onrender.com';
-function screenCapacity(subName,btn){
+function screenCapacity(lat,lng,btn){
 btn.textContent='Screening...';
 btn.disabled=true;
 btn.style.opacity='0.5';
-fetch(SCREEN_API+'/screen?sub='+encodeURIComponent(subName)+'&steps=50,100,200,300,500,700,1000').then(function(r){return r.json()}).then(function(d){
+fetch(SCREEN_API+'/screen?lat='+lat+'&lng='+lng+'&steps=50,100,200,300,500,700,1000').then(function(r){return r.json()}).then(function(d){
 if(d.error){btn.textContent='Error: '+d.error;return}
 var sc=d.screening;
 var sub=d.substation;
