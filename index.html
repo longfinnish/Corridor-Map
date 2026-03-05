@@ -602,8 +602,35 @@ s.ld=false;
 }).catch(function(e){if(e.name!=='AbortError')console.error('Sub error:',e);s.ld=false});
 }
 
+var pipeCapacity=null;
+function loadPipeCapacity(){
+if(pipeCapacity)return Promise.resolve();
+return fetch('data/pipeline_capacity.json').then(function(r){return r.json()}).then(function(d){pipeCapacity=d});
+}
+function lookupCapacity(operator){
+if(!pipeCapacity||!operator)return null;
+var op=operator.toUpperCase().trim();
+// Try exact match first
+if(pipeCapacity[op])return pipeCapacity[op];
+// Strip common suffixes and try
+var stripped=op.replace(/ LLC$/,'').replace(/ LP$/,'').replace(/ L\.P\.$/,'').replace(/ INC$/,'').replace(/ CORP$/,'').replace(/ CO$/,'').replace(/ COMPANY$/,'').replace(/,/g,'').trim();
+if(pipeCapacity[stripped])return pipeCapacity[stripped];
+// Try removing more
+var simple=stripped.replace(/ PIPELINE$/,'').replace(/ PIPE LINE$/,'').replace(/ P L$/,'').replace(/ TRANS$/,'').replace(/ TRANSMISSION$/,'').replace(/ GAS$/,'').replace(/ NATURAL$/,'').replace(/ INTERSTATE$/,'').replace(/ SYSTEM$/,'').trim();
+if(pipeCapacity[simple])return pipeCapacity[simple];
+// Partial match — check if any key starts with the first word
+var first=op.split(' ')[0];
+if(first.length>=4){
+for(var k in pipeCapacity){
+if(k.indexOf(first)===0)return pipeCapacity[k];
+}
+}
+return null;
+}
+
 function ldGas(){
 var s=LS.gas;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
+loadPipeCapacity();
 var params=new URLSearchParams({
 where:'1=1',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',outFields:'typepipe,operator,status',
@@ -612,7 +639,20 @@ returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
 fetch(GASURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
 s.g.clearLayers();if(!d.features||!d.features.length){s.ld=false;return}
 L.geoJSON(d,{style:function(f){var t=(f.properties.typepipe||'').toLowerCase();var c='#9E9E9E';if(t.indexOf('interstate')>=0)c='#FFA726';else if(t.indexOf('intrastate')>=0)c='#FFD54F';return{color:c,weight:2,opacity:0.75}},
-onEachFeature:function(f,ly){var p=f.properties;ly.bindPopup('<b>Gas Pipeline</b><br>Type: '+(p.typepipe||'\u2014')+'<br>Operator: '+(p.operator||'\u2014')+'<br>Status: '+(p.status||'\u2014'))}
+onEachFeature:function(f,ly){var p=f.properties;
+var cap=lookupCapacity(p.operator);
+var popup='<b>'+(p.operator||'Gas Pipeline')+'</b>';
+popup+='<br>Type: '+(p.typepipe||'\u2014');
+popup+='<br>Status: '+(p.status||'\u2014');
+if(cap){
+popup+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
+popup+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">PIPELINE CAPACITY</div>';
+popup+='<div style="display:flex;justify-content:space-between"><span>Design Capacity</span><b style="color:#FFA726;font-size:13px">'+cap.toLocaleString()+' MMcf/d</b></div>';
+var mwEquiv=Math.round(cap*0.128);
+popup+='<div style="display:flex;justify-content:space-between"><span>Power Equivalent</span><b>~'+mwEquiv.toLocaleString()+' MW</b></div>';
+popup+='<div style="font-size:9px;color:rgba(240,237,232,0.2);margin-top:4px">Source: EIA State-to-State Capacity (max segment)</div>';
+}
+ly.bindPopup(popup,{maxWidth:300})}
 }).addTo(s.g);s.ld=false;
 }).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
 }
