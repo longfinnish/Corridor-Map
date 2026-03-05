@@ -25,6 +25,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .lg{padding:6px 16px}
 .lg-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C4854C;margin-bottom:4px;margin-top:4px}
 .li{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.sub-group{margin-left:16px;margin-bottom:4px;overflow:hidden;max-height:300px;transition:max-height 0.3s ease}
+.sub-group.sub-collapsed{max-height:0;margin-bottom:0}
+.collapse-arrow{color:rgba(240,237,232,0.3);font-size:10px;cursor:pointer;padding:2px 6px;margin-left:4px;user-select:none}
+.collapse-arrow:hover{color:rgba(240,237,232,0.6)}
 .ll{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:#F0EDE8;flex:1}
 .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .lz{font-size:8px;color:rgba(240,237,232,0.35);margin-left:16px;margin-top:-1px;margin-bottom:1px}
@@ -248,23 +252,23 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Power &amp; Infrastructure</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
-<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission Lines</span><label class="tg"><input type="checkbox" id="t-tx" onchange="tog('tx')"><span class="ts"></span></label></div>
-<div style="margin-left:16px;margin-bottom:4px">
-<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" onchange="togV(765,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" onchange="togV(500,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" onchange="togV(345,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>230 kV</span><label class="tg"><input type="checkbox" onchange="togV(230,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" onchange="togV(161,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togV(138,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Transmission Lines</span><label class="tg"><input type="checkbox" id="t-tx" onchange="tog('tx')"><span class="ts"></span></label><span class="collapse-arrow" onclick="event.stopPropagation();this.parentElement.nextElementSibling.classList.toggle('sub-collapsed');this.textContent=this.parentElement.nextElementSibling.classList.contains('sub-collapsed')?'\u25B6':'\u25BC'">\u25B6</span></div>
+<div class="sub-group sub-collapsed" id="tx-volts">
+<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" onchange="togTxSingle(765,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" onchange="togTxSingle(500,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" onchange="togTxSingle(345,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>230 kV</span><label class="tg"><input type="checkbox" onchange="togTxSingle(230,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" onchange="togTxSingle(161,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togTxSingle(138,this.checked)"><span class="ts"></span></label></div>
 </div>
-<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" onchange="togSub()"><span class="ts"></span></label></div>
-<div id="sub-volts" style="margin-left:16px;margin-bottom:4px;display:none">
-<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(765,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(500,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(345,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>230 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(230,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(161,this.checked)"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" checked onchange="togSubV(138,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>Substations</span><label class="tg"><input type="checkbox" id="t-sub" onchange="togSub()"><span class="ts"></span></label><span class="collapse-arrow" onclick="event.stopPropagation();this.parentElement.nextElementSibling.classList.toggle('sub-collapsed');this.textContent=this.parentElement.nextElementSibling.classList.contains('sub-collapsed')?'\u25B6':'\u25BC'">\u25B6</span></div>
+<div class="sub-group sub-collapsed" id="sub-volts">
+<div class="li"><span class="ll"><span class="ld" style="background:#9C27B0"></span>765 kV</span><label class="tg"><input type="checkbox" onchange="togSubSingle(765,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>500 kV</span><label class="tg"><input type="checkbox" onchange="togSubSingle(500,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4FC3F7"></span>345 kV</span><label class="tg"><input type="checkbox" onchange="togSubSingle(345,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#66BB6A"></span>230 kV</span><label class="tg"><input type="checkbox" onchange="togSubSingle(230,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FDD835"></span>161 kV</span><label class="tg"><input type="checkbox" onchange="togSubSingle(161,this.checked)"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#BDBDBD"></span>138 kV</span><label class="tg"><input type="checkbox" onchange="togSubSingle(138,this.checked)"><span class="ts"></span></label></div>
 </div>
 <div class="li"><span class="ll"><span class="ld" style="background:linear-gradient(90deg,#EF5350,#FF9800,#FDD835,#66BB6A)"></span>Capacity Heat Map</span><label class="tg"><input type="checkbox" id="t-cap" onchange="togCapMap()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>LMP Prices (ERCOT)</span><label class="tg"><input type="checkbox" id="t-lmp" onchange="togLMP()"><span class="ts"></span></label></div>
@@ -276,8 +280,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
-<div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Gas Facilities</span><label class="tg"><input type="checkbox" id="t-gi-all" onchange="togGIAll(this.checked)"><span class="ts"></span></label></div>
-<div style="margin-left:16px">
+<div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Gas Facilities</span><label class="tg"><input type="checkbox" id="t-gi-all" onchange="togGIAll(this.checked)"><span class="ts"></span></label><span class="collapse-arrow" onclick="event.stopPropagation();this.parentElement.nextElementSibling.classList.toggle('sub-collapsed');this.textContent=this.parentElement.nextElementSibling.classList.contains('sub-collapsed')?'\u25B6':'\u25BC'">\u25B6</span></div>
+<div class="sub-group sub-collapsed" id="gi-subs">
 <div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Compressor Stations</span><label class="tg"><input type="checkbox" id="t-gcomp" onchange="togGI('gcomp')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery Pts</span><label class="tg"><input type="checkbox" id="t-grdp" onchange="togGI('grdp')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00BCD4"></span>Processing Plants</span><label class="tg"><input type="checkbox" id="t-gproc" onchange="togGI('gproc')"><span class="ts"></span></label></div>
@@ -352,18 +356,51 @@ function switchBase(n){map.removeLayer(BL[cBase]);BL[n].addTo(map);cBase=n;docum
 var txVolts={765:false,500:false,345:false,230:false,161:false,138:false};
 function togV(v,on){txVolts[v]=on;if(LS.tx.on){LS.tx.g.clearLayers();ldTx()}if(plannedLayer){map.removeLayer(plannedLayer);plannedLayer=null;renderPlanned()}uLeg()}
 
+// Single TX voltage toggle — turns on TX master if needed
+function togTxSingle(v,on){
+txVolts[v]=on;
+var anyOn=[765,500,345,230,161,138].some(function(kv){return txVolts[kv]});
+if(anyOn&&!LS.tx.on){
+LS.tx.on=true;document.getElementById('t-tx').checked=true;
+LS.tx.g.addTo(map);
+}else if(!anyOn&&LS.tx.on){
+LS.tx.on=false;document.getElementById('t-tx').checked=false;
+map.removeLayer(LS.tx.g);LS.tx.g.clearLayers();
+uLeg();return;
+}
+if(LS.tx.on){LS.tx.g.clearLayers();ldTx()}
+if(plannedLayer){map.removeLayer(plannedLayer);plannedLayer=null;renderPlanned()}
+uLeg();
+}
+
 // Substation voltage toggles (independent from transmission lines)
 var subVolts={765:true,500:true,345:true,230:true,161:true,138:true};
 function togSub(){
 var s=LS.sub;s.on=!s.on;
-var subVoltsDiv=document.getElementById('sub-volts');
 if(s.on){
-subVoltsDiv.style.display='block';
 s.g.addTo(map);rl('sub');
 }else{
-subVoltsDiv.style.display='none';
 map.removeLayer(s.g);s.g.clearLayers();
 }
+// Sync sub-toggle checkboxes
+document.querySelectorAll('#sub-volts input[type=checkbox]').forEach(function(cb){cb.checked=s.on});
+[765,500,345,230,161,138].forEach(function(kv){subVolts[kv]=s.on});
+uLeg();
+}
+
+// Single substation voltage toggle — turns on sub master if needed
+function togSubSingle(v,on){
+subVolts[v]=on;
+var anyOn=[765,500,345,230,161,138].some(function(kv){return subVolts[kv]});
+if(anyOn&&!LS.sub.on){
+LS.sub.on=true;document.getElementById('t-sub').checked=true;
+LS.sub.g.addTo(map);
+}else if(!anyOn&&LS.sub.on){
+LS.sub.on=false;document.getElementById('t-sub').checked=false;
+map.removeLayer(LS.sub.g);LS.sub.g.clearLayers();
+uLeg();return;
+}
+if(LS.sub.on){LS.sub.g.clearLayers();ldSub()}
 uLeg();
 }
 function togSubV(v,on){subVolts[v]=on;if(LS.sub.on){LS.sub.g.clearLayers();ldSub()}uLeg()}
@@ -392,7 +429,7 @@ if(n==='tx'){
 // Master switch — toggle all voltages on/off
 var allOn=s.on;
 [765,500,345,230,161,138].forEach(function(v){txVolts[v]=allOn});
-document.querySelectorAll('[onchange*="togV"]').forEach(function(cb){cb.checked=allOn});
+document.querySelectorAll('#tx-volts input[type=checkbox]').forEach(function(cb){cb.checked=allOn});
 if(allOn){s.g.addTo(map);rl('tx')}
 else{map.removeLayer(s.g);s.g.clearLayers()}
 uLeg();return;
