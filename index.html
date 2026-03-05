@@ -668,34 +668,31 @@ return '<b>'+p.STATE_NAME+'</b> ('+p.STATE_ABBR+')';
 });
 s.ly.addTo(map);s.ly.bringToBack();
 }
-// FEMA Flood Zones via WMS
+// FEMA Flood Zones via ESRI Dynamic Map
 function togFlood(which){
 var s=LS[which];s.on=!s.on;
 if(!s.on){if(s.ly){map.removeLayer(s.ly);s.ly=null}uLeg();return}
-// Use CQL_FILTER for 100yr vs 500yr
-var cql;
-if(which==='fld100'){cql='SFHA_TF=\'T\''}
-else{cql='ZONE_SUBTY=\'0.2 PCT ANNUAL CHANCE FLOOD HAZARD\''}
-s.ly=L.tileLayer.wms('https://hazards.fema.gov/arcgis/services/public/NFHLWMS/MapServer/WmsServer',{
-layers:'28',
-format:'image/png',
-transparent:true,
+var layerDefs;
+if(which==='fld100'){layerDefs={'28':"SFHA_TF = 'T'"}}
+else{layerDefs={'28':"ZONE_SUBTY = '0500'"}}
+s.ly=L.esri.dynamicMapLayer({
+url:'https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer',
+layers:[28],
+layerDefs:layerDefs,
 opacity:which==='fld100'?0.4:0.3,
-attribution:'FEMA NFHL',
-CQL_FILTER:cql
+f:'image',
+attribution:'FEMA NFHL'
 });
 s.ly.addTo(map);
 uLeg();
 }
 
-// NWI Wetlands — USFWS WMS
+// NWI Wetlands — USFWS via ESRI Dynamic Map
 function togWet(){
 var s=LS.wet;s.on=!s.on;
 if(!s.on){if(s.ly){map.removeLayer(s.ly);s.ly=null}uLeg();return}
-s.ly=L.tileLayer.wms('https://www.fws.gov/wetlands/arcgis/services/Wetlands_Raster/ImageServer/WMSServer',{
-layers:'0',
-format:'image/png',
-transparent:true,
+s.ly=L.esri.dynamicMapLayer({
+url:'https://fwsprimary.wim.usgs.gov/server/rest/services/Wetlands/MapServer',
 opacity:0.5,
 attribution:'USFWS NWI'
 });
