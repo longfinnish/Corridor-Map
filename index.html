@@ -71,6 +71,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 #layer-panel::-webkit-scrollbar-track{background:transparent}
 #layer-panel::-webkit-scrollbar-thumb{background:rgba(196,133,76,0.3);border-radius:2px}
 .parcel-tiles{filter:invert(1) brightness(2) contrast(2);mix-blend-mode:screen}
+.cty-label{background:none!important;border:none!important}
+.cty-label span{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;color:rgba(240,237,232,0.6);text-shadow:0 0 4px rgba(0,0,0,0.8),0 0 2px rgba(0,0,0,0.9);white-space:nowrap;pointer-events:none;letter-spacing:0.5px}
 .lg-group{border-bottom:1px solid rgba(196,133,76,0.15)}
 .lg-group-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;cursor:pointer;user-select:none}
 .lg-group-hdr:hover{background:rgba(240,237,232,0.04)}
@@ -243,7 +245,7 @@ else{map.removeLayer(s.g);s.g.clearLayers();map.removeLayer(LS.sub.g);LS.sub.g.c
 uLeg();return;
 }
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
-else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}}
+else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}if(n==='cty'&&ctyLabels){map.removeLayer(ctyLabels)}}
 uLeg();
 }
 
@@ -525,19 +527,35 @@ hsLoaded=true;s.ld=false;
 }
 
 var ctyLoaded=false;
+var ctyLabels=null;
 function ldCty(){
 var s=LS.cty;if(!s.on)return;
-if(s.ly){if(!map.hasLayer(s.ly))s.ly.addTo(map);return}
+if(s.ly){if(!map.hasLayer(s.ly))s.ly.addTo(map);if(ctyLabels&&!map.hasLayer(ctyLabels))ctyLabels.addTo(map);return}
 s.ly=L.esri.featureLayer({
 url:'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized_Boundaries/FeatureServer/0',
 where:'1=1',
-style:function(){return{color:'#F0EDE8',weight:1,opacity:0.5,fillOpacity:0,interactive:true}},
-fields:['NAME','STATE_ABBR','FIPS','POPULATION']
+style:function(){return{color:'#F0EDE8',weight:2,opacity:0.7,fillOpacity:0,interactive:false}},
+fields:['NAME','STATE_ABBR','FIPS','POPULATION'],
+pane:'overlayPane'
 });
-s.ly.bindPopup(function(layer){
+s.ly.on('load',function(){
+if(ctyLabels){map.removeLayer(ctyLabels);ctyLabels=null}
+ctyLabels=L.layerGroup();
+s.ly.eachFeature(function(layer){
 var p=layer.feature.properties;
-var pop=p.POPULATION?Number(p.POPULATION).toLocaleString():'\u2014';
-return '<b>'+p.NAME+'</b><br>'+p.STATE_ABBR+'<br>FIPS: '+p.FIPS+'<br>Pop: '+pop;
+if(!p.NAME)return;
+var center=layer.getBounds().getCenter();
+var label=L.marker(center,{
+icon:L.divIcon({
+className:'cty-label',
+html:'<span>'+p.NAME+'</span>',
+iconSize:[0,0]
+}),
+interactive:false
+});
+ctyLabels.addLayer(label);
+});
+ctyLabels.addTo(map);
 });
 s.ly.addTo(map);s.ly.bringToBack();
 }
@@ -545,7 +563,7 @@ var regridLayer=null;
 function togRegrid(){
 if(regridLayer){map.removeLayer(regridLayer);regridLayer=null;uLeg();return}
 regridLayer=L.tileLayer('https://tiles.arcgis.com/tiles/KzeiCaQsMoeCfoCq/arcgis/rest/services/Regrid_Nationwide_Parcel_Boundaries_v1/MapServer/tile/{z}/{y}/{x}',{
-maxZoom:21,minZoom:15,opacity:0.85,attribution:'Regrid',className:'parcel-tiles'
+maxZoom:21,minZoom:14,maxNativeZoom:17,minNativeZoom:15,opacity:0.85,attribution:'Regrid',className:'parcel-tiles'
 });
 regridLayer.addTo(map);
 uLeg();
@@ -555,7 +573,7 @@ var _rgLast=0;
 var _lastCounty=null;
 map.on('click',function(e){
 if(mOn)return;
-if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<15)return;
+if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<14)return;
 var now=Date.now();if(now-_rgLast<1200)return;
 _rgLast=now;
 // Resolve county via ArcGIS spatial query
@@ -568,11 +586,11 @@ var ctyUrl='https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/US
 var ctyParams='?where=1%3D1&geometry='+lon+','+lat+'&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects&outFields=NAME,STATE_ABBR&returnGeometry=false&f=json';
 fetch(ctyUrl+ctyParams).then(function(r){return r.json()}).then(function(d){
 var ctyName='',stAbbr='';
-if(d.features&&d.features.length){ctyName=d.features[0].attributes.NAME;stAbbr=d.features[0].attributes.STATE_ABBR}
+if(d.features&&d.features.length){ctyName=d.features[0].attributes.NAME.replace(/ County$/i,'').replace(/ Parish$/i,'');stAbbr=d.features[0].attributes.STATE_ABBR}
 _lastCounty={county:ctyName,state:stAbbr};
 setMIContext(ctyName,stAbbr);
 var h='<div style="text-align:center;padding:4px">';
-if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:4px">'+ctyName+' County, '+stAbbr+'</div>';
+if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:4px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
 h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.2)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
 h+='<div style="display:flex;gap:6px;justify-content:center">';
 h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px">Open Regrid</a>';
