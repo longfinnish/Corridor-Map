@@ -181,8 +181,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#F0EDE8"></span>County Lines</span><label class="tg"><input type="checkbox" id="t-cty" onchange="tog('cty')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>State Lines</span><label class="tg"><input type="checkbox" id="t-st" onchange="tog('st')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#EF5350"></span>100-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld100" onchange="togFlood('fld100')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#FF8A65"></span>500-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld500" onchange="togFlood('fld500')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4A7FB5"></span>100-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld100" onchange="togFlood('fld100')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#E8A848"></span>500-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld500" onchange="togFlood('fld500')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>NWI Wetlands</span><label class="tg"><input type="checkbox" id="t-wet" onchange="togWet()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#42A5F5"></span>Water Bodies &amp; Rivers</span><label class="tg"><input type="checkbox" id="t-wtr" onchange="tog('wtr')"><span class="ts"></span></label></div>
 </div>
@@ -679,7 +679,7 @@ s.ly=L.esri.dynamicMapLayer({
 url:'https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer',
 layers:[28],
 layerDefs:defs,
-opacity:which==='fld100'?0.4:0.3,
+opacity:which==='fld100'?0.65:0.55,
 format:'png32',
 useCors:false,
 attribution:'FEMA NFHL'
@@ -694,7 +694,7 @@ var s=LS.wet;s.on=!s.on;
 if(!s.on){if(s.ly){map.removeLayer(s.ly);s.ly=null}uLeg();return}
 s.ly=L.esri.dynamicMapLayer({
 url:'https://fwsprimary.wim.usgs.gov/server/rest/services/Wetlands/MapServer',
-opacity:0.5,
+opacity:0.65,
 format:'png32',
 useCors:false,
 attribution:'USFWS NWI'
@@ -818,8 +818,8 @@ if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#F
 var anyParcels=regridLayer?true:false;for(var _ps in PARCEL_URLS){if(parcelEnabled[_ps])anyParcels=true}
 if(anyParcels){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(196,133,76,0.2);border:1px solid #C4854C"></span>Parcels</div>'}
 if(LS.st.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#C4854C"></span>State lines</div>'}
-if(LS.fld100.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(239,83,80,0.5)"></span>100-Yr Flood</div>'}
-if(LS.fld500.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(255,138,101,0.4)"></span>500-Yr Flood</div>'}
+if(LS.fld100.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(74,127,181,0.6)"></span>100-Yr Flood</div>'}
+if(LS.fld500.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(232,168,72,0.5)"></span>500-Yr Flood</div>'}
 if(LS.wet.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(38,166,154,0.5)"></span>Wetlands</div>'}
 if(LS.wtr.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,165,245,0.5)"></span>Water</div>'}
 lg.innerHTML=h;lg.style.display=has?'block':'none';
