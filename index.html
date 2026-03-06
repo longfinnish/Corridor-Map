@@ -1925,6 +1925,11 @@ h+='<div style="display:flex;justify-content:space-between"><span>Design Capacit
 h+='<div style="display:flex;justify-content:space-between"><span>Scheduled Today</span><b>'+p.scheduled.toLocaleString()+' MMBtu/d</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Available</span><b style="color:'+col+'">'+p.available.toLocaleString()+' MMBtu/d</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Utilization</span><b style="color:'+col+'">'+p.utilization+'%</b></div>';
+if(p.avg_utilization_30d!=null){
+h+='<div style="display:flex;justify-content:space-between"><span>30-Day Avg Utilization</span><b>'+p.avg_utilization_30d+'%</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>30-Day Peak</span><b>'+p.peak_utilization_30d+'%</b></div>';
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:1px">Based on '+p.days_of_data+' days of data</div>';
+}
 var availMw=Math.round(p.available/24*0.293);
 h+='<div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid rgba(240,237,232,0.1)"><span>Avail. Generation Equiv</span><b style="color:'+col+'">~'+availMw.toLocaleString()+' MW</b></div>';
 h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:2px">Based on available capacity at ~7,000 BTU/kWh CC heat rate</div>';
