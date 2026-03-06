@@ -1743,11 +1743,11 @@ document.getElementById('pf-shade').classList.remove('open');
 
 function showMethodology(){
 var m=document.getElementById('method-modal');
-if(m){m.classList.add('open');return}
-m=document.createElement('div');m.id='method-modal';m.className='open';
-m.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:3000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)';
+if(m){m.style.display='flex';return}
+m=document.createElement('div');m.id='method-modal';
+m.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:3000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)';
 m.innerHTML='<div style="background:#1B2B3A;border:1px solid rgba(196,133,76,0.3);border-radius:12px;max-width:560px;width:90%;max-height:80vh;overflow-y:auto;padding:28px;color:#F0EDE8;position:relative">'
-+'<button onclick="document.getElementById(\'method-modal\').classList.remove(\'open\')" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#F0EDE8;font-size:18px;cursor:pointer">&times;</button>'
++'<button onclick="document.getElementById(\'method-modal\').style.display=\'none\'" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#F0EDE8;font-size:18px;cursor:pointer">&times;</button>'
 +'<div style="font-size:11px;font-weight:700;color:#C4854C;letter-spacing:2px;margin-bottom:12px">SCREENING METHODOLOGY</div>'
 +'<div style="font-size:13px;line-height:1.7">'
 +'<p style="margin:0 0 12px"><b>What this does:</b> Estimates how much generation (in MW) can be injected at a substation before any transmission line in the network exceeds its thermal rating.</p>'
@@ -1762,16 +1762,8 @@ m.innerHTML='<div style="background:#1B2B3A;border:1px solid rgba(196,133,76,0.3
 +'<p style="margin:12px 0 0;font-size:11px;color:rgba(240,237,232,0.4)">This is a pre-feasibility screening tool. It does not replace a formal interconnection study. Results should be interpreted as directional estimates with ~80% agreement with full AC analysis for thermal constraints.</p>'
 +'</div></div>';
 document.body.appendChild(m);
-m.style.display='flex';
-m.addEventListener('click',function(e){if(e.target===m)m.classList.remove('open')});
+m.addEventListener('click',function(e){if(e.target===m)m.style.display='none'});
 }
-// Toggle method modal visibility
-document.addEventListener('DOMContentLoaded',function(){
-var mm=document.getElementById('method-modal');
-if(mm){
-new MutationObserver(function(){mm.style.display=mm.classList.contains('open')?'flex':'none'}).observe(mm,{attributes:true,attributeFilter:['class']});
-}
-});
 
 function screenCapacity(lat,lng,btn){
 btn.textContent='Screening...';
