@@ -519,6 +519,281 @@ def compute_rolling_stats(pipelines, history):
 # ENTRY POINT
 # ============================================================
 
+# ============================================================
+# GEOCODING + HIFLD MATCHING
+# ============================================================
+
+PIPELINE_HIFLD_MAP = {
+    'El Paso Natural Gas Company': ['EL PASO NATURAL GAS COMPANY'],
+    'Tennessee Gas Pipeline Company': ['TENNESSEE GAS PIPELINE'],
+    'Natural Gas Pipeline Company of America': ['NATURAL GAS PIPELINE (KINDER MORGAN)'],
+    'Midcontinent Express Pipeline': ['MIDCONTINENT EXPRESS PIPELINE'],
+    'Southern Natural Gas Company, LLC': ['SOUTHERN NATURAL GAS COMPANY LLC'],
+    'Transcontinental Gas Pipe Line Company (Transco)': ['TRANSCONTINENTAL GAS PIPE LINE COMPANY, LLC'],
+    'Texas Eastern Transmission, LP': ['TEXAS EASTERN TRANSMISSION'],
+}
+
+ZONE_COORDS = {
+    # Transco zones
+    'Transco': {
+        '1': {'lat': 29.5, 'lng': -96.5, 'state': 'TX'},
+        '2': {'lat': 30.5, 'lng': -91.0, 'state': 'LA'},
+        '3': {'lat': 32.0, 'lng': -88.5, 'state': 'MS/AL'},
+        '4': {'lat': 33.5, 'lng': -84.5, 'state': 'GA'},
+        '5': {'lat': 36.5, 'lng': -79.0, 'state': 'NC/VA'},
+        '6': {'lat': 40.5, 'lng': -74.5, 'state': 'NJ/NY'},
+    },
+    # Texas Eastern zones
+    'Texas Eastern': {
+        '1': {'lat': 29.8, 'lng': -94.5, 'state': 'TX'},
+        'STX': {'lat': 28.5, 'lng': -97.5, 'state': 'TX'},
+        '2': {'lat': 31.0, 'lng': -91.5, 'state': 'LA'},
+        '3': {'lat': 35.5, 'lng': -86.0, 'state': 'TN/KY'},
+        'ELA': {'lat': 30.5, 'lng': -90.0, 'state': 'LA'},
+        'WLA': {'lat': 30.0, 'lng': -93.0, 'state': 'LA'},
+        'ETX': {'lat': 31.5, 'lng': -94.5, 'state': 'TX'},
+        'SLA': {'lat': 29.5, 'lng': -91.0, 'state': 'LA'},
+        'M1': {'lat': 40.3, 'lng': -75.0, 'state': 'PA/NJ'},
+        'M2': {'lat': 40.8, 'lng': -74.0, 'state': 'NJ'},
+        'M3': {'lat': 41.2, 'lng': -73.0, 'state': 'CT'},
+    },
+}
+
+
+def load_hifld_points():
+    """Load or fetch HIFLD gas receipt/delivery points."""
+    if os.path.exists(HIFLD_CACHE):
+        with open(HIFLD_CACHE) as f:
+            return json.load(f)
+    
+    print("Fetching HIFLD gas points (first run)...")
+    base_url = "https://services5.arcgis.com/HDRa0B57OVrv2E1q/arcgis/rest/services/Natural_Gas_Receipt_Delivery_Points/FeatureServer/0/query"
+    all_pts = []
+    offset = 0
+    while True:
+        r = requests.get(base_url, params={
+            'where': "COUNTRY='USA'",
+            'outFields': 'NAME,STATE,COUNTY,TYPE,COMPNAME,LATITUDE,LONGITUDE',
+            'resultOffset': offset, 'resultRecordCount': 2000, 'f': 'json'
+        }, headers={'user-agent': 'Mozilla/5.0'})
+        features = r.json().get('features', [])
+        for f in features:
+            a = f['attributes']
+            all_pts.append({
+                'name': a.get('NAME', ''),
+                'state': a.get('STATE', ''),
+                'county': a.get('COUNTY', ''),
+                'company': a.get('COMPNAME', ''),
+                'lat': a.get('LATITUDE', 0),
+                'lng': a.get('LONGITUDE', 0),
+            })
+        if len(features) < 2000:
+            break
+        offset += 2000
+        time.sleep(1)
+    
+    with open(HIFLD_CACHE, 'w') as f:
+        json.dump(all_pts, f)
+    print(f"  Cached {len(all_pts)} HIFLD points")
+    return all_pts
+
+
+def normalize_name(name):
+    """Normalize point name for fuzzy matching."""
+    n = name.upper().strip()
+    for prefix in ['EPNG/', 'SNG/', 'TGP/', 'NGPL/', 'TETCO/', 'GS-', 'GS ', 'KMTP/', 'MEP/']:
+        if n.startswith(prefix):
+            n = n[len(prefix):]
+    n = re.sub(r'\([^)]*\)', '', n)
+    for word in [' DEL', ' REC', ' DELIVERY', ' RECEIPT', ' METER', ' STATION', ' STA',
+                 ' SHIPPER', ' DEDUCT', ' DED', ' PLANT', ' POWER',
+                 ' LLC', ' INC', ' CORP', ' CO', ' COMPANY']:
+        n = n.replace(word, '')
+    return re.sub(r'\s+', ' ', n).strip()
+
+
+def name_match_score(n1, n2):
+    """Score similarity between two point names."""
+    from difflib import SequenceMatcher
+    a, b = normalize_name(n1), normalize_name(n2)
+    if a == b:
+        return 1.0
+    if a in b or b in a:
+        return 0.9
+    wa, wb = a.split(), b.split()
+    if wa and wb and wa[0] == wb[0] and len(wa[0]) > 3:
+        return max(0.6, SequenceMatcher(None, a, b).ratio())
+    return SequenceMatcher(None, a, b).ratio()
+
+
+def geocode_counties(counties_needing_coords):
+    """Batch geocode county names via Geocodio."""
+    if not counties_needing_coords or not GEOCODIO_KEY:
+        return {}
+    
+    queries = [f"{nc.split('|')[0]} County, {nc.split('|')[1]}" for nc in counties_needing_coords]
+    results = {}
+    
+    # Geocodio batch limit is 10,000
+    for i in range(0, len(queries), 500):
+        batch = queries[i:i+500]
+        batch_keys = counties_needing_coords[i:i+500]
+        try:
+            r = requests.post(f"https://api.geocod.io/v1.7/geocode?api_key={GEOCODIO_KEY}", json=batch)
+            if r.status_code == 200:
+                for j, result in enumerate(r.json().get('results', [])):
+                    locs = result.get('response', {}).get('results', [])
+                    if locs:
+                        results[batch_keys[j]] = {
+                            'lat': locs[0]['location']['lat'],
+                            'lng': locs[0]['location']['lng'],
+                        }
+        except Exception as e:
+            print(f"  Geocodio error: {e}")
+        time.sleep(1)
+    
+    return results
+
+
+def geocode_and_locate(pipelines):
+    """Add lat/lng to all points using HIFLD matching, county geocoding, and zone fallback."""
+    import random
+    random.seed(42)
+    
+    # Load caches
+    county_coords = {}
+    if os.path.exists(COUNTY_CACHE):
+        with open(COUNTY_CACHE) as f:
+            county_coords = json.load(f)
+    
+    hifld = load_hifld_points()
+    
+    # Build HIFLD lookups
+    hifld_by_company = defaultdict(list)
+    hifld_by_company_county = defaultdict(list)
+    for h in hifld:
+        comp = h['company'].upper()
+        hifld_by_company[comp].append(h)
+        county = h.get('county', '').upper()
+        if county and county != 'NOT AVAILABLE':
+            hifld_by_company_county[f"{comp}|{county}|{h['state']}"].append(h)
+    
+    # Find new counties that need geocoding
+    new_counties = []
+    for pl in pipelines:
+        for pt in pl['points']:
+            county, state = pt.get('county', ''), pt.get('state', '')
+            if county and state:
+                key = f"{county}|{state}"
+                if key not in county_coords:
+                    new_counties.append(key)
+    
+    new_counties = list(set(new_counties))
+    if new_counties:
+        print(f"\nGeocoding {len(new_counties)} new counties...")
+        new_coords = geocode_counties(new_counties)
+        county_coords.update(new_coords)
+        with open(COUNTY_CACHE, 'w') as f:
+            json.dump(county_coords, f)
+        print(f"  Geocoded {len(new_coords)}/{len(new_counties)}")
+    
+    # Match each point
+    stats = {'hifld': 0, 'county': 0, 'zone': 0, 'total': 0}
+    
+    for pl in pipelines:
+        hifld_companies = PIPELINE_HIFLD_MAP.get(pl['name'], [])
+        zone_map = ZONE_COORDS.get(pl['short'], {})
+        
+        for pt in pl['points']:
+            stats['total'] += 1
+            county = pt.get('county', '').upper()
+            state = pt.get('state', '')
+            matched = False
+            
+            # Pass 1: HIFLD name match (within state if available, global if not)
+            best_score = 0
+            best_match = None
+            
+            for hc in hifld_companies:
+                if state and '/' not in state:
+                    candidates = [h for h in hifld_by_company.get(hc, []) if h['state'] == state]
+                elif state and '/' in state:
+                    states = state.split('/')
+                    candidates = [h for h in hifld_by_company.get(hc, []) if h['state'] in states]
+                else:
+                    candidates = hifld_by_company.get(hc, [])
+                
+                for c in candidates:
+                    score = name_match_score(pt['name'], c['name'])
+                    if county and c.get('county', '').upper() not in ('', 'NOT AVAILABLE'):
+                        if county in c['county'].upper() or c['county'].upper() in county:
+                            score += 0.1
+                    if score > best_score:
+                        best_score = score
+                        best_match = c
+            
+            # Pass 2: County-only match (single point of same type in county)
+            if best_score < 0.4 and county and state:
+                ptype_map = {'delivery': 'DELIVERY', 'receipt': 'RECEIPT'}
+                type_kw = ptype_map.get(pt['type'], '')
+                for hc in hifld_companies:
+                    key = f"{hc}|{county}|{state}"
+                    cands = hifld_by_company_county.get(key, [])
+                    typed = [c for c in cands if type_kw in c.get('type', '').upper()] if type_kw else cands
+                    if len(typed) == 1:
+                        best_score = 0.7
+                        best_match = typed[0]
+                        break
+            
+            # Apply HIFLD match
+            if best_score >= 0.4 and best_match:
+                pt['lat'] = round(best_match['lat'], 5)
+                pt['lng'] = round(best_match['lng'], 5)
+                pt['loc_accuracy'] = 'hifld'
+                if best_match.get('county', 'NOT AVAILABLE') != 'NOT AVAILABLE' and not pt.get('county'):
+                    pt['county'] = best_match['county'].title()
+                if best_match.get('state') and not pt.get('state'):
+                    pt['state'] = best_match['state']
+                stats['hifld'] += 1
+                matched = True
+            
+            # Fallback: county centroid
+            if not matched and county and state:
+                key = f"{pt['county']}|{state}"
+                if key in county_coords:
+                    cc = county_coords[key]
+                    pt['lat'] = round(cc['lat'] + random.uniform(-0.05, 0.05), 5)
+                    pt['lng'] = round(cc['lng'] + random.uniform(-0.05, 0.05), 5)
+                    pt['loc_accuracy'] = 'county'
+                    stats['county'] += 1
+                    matched = True
+            
+            # Fallback: zone centroid
+            if not matched:
+                zone = pt.get('zone', '')
+                zc = zone_map.get(zone)
+                if zc:
+                    pt['lat'] = round(zc['lat'] + random.uniform(-0.8, 0.8), 5)
+                    pt['lng'] = round(zc['lng'] + random.uniform(-0.8, 0.8), 5)
+                    pt['state'] = pt.get('state') or zc.get('state', '')
+                    pt['loc_accuracy'] = 'zone'
+                    stats['zone'] += 1
+                    matched = True
+            
+            if not matched:
+                pt['loc_accuracy'] = 'zone'
+                stats['zone'] += 1
+        
+    # Remove points with no coordinates
+    for pl in pipelines:
+        pl['points'] = [p for p in pl['points'] if 'lat' in p]
+    
+    total = stats['total']
+    print(f"\nGeocoding results:")
+    print(f"  HIFLD precise: {stats['hifld']} ({stats['hifld']*100//max(total,1)}%)")
+    print(f"  County centroid: {stats['county']} ({stats['county']*100//max(total,1)}%)")
+    print(f"  Zone estimate: {stats['zone']} ({stats['zone']*100//max(total,1)}%)")
+
 if __name__ == '__main__':
     print(f"=== Gas Interconnect Refresh: {TODAY} ===\n")
     
@@ -534,8 +809,8 @@ if __name__ == '__main__':
     # Compute rolling stats
     compute_rolling_stats(pipelines, history)
     
-    # TODO: geocoding + HIFLD matching (reuse existing cached data)
-    # For now, output the raw data and let a separate script handle geocoding
+    # Geocode + HIFLD coordinate matching
+    geocode_and_locate(pipelines)
     
     output = {'pipelines': pipelines}
     with open(OUTPUT_FILE, 'w') as f:
@@ -543,3 +818,5 @@ if __name__ == '__main__':
     
     print(f"\nOutput: {os.path.getsize(OUTPUT_FILE) / 1024:.0f} KB")
     print("Done.")
+
+

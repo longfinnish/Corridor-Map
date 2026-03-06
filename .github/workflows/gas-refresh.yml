@@ -24,10 +24,12 @@ jobs:
         run: pip install requests openpyxl
       
       - name: Fetch gas data from pipeline portals
+        env:
+          GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
         run: python scripts/fetch_gas_data.py
       
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Gas data refresh ${{ github.event.schedule && '(daily)' || '(manual)' }}"
-          file_pattern: 'data/gas_interconnects.json data/gas_history.json'
+          file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json'
