@@ -1870,13 +1870,15 @@ uLeg();
 }
 function renderGasIx(data){
 gasIxLayer.clearLayers();
-data.points.forEach(function(p){
+var pipelines=data.pipelines||[{name:data.pipeline,short:data.pipeline,updated:data.updated,points:data.points}];
+pipelines.forEach(function(pl){
+pl.points.forEach(function(p){
 var col=gasIxColor(p.type,p.utilization);
 var radius=p.design>500000?7:p.design>100000?6:p.design>10000?5:4;
 var m=L.circleMarker([p.lat,p.lng],{radius:radius,fillColor:col,fillOpacity:0.85,color:'#fff',weight:1,pane:'markerPane'});
 var h='<b>'+p.name+'</b>';
-h+='<br><span style="color:#00E5FF">'+data.pipeline+'</span>';
-h+='<br>Type: '+(p.type==='delivery'?'Delivery Point':'Receipt Point');
+h+='<br><span style="color:#00E5FF">'+pl.name+'</span>';
+h+='<br>Type: '+(p.type==='delivery'?'Delivery Point':(p.type==='receipt'?'Receipt Point':p.type));
 h+='<br>County: '+p.county+', '+p.state;
 if(p.connected)h+='<br>Connected to: '+p.connected;
 h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
@@ -1891,9 +1893,10 @@ h+='<div style="display:flex;justify-content:space-between;margin-top:4px;paddin
 }else{
 h+='<div style="color:rgba(240,237,232,0.3)">Capacity not specified by TSP</div>';
 }
-h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:6px">Source: Boardwalk GasQuest EBB | Updated: '+data.updated+'</div>';
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:6px">Source: FERC EBB | Updated: '+pl.updated+'</div>';
 m.bindPopup(h,{maxWidth:320,maxHeight:400,autoPan:true});
 gasIxLayer.addLayer(m);
+});
 });
 gasIxLayer.addTo(map);
 }
