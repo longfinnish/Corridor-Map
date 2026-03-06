@@ -1915,8 +1915,11 @@ var m=L.circleMarker([p.lat,p.lng],{radius:radius,fillColor:col,fillOpacity:0.85
 var h='<b>'+p.name+'</b>';
 h+='<br><span style="color:#00E5FF">'+pl.name+'</span>';
 h+='<br>Type: '+(p.type==='delivery'?'Delivery Point':(p.type==='receipt'?'Receipt Point':p.type));
-h+='<br>County: '+p.county+', '+p.state;
+if(p.county)h+='<br>County: '+p.county+', '+p.state;
+else if(p.state)h+='<br>Region: '+p.state;
 if(p.connected)h+='<br>Connected to: '+p.connected;
+var accLabel=p.loc_accuracy==='hifld'?'<span style="color:#66BB6A;font-size:8px">\u2022 HIFLD geocoded</span>':p.loc_accuracy==='county'?'<span style="color:#FDD835;font-size:8px">\u2022 County centroid (approx)</span>':'<span style="color:#FF9800;font-size:8px">\u2022 Zone estimate (rough)</span>';
+h+='<br>'+accLabel;
 h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
 h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">CAPACITY (FERC EBB)</div>';
 if(p.design>0){
@@ -1967,7 +1970,11 @@ m.innerHTML='<div style="background:#1B2B3A;border:1px solid rgba(196,133,76,0.3
 +'\u2022 Contractual availability (capacity may be reserved under long-term contracts even if operationally available today)<br>'
 +'\u2022 Delivered gas price at this location<br>'
 +'\u2022 Seasonal variation \u2014 today\u2019s snapshot may differ significantly from peak summer/winter</div>'
-+'<p style="margin:0 0 12px"><b>Location accuracy:</b> Points are geocoded to county centroids with random jitter, not to actual meter station coordinates. A dot in the middle of a county means there\u2019s an interconnect somewhere in that county, not at that exact spot. Pipeline operators do not publish precise meter station coordinates in their EBB filings.</p>'
++'<p style="margin:0 0 12px"><b>Location accuracy:</b> Each point shows its accuracy level:</p>'
++'<div style="font-size:12px;line-height:1.8;margin:0 0 12px">'
++'<span style="color:#66BB6A">\u2022 HIFLD geocoded</span> \u2014 Matched to HIFLD National Gas Receipt/Delivery Points dataset (DOE/DHS) using pipeline name + point name fuzzy matching. These are surveyed infrastructure locations. <b>59% of points.</b><br>'
++'<span style="color:#FDD835">\u2022 County centroid</span> \u2014 Geocoded to the center of the reported county with random offset. Actual meter station is somewhere within the county. <b>20% of points.</b><br>'
++'<span style="color:#FF9800">\u2022 Zone estimate</span> \u2014 Placed within the pipeline\u2019s operating zone (multi-county region). Least precise. <b>21% of points.</b></div>'
 +'<p style="margin:0 0 8px"><b>How to interpret the colors:</b></p>'
 +'<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#00E5FF"></span> <span>Cyan: Receipt point (gas enters the pipeline)</span></div>'
 +'<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#66BB6A"></span> <span>Green: Delivery point, &lt;50% utilized</span></div>'
