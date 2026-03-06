@@ -1841,11 +1841,11 @@ h+='<div class="pf-section">';
 h+='<div class="pf-section-title">Binding Constraint</div>';
 h+='<div class="pf-overload">';
 h+='<span class="pf-overload-line">'+binding.from_bus+' \u2192 '+binding.to_bus+'</span>';
-h+='<span class="pf-overload-pct">'+binding.from_kv+'/'+binding.to_kv+' kV</span>';
+if(binding.from_kv)h+='<span class="pf-overload-pct">'+binding.from_kv+'/'+binding.to_kv+' kV</span>';
 h+='</div>';
-h+='<div class="pf-stat"><span class="pf-stat-label">Thermal Rating</span><span class="pf-stat-value">'+binding.rating_mw.toLocaleString()+' MW</span></div>';
-h+='<div class="pf-stat"><span class="pf-stat-label">Current Flow</span><span class="pf-stat-value">'+binding.base_flow_mw.toLocaleString()+' MW ('+binding.base_loading_pct+'%)</span></div>';
-h+='<div class="pf-stat"><span class="pf-stat-label">Sensitivity</span><span class="pf-stat-value">'+binding.sensitivity+' MW/MW injected</span></div>';
+if(binding.rating_mw!=null)h+='<div class="pf-stat"><span class="pf-stat-label">Thermal Rating</span><span class="pf-stat-value">'+Number(binding.rating_mw).toLocaleString()+' MW</span></div>';
+if(binding.base_flow_mw!=null)h+='<div class="pf-stat"><span class="pf-stat-label">Current Flow</span><span class="pf-stat-value">'+Number(binding.base_flow_mw).toLocaleString()+' MW ('+binding.base_loading_pct+'%)</span></div>';
+if(binding.sensitivity!=null)h+='<div class="pf-stat"><span class="pf-stat-label">Sensitivity</span><span class="pf-stat-value">'+binding.sensitivity+' MW/MW injected</span></div>';
 h+='</div>';
 }
 
