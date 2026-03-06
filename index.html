@@ -1794,9 +1794,22 @@ btn.style.opacity='1';
 if(d.error){body.innerHTML='<div style="text-align:center;padding:40px;color:#EF5350">'+d.error+'</div>';return}
 
 var bi=d.bus_info||{};
+// Handle both v1 (steps-based) and v2 (PTDF-based) API responses
 var headroom=d.headroom_mw;
 var binding=d.binding||{};
-subLabel.textContent=(bi.name||'Bus '+d.bus_id)+(bi.kv?' \u2022 '+bi.kv+'kV':'');
+var isV1=!headroom&&d.screening;
+if(isV1){
+headroom=d.screening.safe_capacity_mw||0;
+bi=d.substation?{name:d.substation.name,kv:d.substation.voltage_kv,load_mw:d.substation.existing_load_mw}:bi;
+if(d.screening.first_constraint_mw){
+var fc=d.screening.steps.find(function(s){return s.status!=='OK'});
+if(fc&&fc.overloads&&fc.overloads[0]){
+binding={from_bus:fc.overloads[0].from,to_bus:fc.overloads[0].to,rating_mw:fc.overloads[0].rating_mw,base_loading_pct:fc.overloads[0].loading_pct};
+}
+}
+}
+if(headroom===undefined||headroom===null)headroom=0;
+subLabel.textContent=(bi.name||'Bus '+(d.bus_id||'?'))+(bi.kv?' \u2022 '+bi.kv+'kV':'');
 
 var h='';
 // Hero: Headroom
@@ -1817,9 +1830,9 @@ h+='<div class="pf-section-title">Substation Details</div>';
 if(bi.name)h+='<div class="pf-stat"><span class="pf-stat-label">Name</span><span class="pf-stat-value">'+bi.name+'</span></div>';
 h+='<div class="pf-stat"><span class="pf-stat-label">Bus ID</span><span class="pf-stat-value">'+d.bus_id+'</span></div>';
 if(bi.kv)h+='<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+bi.kv+' kV</span></div>';
-if(bi.load_mw)h+='<div class="pf-stat"><span class="pf-stat-label">Existing Load</span><span class="pf-stat-value">'+bi.load_mw.toLocaleString()+' MW</span></div>';
+if(bi.load_mw!=null)h+='<div class="pf-stat"><span class="pf-stat-label">Existing Load</span><span class="pf-stat-value">'+Number(bi.load_mw).toLocaleString()+' MW</span></div>';
 if(bi.area)h+='<div class="pf-stat"><span class="pf-stat-label">Area / Zone</span><span class="pf-stat-value">'+bi.area+' / '+bi.zone+'</span></div>';
-h+='<div class="pf-stat"><span class="pf-stat-label">Analysis time</span><span class="pf-stat-value">'+d.elapsed_ms+' ms</span></div>';
+h+='<div class="pf-stat"><span class="pf-stat-label">Analysis time</span><span class="pf-stat-value">'+(d.elapsed_ms?d.elapsed_ms+' ms':d.elapsed_seconds?d.elapsed_seconds+'s':'?')+'</span></div>';
 h+='</div>';
 
 // Binding Constraint Detail
@@ -1836,16 +1849,29 @@ h+='<div class="pf-stat"><span class="pf-stat-label">Sensitivity</span><span cla
 h+='</div>';
 }
 
-// Top Sensitivities
+// Top Sensitivities (v2 only)
 if(d.top_sensitivities&&d.top_sensitivities.length){
 h+='<div class="pf-section">';
 h+='<div class="pf-section-title">Most Affected Lines</div>';
 d.top_sensitivities.forEach(function(s){
-var barW=Math.min(Math.abs(s.sensitivity)*100,100);
 var barCol=s.base_loading_pct>75?'#EF5350':s.base_loading_pct>50?'#FDD835':'#66BB6A';
 h+='<div class="pf-overload">';
 h+='<span class="pf-overload-line">'+s.from_bus+'\u2192'+s.to_bus+'</span>';
 h+='<span class="pf-overload-pct" style="color:'+barCol+'">'+s.base_loading_pct+'% loaded | '+s.sensitivity+' MW/MW</span>';
+h+='</div>';
+});
+h+='</div>';
+}
+// V1 step display fallback
+if(isV1&&d.screening&&d.screening.steps){
+h+='<div class="pf-section">';
+h+='<div class="pf-section-title">Load Injection Steps</div>';
+d.screening.steps.forEach(function(step){
+var ok=step.status==='OK';
+h+='<div class="pf-step '+(ok?'pf-step-ok':'pf-step-fail')+'">';
+h+='<span class="pf-step-mw">'+step.load_mw+' MW</span>';
+h+='<span class="pf-step-status" style="color:'+(ok?'#66BB6A':'#EF5350')+'">'+(ok?'\u2713':'\u2717')+'</span>';
+h+='<span class="pf-step-detail">'+(ok?'No thermal violations':step.overloads.length+' overload'+(step.overloads.length>1?'s':''))+'</span>';
 h+='</div>';
 });
 h+='</div>';
