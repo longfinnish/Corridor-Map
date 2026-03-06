@@ -1,0 +1,33 @@
+name: Gas Interconnects Refresh
+
+on:
+  schedule:
+    - cron: '0 12 * * *'  # Noon UTC = 6am CT daily
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install requests openpyxl
+      
+      - name: Fetch gas data from pipeline portals
+        run: python scripts/fetch_gas_data.py
+      
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Gas data refresh ${{ github.event.schedule && '(daily)' || '(manual)' }}"
+          file_pattern: 'data/gas_interconnects.json data/gas_history.json'
