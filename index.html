@@ -278,6 +278,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">PIPELINES</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Natural Gas (EIA)</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Enhanced (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>Gas Interconnects (FERC)</span><label class="tg"><input type="checkbox" id="t-gasix" onchange="togGasIx()"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
 <div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Gas Facilities</span><label class="tg"><input type="checkbox" id="t-gi-all" onchange="togGIAll(this.checked)"><span class="ts"></span></label><span class="collapse-arrow" onclick="event.stopPropagation();this.parentElement.nextElementSibling.classList.toggle('sub-collapsed');this.textContent=this.parentElement.nextElementSibling.classList.contains('sub-collapsed')?'\u25B6':'\u25BC'">&#x25B6;</span></div>
@@ -1843,6 +1844,58 @@ btn.disabled=false;
 btn.style.opacity='1';
 body.innerHTML='<div style="text-align:center;padding:40px;color:#EF5350">API unavailable — try again in 30s<br><span style="font-size:10px;color:rgba(240,237,232,0.3)">'+e.message+'</span></div>';
 });
+}
+
+// Gas Interconnects (FERC EBB data)
+var gasIxLayer=L.layerGroup();
+var gasIxLoaded=false;
+function gasIxColor(type,util){
+if(type==='receipt')return '#00E5FF';
+if(util===0)return '#66BB6A';
+if(util<50)return '#FDD835';
+if(util<80)return '#FF9800';
+return '#EF5350';
+}
+function togGasIx(){
+var on=document.getElementById('t-gasix').checked;
+if(on){
+if(!gasIxLoaded){
+fetch('data/gas_interconnects.json').then(function(r){return r.json()}).then(function(data){
+gasIxLoaded=true;
+renderGasIx(data);
+});
+}else{gasIxLayer.addTo(map)}
+}else{map.removeLayer(gasIxLayer)}
+uLeg();
+}
+function renderGasIx(data){
+gasIxLayer.clearLayers();
+data.points.forEach(function(p){
+var col=gasIxColor(p.type,p.utilization);
+var radius=p.design>500000?7:p.design>100000?6:p.design>10000?5:4;
+var m=L.circleMarker([p.lat,p.lng],{radius:radius,fillColor:col,fillOpacity:0.85,color:'#fff',weight:1,pane:'markerPane'});
+var h='<b>'+p.name+'</b>';
+h+='<br><span style="color:#00E5FF">'+data.pipeline+'</span>';
+h+='<br>Type: '+(p.type==='delivery'?'Delivery Point':'Receipt Point');
+h+='<br>County: '+p.county+', '+p.state;
+if(p.connected)h+='<br>Connected to: '+p.connected;
+h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
+h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">CAPACITY (FERC EBB)</div>';
+if(p.design>0){
+h+='<div style="display:flex;justify-content:space-between"><span>Design Capacity</span><b>'+p.design.toLocaleString()+' MMBtu/d</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Scheduled Today</span><b>'+p.scheduled.toLocaleString()+' MMBtu/d</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Available</span><b style="color:'+col+'">'+p.available.toLocaleString()+' MMBtu/d</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Utilization</span><b style="color:'+col+'">'+p.utilization+'%</b></div>';
+var mw=Math.round(p.design*0.293/24);
+h+='<div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid rgba(240,237,232,0.1)"><span>Power Equiv (design)</span><b>~'+mw.toLocaleString()+' MW</b></div>';
+}else{
+h+='<div style="color:rgba(240,237,232,0.3)">Capacity not specified by TSP</div>';
+}
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:6px">Source: Boardwalk GasQuest EBB | Updated: '+data.updated+'</div>';
+m.bindPopup(h,{maxWidth:320,maxHeight:400,autoPan:true});
+gasIxLayer.addLayer(m);
+});
+gasIxLayer.addTo(map);
 }
 
 // LMP Prices Layer
