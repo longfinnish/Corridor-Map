@@ -1928,6 +1928,19 @@ h+='<div style="display:flex;justify-content:space-between"><span>Utilization</s
 var availMw=Math.round(p.available/24*0.293);
 h+='<div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid rgba(240,237,232,0.1)"><span>Avail. Generation Equiv</span><b style="color:'+col+'">~'+availMw.toLocaleString()+' MW</b></div>';
 h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:2px">Based on available capacity at ~7,000 BTU/kWh CC heat rate</div>';
+if(p.firm_contracted!=null){
+h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
+h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">CONTRACTS (FERC IOC)</div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Firm Contracted</span><b>'+p.firm_contracted.toLocaleString()+' MMBtu/d</b></div>';
+var uncontracted=Math.max(0,p.design-p.firm_contracted);
+var ucCol=uncontracted>0?'#66BB6A':'#EF5350';
+h+='<div style="display:flex;justify-content:space-between"><span>Uncontracted</span><b style="color:'+ucCol+'">'+uncontracted.toLocaleString()+' MMBtu/d</b></div>';
+if(p.expiring_2yr>0){
+h+='<div style="display:flex;justify-content:space-between"><span>Expiring by 2028</span><b style="color:#FDD835">'+p.expiring_2yr.toLocaleString()+' MMBtu/d</b></div>';
+}
+if(p.num_shippers)h+='<div style="display:flex;justify-content:space-between"><span>Active Shippers</span><b>'+p.num_shippers+'</b></div>';
+if(p.num_contracts)h+='<div style="display:flex;justify-content:space-between"><span>Contracts</span><b>'+p.num_contracts+'</b></div>';
+}
 }else{
 h+='<div style="color:rgba(240,237,232,0.3)">Capacity not specified by TSP</div>';
 }
@@ -1961,6 +1974,11 @@ m.innerHTML='<div style="background:#1B2B3A;border:1px solid rgba(196,133,76,0.3
 +'<b>Available</b> \u2014 Operationally available capacity (Design minus Scheduled, adjusted for operational constraints). This is what could theoretically accommodate new service.<br>'
 +'<b>Utilization</b> \u2014 Scheduled \u00f7 Design. Higher utilization means less spare capacity at this specific point.<br>'
 +'<b>Avail. Generation Equiv</b> \u2014 Available capacity converted to approximate MW of combined-cycle gas generation at ~7,000 BTU/kWh heat rate. This is a rough directional estimate, not an engineering calculation.</div>'
++'<p style="margin:0 0 12px"><b>Contract data (where available):</b> Sourced from FERC Index of Customers (IOC) filings. Every interstate pipeline must publicly disclose all transportation contracts, including shipper name, contracted quantity (MDQ), service type, and contract expiration date. Currently available for 5 KM pipelines (1,059 points).</p>'
++'<div style="font-size:12px;line-height:1.8;margin:0 0 12px">'
++'<b>Firm Contracted</b> \u2014 Sum of all firm transportation (FT) Maximum Daily Quantities at this point. This capacity is reserved by contract even when not flowing.<br>'
++'<b>Uncontracted</b> \u2014 Design Capacity minus Firm Contracted. Capacity potentially available for new firm service. <span style="color:#66BB6A">Green</span> = available, <span style="color:#EF5350">red</span> = fully contracted or oversubscribed.<br>'
++'<b>Expiring by 2028</b> \u2014 Firm contracted capacity with contract end dates within 2 years. This capacity may become available for new shippers when contracts expire or are not renewed.</div>'
 +'<p style="margin:0 0 12px"><b>What this does NOT tell you:</b></p>'
 +'<div style="font-size:12px;line-height:1.8;margin:0 0 12px">'
 +'\u2022 Whether the pipeline will accept a new interconnection at this point<br>'
