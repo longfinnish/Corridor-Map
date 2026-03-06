@@ -1924,8 +1924,9 @@ h+='<div style="display:flex;justify-content:space-between"><span>Design Capacit
 h+='<div style="display:flex;justify-content:space-between"><span>Scheduled Today</span><b>'+p.scheduled.toLocaleString()+' MMBtu/d</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Available</span><b style="color:'+col+'">'+p.available.toLocaleString()+' MMBtu/d</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Utilization</span><b style="color:'+col+'">'+p.utilization+'%</b></div>';
-var mw=Math.round(p.design*0.293/24);
-h+='<div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid rgba(240,237,232,0.1)"><span>Power Equiv (design)</span><b>~'+mw.toLocaleString()+' MW</b></div>';
+var availMw=Math.round(p.available/24*0.293);
+h+='<div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid rgba(240,237,232,0.1)"><span>Avail. Generation Equiv</span><b style="color:'+col+'">~'+availMw.toLocaleString()+' MW</b></div>';
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:2px">Based on available capacity at ~7,000 BTU/kWh CC heat rate</div>';
 }else{
 h+='<div style="color:rgba(240,237,232,0.3)">Capacity not specified by TSP</div>';
 }
