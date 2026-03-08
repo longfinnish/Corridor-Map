@@ -316,6 +316,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#4A7FB5"></span>100-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld100" onchange="togFlood('fld100')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E8A848"></span>500-Year Flood Zone</span><label class="tg"><input type="checkbox" id="t-fld500" onchange="togFlood('fld500')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#26A69A"></span>Wetlands &amp; Water</span><label class="tg"><input type="checkbox" id="t-wet" onchange="togWetWater()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF8A65"></span>Slope (USGS 3DEP)</span><label class="tg"><input type="checkbox" id="t-slope" onchange="togSlope()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#9E9E9E"></span>Hillshade (USGS 3DEP)</span><label class="tg"><input type="checkbox" id="t-hill" onchange="togHillshade()"><span class="ts"></span></label></div>
 </div>
 </div>
 </div>
@@ -1141,6 +1143,48 @@ uLeg();
 }
 
 // Planned Transmission
+
+// Slope Map (USGS 3DEP)
+var slopeLayer=null;
+function togSlope(){
+var on=document.getElementById('t-slope').checked;
+if(on){
+if(!slopeLayer){
+slopeLayer=L.esri.imageMapLayer({
+url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
+renderingRule:{"rasterFunction":"Slope Map"},
+opacity:0.6,
+useCors:true,
+attribution:'USGS 3DEP'
+});
+}
+slopeLayer.addTo(map);
+}else{
+if(slopeLayer)map.removeLayer(slopeLayer);
+}
+uLeg();
+}
+
+// Hillshade (USGS 3DEP)
+var hillLayer=null;
+function togHillshade(){
+var on=document.getElementById('t-hill').checked;
+if(on){
+if(!hillLayer){
+hillLayer=L.esri.imageMapLayer({
+url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
+renderingRule:{"rasterFunction":"Hillshade Gray"},
+opacity:0.5,
+useCors:true,
+attribution:'USGS 3DEP'
+});
+}
+hillLayer.addTo(map);
+}else{
+if(hillLayer)map.removeLayer(hillLayer);
+}
+uLeg();
+}
 var plannedLayer=null;
 var plannedData=null;
 function togPlanned(){
