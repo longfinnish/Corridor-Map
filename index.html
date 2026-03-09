@@ -2676,15 +2676,18 @@ document.getElementById('srch-status').textContent='Found '+parcels.length+' par
 
 // Load infrastructure data for proximity checks
 var subs=[];var gas=[];
-// Get substations from layer if loaded
-if(LS.sub&&LS.sub.g){LS.sub.g.eachLayer(function(l){if(l.getLatLng)subs.push(l.getLatLng())})}
-// Get gas data — try loaded layer first, then fetch directly
+// Get substations from capacity screening data
+try{
+var sr=await fetch('data/capacity_screening.json');
+var sd=await sr.json();
+sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0})});
+}catch(se){console.log('Substation data not available');}
+// Get gas data
 if(window.gasIxData){
 window.gasIxData.forEach(function(pl){
 pl.points.forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
 });
 }
-// If gas data not loaded, fetch it now
 if(gas.length===0){
 try{
 var gr=await fetch('data/gas_interconnects.json');
@@ -2693,17 +2696,9 @@ window.gasIxData=gd;
 gd.forEach(function(pl){
 pl.points.forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
 });
-document.getElementById('srch-status').textContent='Loaded '+gas.length+' gas points. Querying Regrid...';
-}catch(ge){console.log('Gas data not available for search');}
+}catch(ge){console.log('Gas data not available');}
 }
-// If substations not loaded, fetch from data file
-if(subs.length===0){
-try{
-var sr=await fetch('data/substations.json');
-var sd=await sr.json();
-sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng})});
-}catch(se){console.log('Substation data not available for search');}
-}
+document.getElementById('srch-status').textContent='Loaded '+subs.length+' substations, '+gas.length+' gas points. Querying Regrid...';
 
 var results=[];
 parcels.forEach(function(f){
