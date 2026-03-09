@@ -143,6 +143,7 @@ def fetch_williams_capacity(buid):
 ENBRIDGE_PIPELINES = [
     {'bu': 'TE', 'name': 'Texas Eastern Transmission, LP', 'short': 'Texas Eastern'},
     {'bu': 'AG', 'name': 'Algonquin Gas Transmission, LLC', 'short': 'Algonquin'},
+    {'bu': 'MN', 'name': 'Maritimes & Northeast Pipeline, LLC', 'short': 'Maritimes NE'},
 ]
 
 def fetch_enbridge_capacity(bu_code):
@@ -167,6 +168,49 @@ def fetch_enbridge_capacity(bu_code):
     if 'text/plain' in r2.headers.get('Content-Type', ''):
         return list(csv.DictReader(io.StringIO(r2.text)))
     return []
+
+
+# ============================================================
+# ENERGY TRANSFER (HTML Table Parse)
+# ============================================================
+
+ET_PIPELINES = [
+    {'base': 'peplmessenger', 'asset': 'PEPL', 'name': 'Panhandle Eastern Pipe Line Company', 'short': 'Panhandle Eastern'},
+    {'base': 'tgcmessenger', 'asset': 'TGC', 'name': 'Trunkline Gas Company, LLC', 'short': 'Trunkline'},
+    {'base': 'rovermessenger', 'asset': 'ROVER', 'name': 'Rover Pipeline LLC', 'short': 'Rover'},
+]
+
+def fetch_et_capacity(base_domain, asset):
+    """Fetch OAC from Energy Transfer messenger platform via HTML table parse."""
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    
+    url = f'https://{base_domain}.energytransfer.com/ipost/capacity/operationally-available-by-location?asset={asset}'
+    r = s.get(url, timeout=30)
+    
+    all_rows = re.findall(r'<tr[^>]*>(.*?)</tr>', r.text, re.DOTALL | re.I)
+    data = []
+    for row in all_rows:
+        cells = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.I)
+        clean = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
+        if len(clean) >= 10:
+            has_num = any(c.replace(',', '').replace('.', '').replace('-', '').isdigit() for c in clean[4:8] if c)
+            if has_num:
+                data.append({
+                    'Loc': clean[0],
+                    'Loc_Name': clean[1],
+                    'Loc_Purp_Desc': clean[2],
+                    'Total_Design_Capacity': clean[4],
+                    'Operating_Capacity': clean[5],
+                    'Total_Scheduled_Quantity': clean[6],
+                    'Operationally_Available_Capacity': clean[7],
+                    'Loc_Zn': clean[8] if len(clean) > 8 else '',
+                    'Flow_Ind_Desc': clean[10] if len(clean) > 10 else '',
+                    'State': clean[11] if len(clean) > 11 else '',
+                    'County': clean[12] if len(clean) > 12 else '',
+                    'Operator': clean[13] if len(clean) > 13 else '',
+                })
+    return data
 
 
 # ============================================================
@@ -461,6 +505,51 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
     
+    # Energy Transfer
+    for pl in ET_PIPELINES:
+        print(f"Fetching ET {pl['short']}...")
+        try:
+            caps = fetch_et_capacity(pl['base'], pl['asset'])
+            
+            points = []
+            for c in caps:
+                if 'Segment' in c.get('Loc_Purp_Desc', ''):
+                    continue
+                
+                dc = parse_int_safe(c.get('Total_Design_Capacity'))
+                sched = parse_int_safe(c.get('Total_Scheduled_Quantity'))
+                avail = parse_int_safe(c.get('Operationally_Available_Capacity'))
+                
+                if dc == 0:
+                    continue
+                
+                purp = c.get('Loc_Purp_Desc', '')
+                ptype = 'delivery' if 'Delivery' in purp else ('receipt' if 'Receipt' in purp else 'other')
+                
+                points.append({
+                    'id': c.get('Loc', ''),
+                    'name': c.get('Loc_Name', '').strip()[:50],
+                    'type': ptype,
+                    'county': c.get('County', '').replace(' County', '').strip(),
+                    'state': c.get('State', '').strip(),
+                    'design': dc,
+                    'scheduled': sched,
+                    'available': avail,
+                    'utilization': round(sched / dc * 100) if dc > 0 else 0,
+                    'connected': c.get('Operator', '').strip()[:50],
+                })
+            
+            pipelines.append({
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': points,
+            })
+            print(f"  {pl['short']}: {len(points)} points")
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+    
     return pipelines
 
 
@@ -537,6 +626,10 @@ PIPELINE_HIFLD_MAP = {
     'Florida Gas Transmission Company, LLC': ['FLORIDA GAS TRANSMISSION COMPANY'],
     'Colorado Interstate Gas Company, LLC': ['COLORADO INTERSTATE GAS COMPANY'],
     'Algonquin Gas Transmission, LLC': ['ALGONQUIN GAS TRANSMISSION'],
+    'Maritimes & Northeast Pipeline, LLC': ['MARITIMES AND NORTHEAST PIPELINE'],
+    'Panhandle Eastern Pipe Line Company': ['PANHANDLE EASTERN PIPE LINE COMPANY'],
+    'Trunkline Gas Company, LLC': ['TRUNKLINE LNG COMPANY', 'TRUNKLINE GAS COMPANY'],
+    'Rover Pipeline LLC': ['ROVER PIPELINE'],
 }
 
 ZONE_COORDS = {
