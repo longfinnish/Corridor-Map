@@ -302,8 +302,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Hyperscalers &amp; Data Centers</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
-<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscaler Facilities</span><label class="tg"><input type="checkbox" id="t-hs" onchange="tog('hs')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (OSM)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Data Centers (Hyperscaler)</span><label class="tg"><input type="checkbox" id="t-hs" onchange="tog('hs')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (Colo)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
 </div>
 </div>
 </div>
@@ -806,43 +806,47 @@ s.g.addLayer(line);
 s.ld=false;
 }).catch(function(e){console.error('OSM pipe error:',e);s.ld=false});
 }
-var dcCD=false;
+var dcLoaded=false;
 function ldDC(){
-var s=LS.dc;if(dcCD||s.ld)return;s.ld=true;dcCD=true;setTimeout(function(){dcCD=false},5000);
-var b=map.getBounds();var bb=b.getSouth()+','+b.getWest()+','+b.getNorth()+','+b.getEast();
-var q='[out:json][timeout:30];(node["telecom"="data_center"]('+bb+');way["telecom"="data_center"]('+bb+');node["building"="data_centre"]('+bb+');way["building"="data_centre"]('+bb+'););out center body;';
-fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q)})
-.then(function(r){return r.json()}).then(function(d){
-s.g.clearLayers();if(!d.elements)return;
-d.elements.forEach(function(el){var lat=el.lat||(el.center&&el.center.lat),lon=el.lon||(el.center&&el.center.lon);
-if(!lat||!lon)return;var nm=(el.tags&&el.tags.name)||'Data Center',op=(el.tags&&el.tags.operator)||'\u2014';
-var m=L.circleMarker([lat,lon],{radius:6,fillColor:'#AB47BC',fillOpacity:0.9,color:'#fff',weight:1.5});
-m.bindPopup('<b>\uD83C\uDFE2 '+nm+'</b><br>Operator: '+op);s.g.addLayer(m)});s.ld=false;
+var s=LS.dc;if(dcLoaded||s.ld)return;s.ld=true;
+fetch('data/datacenters.json').then(function(r){return r.json()}).then(function(data){
+s.g.clearLayers();
+var colos=data.filter(function(f){return f.category==='Colocation'});
+colos.forEach(function(f){
+var mw=parseFloat(f.mw)||0;
+var sz=mw>50?7:mw>10?5.5:4;
+var m=L.circleMarker([f.lat,f.lng],{radius:sz,fillColor:'#AB47BC',fillOpacity:0.85,color:'#fff',weight:1});
+var popup='<b>'+f.name+'</b><br>';
+popup+='<b>Company:</b> '+f.company+'<br>';
+if(mw>0)popup+='<b>IT Load:</b> '+mw+' MW<br>';
+if(f.address)popup+='<b>Address:</b> '+f.address+'<br>';
+popup+='<b>State:</b> '+f.state;
+m.bindPopup(popup);s.g.addLayer(m)});
+dcLoaded=true;s.ld=false;
 }).catch(function(e){console.error('DC error:',e);s.ld=false});
 }
 
-var hsColors={AWS:"#FF9800",Google:"#4285F4",Meta:"#0668E1",Microsoft:"#7FBA00",xAI:"#EF5350","OpenAI/Oracle":"#26A69A",Apple:"#A2AAAD",Compass:"#78909C",Vantage:"#78909C",DataBank:"#78909C","Vantage/Oracle/OpenAI":"#26A69A","Texas Tech/Fermi America":"#FF7043","Energy Abundance Dev Corp":"#78909C",Tract:"#78909C","AVAIO Digital":"#78909C","Provident/PowerHouse":"#78909C"};
+var hsColors={AWS:"#FF9800",Google:"#4285F4",Meta:"#0668E1",Microsoft:"#7FBA00"};
 var hsLoaded=false;
 function ldHS(){
 var s=LS.hs;if(hsLoaded||s.ld)return;s.ld=true;
-fetch("data/hyperscalers.json").then(function(r){return r.json()}).then(function(data){
+fetch("data/datacenters.json").then(function(r){return r.json()}).then(function(data){
 s.g.clearLayers();
-data.forEach(function(f){
-var col=hsColors[f.operator]||"#78909C";
-var sz=f.type==="hyperscaler"?8:6;
-var op=f.status==="operational"?0.95:0.7;
-var wt=f.status==="operational"?2:f.status==="under_construction"?2.5:1.5;
-var fc=f.status==="planned"||f.status==="announced"?"transparent":col;
-var m=L.circleMarker([f.lat,f.lng],{radius:sz,fillColor:fc,fillOpacity:op,color:col,weight:wt});
-var popup="<b style=\"font-size:13px\">"+f.name+"</b><br>";
-popup+="<b>Operator:</b> "+f.operator+"<br>";
-popup+="<b>Status:</b> "+f.status.replace(/_/g," ")+"<br>";
-if(f.mw)popup+="<b>Capacity:</b> "+f.mw.toLocaleString()+" MW<br>";
-if(f.investment)popup+="<b>Investment:</b> "+f.investment+"<br>";
-popup+="<b>Location:</b> "+f.county+" Co, "+f.state+" ("+f.iso+")<br>";
-if(f.notes)popup+="<br><i style=\"color:rgba(240,237,232,0.6);font-size:10px\">"+f.notes+"</i>";
-m.bindPopup(popup);s.g.addLayer(m);
-});
+var hyper=data.filter(function(f){return f.source!=='Colo'});
+hyper.forEach(function(f){
+var col=hsColors[f.source]||"#78909C";
+var mw=parseFloat(f.mw)||0;
+var sz=mw>50?9:mw>10?7:5;
+var m=L.circleMarker([f.lat,f.lng],{radius:sz,fillColor:col,fillOpacity:0.95,color:'#fff',weight:2});
+var popup="<b style='font-size:13px'>"+f.name+"</b><br>";
+popup+="<b>Operator:</b> "+f.source+"<br>";
+if(f.subcategory)popup+="<b>Type:</b> "+f.subcategory+"<br>";
+if(mw>0)popup+="<b>IT Load:</b> "+mw+" MW<br>";
+if(f.year&&f.year!=='0')popup+="<b>Year:</b> "+f.year+"<br>";
+if(f.address)popup+="<b>Address:</b> "+f.address+"<br>";
+popup+="<b>State:</b> "+f.state;
+if(f.airport)popup+=" ("+f.airport+")";
+m.bindPopup(popup);s.g.addLayer(m)});
 hsLoaded=true;s.ld=false;
 }).catch(function(e){console.error("HS error:",e);s.ld=false});
 }
