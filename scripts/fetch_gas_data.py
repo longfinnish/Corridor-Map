@@ -213,6 +213,66 @@ def fetch_et_capacity(base_domain, asset):
     return data
 
 
+def fetch_et_ioc(base_domain, asset):
+    """Fetch Index of Customers from Energy Transfer messenger platform."""
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    
+    url = f'https://{base_domain}.energytransfer.com/ipost/index-of-customers/index?asset={asset}'
+    r = s.get(url, timeout=30)
+    
+    all_rows = re.findall(r'<tr[^>]*>(.*?)</tr>', r.text, re.DOTALL | re.I)
+    
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+    
+    for row in all_rows:
+        cells = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.I)
+        if len(cells) < 7:
+            continue
+        clean = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
+        
+        shipper = clean[0]
+        rate = clean[3] if len(clean) > 3 else ''
+        exp_date_str = clean[6] if len(clean) > 6 else ''
+        mdq_str = clean[9] if len(clean) > 9 else '0'
+        
+        if not shipper or not clean[4]:  # need shipper and contract number
+            continue
+        
+        try:
+            mdq = int(mdq_str.replace(',', ''))
+        except:
+            mdq = 0
+        
+        if mdq == 0:
+            continue
+        
+        num_contracts += 1
+        shippers.add(shipper)
+        
+        if 'FT' in rate.upper() or 'EFT' in rate.upper() or 'NNS' in rate.upper():
+            firm_mdq += mdq
+        
+        if exp_date_str:
+            try:
+                ed = datetime.strptime(exp_date_str.strip()[:10], '%m/%d/%Y')
+                if ed <= cutoff:
+                    expiring_2yr += mdq
+            except:
+                pass
+    
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
+
+
 # ============================================================
 # TC ENERGY (eConnects ReportViewer CSV)
 # ============================================================
@@ -550,6 +610,7 @@ def fetch_all_capacity():
         print(f"Fetching ET {pl['short']}...")
         try:
             caps = fetch_et_capacity(pl['base'], pl['asset'])
+            ioc = fetch_et_ioc(pl['base'], pl['asset'])
             
             points = []
             for c in caps:
@@ -566,7 +627,7 @@ def fetch_all_capacity():
                 purp = c.get('Loc_Purp_Desc', '')
                 ptype = 'delivery' if 'Delivery' in purp else ('receipt' if 'Receipt' in purp else 'other')
                 
-                points.append({
+                pt = {
                     'id': c.get('Loc', ''),
                     'name': c.get('Loc_Name', '').strip()[:50],
                     'type': ptype,
@@ -577,7 +638,17 @@ def fetch_all_capacity():
                     'available': avail,
                     'utilization': round(sched / dc * 100) if dc > 0 else 0,
                     'connected': c.get('Operator', '').strip()[:50],
-                })
+                }
+                
+                # Add IOC data if available (ET IOC is by shipper, not by point)
+                # Apply pipeline-level IOC stats to all points
+                if ioc:
+                    pt['firm_contracted'] = ioc.get('firm_mdq', 0)
+                    pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
+                    pt['num_shippers'] = ioc.get('num_shippers', 0)
+                    pt['num_contracts'] = ioc.get('num_contracts', 0)
+                
+                points.append(pt)
             
             pipelines.append({
                 'name': pl['name'],
@@ -585,7 +656,7 @@ def fetch_all_capacity():
                 'updated': TODAY,
                 'points': points,
             })
-            print(f"  {pl['short']}: {len(points)} points")
+            print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts")
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
