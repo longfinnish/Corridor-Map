@@ -1147,8 +1147,10 @@ h+='</div></div>';
 h+='</div>';
 }
 h+='<div style="display:flex;gap:6px;justify-content:center;margin-top:8px;padding-top:6px;border-top:1px solid rgba(240,237,232,0.1)">';
-var rgLink=rgPath?'https://app.regrid.com'+rgPath:'https://app.regrid.com/us/#map=16/'+lat+'/'+lon;
-h+='<a href="#" onclick="window.open(\''+rgLink+'\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px">Open Regrid</a>';
+if(rgData){
+window._lastRgData=rgData;window._lastRgPath=rgPath;window._lastRgCoords=coords;window._lastRgCounty=ctyName;window._lastRgState=stAbbr;
+h+='<a href="#" onclick="showParcelDetail();return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px">Full Details</a>';
+}
 if(ctyName&&stAbbr){
 h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
@@ -2935,6 +2937,130 @@ console.error('Search error:',e);
 function zoomResult(i){
 var r=window._searchResults[i];
 if(r&&r.lat&&r.lon)map.setView([r.lat,r.lon],14);
+}
+
+function showParcelDetail(){
+var d=window._lastRgData;if(!d)return;
+var path=window._lastRgPath||'';
+var coords=window._lastRgCoords||'';
+var cty=window._lastRgCounty||'';var st=window._lastRgState||'';
+map.closePopup();
+// Build modal
+var ov=document.createElement('div');
+ov.id='parcel-detail-overlay';
+ov.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;justify-content:center;align-items:center;padding:20px';
+ov.onclick=function(e){if(e.target===ov){ov.remove()}};
+var m=document.createElement('div');
+m.style.cssText='background:#1B2B3A;border-radius:8px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;color:#F0EDE8;font-family:DM Sans,sans-serif;box-shadow:0 8px 32px rgba(0,0,0,0.5)';
+
+function sec(title){return '<div style="font-size:10px;font-weight:700;color:#C4854C;letter-spacing:1.5px;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(196,133,76,0.2)">'+title+'</div>'}
+function row(label,val,color){if(!val&&val!==0)return '';return '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px"><span style="color:rgba(240,237,232,0.5)">'+label+'</span><span style="color:'+(color||'#F0EDE8')+';font-weight:500">'+val+'</span></div>'}
+function colorVal(val,goodTest){var c=goodTest?'#66BB6A':'#F0EDE8';return c}
+
+var h='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">';
+h+='<div>';
+if(d.owner)h+='<div style="font-size:18px;font-weight:700">'+d.owner+'</div>';
+h+='<div style="font-size:13px;color:#C4854C;font-weight:600">'+(d.ll_gisacre?parseFloat(d.ll_gisacre).toFixed(1)+' acres':'')+'</div>';
+if(d.address)h+='<div style="font-size:11px;color:rgba(240,237,232,0.5);margin-top:2px">'+d.address+(d.city?', '+d.city:'')+(d.state2?', '+d.state2:'')+(d.szip5?' '+d.szip5:'')+'</div>';
+if(cty)h+='<div style="font-size:10px;color:rgba(240,237,232,0.35)">'+cty+(st==='LA'?' Parish, ':' County, ')+st+'</div>';
+h+='</div>';
+h+='<button onclick="this.closest(\'#parcel-detail-overlay\').remove()" style="background:none;border:none;color:rgba(240,237,232,0.5);font-size:24px;cursor:pointer;padding:0 4px;line-height:1">&times;</button>';
+h+='</div>';
+h+='<div style="font-size:10px;color:rgba(240,237,232,0.35);cursor:pointer;margin-bottom:4px" onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\'">'+coords+' (click to copy)</div>';
+
+// PROPERTY section
+h+=sec('PROPERTY');
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">';
+h+=row('Parcel ID',d.parcelnumb||'');
+h+=row('Legal Desc',d.legaldesc?d.legaldesc.substring(0,50)+(d.legaldesc.length>50?'...':''):'');
+h+=row('Acreage',d.ll_gisacre?parseFloat(d.ll_gisacre).toFixed(2)+' ac':'');
+h+=row('Square Feet',d.ll_gissqft?parseInt(d.ll_gissqft).toLocaleString()+' sqft':'');
+h+=row('Zoning',d.zoning?(d.zoning+(d.zoning_type?' ('+d.zoning_type+')':'')):'');
+h+=row('Use Description',d.usedesc||'');
+h+=row('Ownership Type',d.lbcs_ownership_desc||'');
+h+=row('Year Built',d.yearbuilt||'');
+h+=row('Stories',d.numstories||'');
+h+=row('Buildings',d.ll_bldg_count||'');
+h+=row('Building Sqft',d.ll_bldg_footprint_sqft?parseInt(d.ll_bldg_footprint_sqft).toLocaleString():'');
+h+=row('Building Area',d.area_building?(parseInt(d.area_building).toLocaleString()+' sqft ('+( d.area_building_definition||'')+')'):'');
+h+='</div>';
+
+// VALUATION section
+h+=sec('VALUATION');
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">';
+h+=row('Land Value',d.landval?'$'+parseInt(d.landval).toLocaleString():'');
+h+=row('Improvement Value',d.improvval?'$'+parseInt(d.improvval).toLocaleString():'');
+h+=row('Total Value',d.parval?'$'+parseInt(d.parval).toLocaleString():'');
+h+=row('Value Type',d.parvaltype||'');
+h+=row('Tax Year',d.taxyear||'');
+h+=row('Last Sale Date',d.saledate||'');
+h+=row('Last Sale Price',d.saleprice&&parseFloat(d.saleprice)>0?'$'+parseInt(d.saleprice).toLocaleString():'');
+h+='</div>';
+
+// SITE CONDITIONS section
+h+=sec('SITE CONDITIONS');
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">';
+var txMi=d.transmission_line_distance!=null?(d.transmission_line_distance*0.000621371).toFixed(1):'';
+h+=row('TX Line Distance',txMi?txMi+' mi':'',txMi&&txMi<=3?'#66BB6A':txMi&&txMi<=10?'#FDD835':'#EF5350');
+var fr=d.fema_nri_risk_rating||'';var fc=fr.indexOf('High')>=0&&fr.indexOf('Relatively')<0?'#EF5350':fr.indexOf('Moderate')>=0?'#FDD835':'#66BB6A';
+h+=row('FEMA Risk',fr,fr?fc:'');
+var rr=d.roughness_rating;
+h+=row('Roughness',rr!=null?(rr+(rr<=1?' (Flat)':rr<=2?' (Gentle)':' (Rough)')):'',rr!=null?(rr<=1?'#66BB6A':rr<=2?'#FDD835':'#EF5350'):'');
+h+=row('Elevation Range',d.highest_parcel_elevation?(d.lowest_parcel_elevation+"' - "+d.highest_parcel_elevation+"'"):'');
+h+=row('InSite Score',d.insite_score||'');
+h+=row('QOZ Eligible',d.qoz||'');
+h+='</div>';
+
+// LAND USE section
+if(d.cdl_majority_category){
+h+=sec('LAND USE (USDA CDL)');
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">';
+h+=row('Primary Crop',d.cdl_majority_category||'');
+h+=row('Coverage',d.cdl_majority_percent?d.cdl_majority_percent+'%':'');
+h+=row('CDL Year',d.cdl_date||'');
+// Parse raw CDL data for top crops
+if(d.cdl_raw){
+try{
+var crops=JSON.parse(d.cdl_raw);
+var cropNames={1:'Corn',4:'Sorghum',5:'Soybeans',24:'Winter Wheat',36:'Alfalfa',37:'Other Hay',61:'Fallow/Idle',111:'Open Water',121:'Developed/Open',122:'Dev/Low',141:'Deciduous Forest',152:'Shrubland',171:'Grassland',176:'Grass/Pasture',195:'Herbaceous Wetlands'};
+crops.slice(0,4).forEach(function(c){h+=row(cropNames[c[0]]||('Code '+c[0]),c[1]+'%')});
+}catch(ce){}
+}
+h+='</div>';
+}
+
+// DEMOGRAPHICS section
+h+=sec('DEMOGRAPHICS');
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">';
+h+=row('Median Income',d.median_household_income?'$'+parseInt(d.median_household_income).toLocaleString():'');
+h+=row('Income Growth (5yr)',d.household_income_growth_next_5_years?d.household_income_growth_next_5_years+'%':'');
+h+=row('Population Density',d.population_density?d.population_density+'/mi²':'');
+h+=row('Pop Growth (5yr)',d.population_growth_next_5_years?d.population_growth_next_5_years+'%':'');
+h+=row('Housing Growth (5yr)',d.housing_growth_next_5_years?d.housing_growth_next_5_years+'%':'');
+h+=row('Affordability Index',d.housing_affordability_index||'');
+h+=row('School District',d.census_unified_school_district||'');
+h+=row('Census Tract',d.census_tract||'');
+h+='</div>';
+
+// OWNER / MAILING section
+h+=sec('OWNER & MAILING');
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 20px">';
+h+=row('Owner',d.owner||'');
+h+=row('Care Of',d.careof||'');
+h+=row('Mailing Address',d.mailadd?d.mailadd+(d.mail_city?', '+d.mail_city:'')+(d.mail_state2?', '+d.mail_state2:'')+(d.mail_zip?' '+d.mail_zip:''):'');
+h+=row('USPS Vacancy',d.usps_vacancy_date||'');
+h+=row('DPV Status',d.dpv_status==='Y'?'Confirmed':'Not confirmed');
+h+='</div>';
+
+// Buttons
+h+='<div style="display:flex;gap:8px;justify-content:center;margin-top:16px;padding-top:12px;border-top:1px solid rgba(240,237,232,0.1)">';
+if(path)h+='<a href="https://app.regrid.com'+path+'" target="_blank" style="background:rgba(240,237,232,0.1);color:#F0EDE8;padding:8px 16px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px">View on Regrid</a>';
+h+='<a href="#" onclick="this.closest(\'#parcel-detail-overlay\').remove();showSaveModal();return false" style="background:rgba(102,187,106,0.15);color:#66BB6A;padding:8px 16px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid rgba(102,187,106,0.25)">+ Save to Pipeline</a>';
+h+='</div>';
+
+m.innerHTML=h;
+ov.appendChild(m);
+document.body.appendChild(ov);
 }
 
 function addToPipeline(i){
