@@ -294,7 +294,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div>
 <div class="li"><span class="ll"><span class="ld" style="background:linear-gradient(90deg,#EF5350,#FF9800,#FDD835,#66BB6A)"></span>Capacity Heat Map</span><label class="tg"><input type="checkbox" id="t-cap" onchange="togCapMap()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>LMP Prices (ERCOT)</span><label class="tg"><input type="checkbox" id="t-lmp" onchange="togLMP()"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>Planned Transmission</span><label class="tg"><input type="checkbox" id="t-planned" onchange="togPlanned()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>Planned Transmission</span><label class="tg"><input type="checkbox" id="t-planned" onchange="togPlanned()"><span class="ts"></span></label><span class="collapse-arrow" onclick="event.stopPropagation();this.parentElement.nextElementSibling.classList.toggle('sub-collapsed');this.textContent=this.parentElement.nextElementSibling.classList.contains('sub-collapsed')?'\u25B6':'\u25BC'">&#x25B6;</span></div>
+<div class="sub-group sub-collapsed" id="planned-subs">
+<div class="li"><span class="ll"><span class="ld" style="background:#FFB74D"></span>Line Upgrades (222)</span><label class="tg"><input type="checkbox" id="t-plan-upg" checked onchange="reRenderPlanned()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>New Lines (166)</span><label class="tg"><input type="checkbox" id="t-plan-new" checked onchange="reRenderPlanned()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#78909C"></span>Substations & Other (352)</span><label class="tg"><input type="checkbox" id="t-plan-other" onchange="reRenderPlanned()"><span class="ts"></span></label></div>
+</div>
 </div>
 <div class="lg">
 <div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">GAS INFRASTRUCTURE</div>
@@ -1500,36 +1505,62 @@ fetch('data/planned_transmission.json').then(function(r){return r.json()}).then(
 plannedData=d;renderPlanned();
 }).catch(function(e){console.error('Planned transmission load error:',e)});
 }
+function reRenderPlanned(){
+if(!plannedLayer)return;
+map.removeLayer(plannedLayer);
+plannedLayer=null;
+renderPlanned();
+}
 function renderPlanned(){
 plannedLayer=L.layerGroup();
+var showUpg=document.getElementById('t-plan-upg').checked;
+var showNew=document.getElementById('t-plan-new').checked;
+var showOther=document.getElementById('t-plan-other').checked;
 plannedData.forEach(function(p){
 if(!p.from_lat||!p.to_lat)return;
 var kv=p.kv||0;
-// Respect voltage toggles — if any voltages are active, filter by them
+// Respect voltage toggles
 var anyVoltOn=false;
 for(var v in txVolts){if(txVolts[v])anyVoltOn=true}
 if(anyVoltOn&&!vMatch(kv))return;
-// Color: green for new, orange for upgrade, gray for other
-var color='#78909C';
-if(p.ftype==='Line New')color='#00E676';
-else if(p.ftype==='Line Upgrade')color='#FFB74D';
-// Weight by voltage
+// Filter by type sub-toggles
+var isUpg=p.ftype==='Line Upgrade';
+var isNew=p.ftype==='Line New';
+if(isUpg&&!showUpg)return;
+if(isNew&&!showNew)return;
+if(!isUpg&&!isNew&&!showOther)return;
+// Color and style
+var color=isNew?'#00E676':isUpg?'#FFB74D':'#78909C';
 var weight=2;
-if(kv>=345)weight=3.5;
-else if(kv>=230)weight=2.5;
+if(kv>=345)weight=4;
+else if(kv>=230)weight=3;
+// Upgrades get a thicker glow effect
+var dashArray=isUpg?'6 4':'8 6';
 var line=L.polyline([[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]],{
-color:color,weight:weight,opacity:0.8,dashArray:'8 6'
+color:color,weight:weight,opacity:0.85,dashArray:dashArray
 });
+// Add glow behind upgrades for visibility
+if(isUpg){
+var glow=L.polyline([[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]],{
+color:color,weight:weight+4,opacity:0.2
+});
+plannedLayer.addLayer(glow);
+}
 var costStr=p.cost?'$'+(p.cost>=1e9?(p.cost/1e9).toFixed(1)+'B':p.cost>=1e6?(p.cost/1e6).toFixed(1)+'M':(p.cost/1e3).toFixed(0)+'K'):'N/A';
-line.bindPopup('<div style="min-width:200px"><b style="font-size:13px">'+p.name+'</b><br>'+
-'<span style="display:inline-block;background:'+(p.ftype==='Line New'?'rgba(0,230,118,0.15);color:#00E676':p.ftype==='Line Upgrade'?'rgba(255,183,77,0.15);color:#FFB74D':'rgba(120,144,156,0.15);color:#78909C')+';padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;margin:4px 0">'+(p.ftype||'Planned')+'</span><br>'+
-'<b>Voltage:</b> '+(p.kv||'—')+'kV<br>'+
-'<b>Cost:</b> '+costStr+'<br>'+
-'<b>Status:</b> '+(p.status||'—')+'<br>'+
-'<b>Target Date:</b> '+(p.isd||'—')+'<br>'+
-'<b>ISO:</b> '+p.iso+'<br>'+
-'<b>From:</b> '+p.from_sub+'<br>'+
-'<b>To:</b> '+p.to_sub+'</div>');
+var badge=isNew?'rgba(0,230,118,0.15);color:#00E676':isUpg?'rgba(255,183,77,0.15);color:#FFB74D':'rgba(120,144,156,0.15);color:#78909C';
+line.bindPopup('<div style="min-width:220px"><b style="font-size:13px">'+p.name+'</b><br>'+
+(p.proj&&p.proj!==p.name?'<div style="font-size:10px;color:rgba(240,237,232,0.4);margin:2px 0">'+p.proj+'</div>':'')+
+'<span style="display:inline-block;background:'+badge+';padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;margin:4px 0">'+(p.ftype||'Planned')+'</span><br>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:11px;margin-top:4px">'+
+'<div><span style="color:rgba(240,237,232,0.4)">Voltage</span><br><b>'+(p.kv||'—')+'kV</b></div>'+
+'<div><span style="color:rgba(240,237,232,0.4)">Cost</span><br><b>'+costStr+'</b></div>'+
+'<div><span style="color:rgba(240,237,232,0.4)">Status</span><br><b>'+(p.status||'—')+'</b></div>'+
+'<div><span style="color:rgba(240,237,232,0.4)">Target Date</span><br><b>'+(p.isd||'—')+'</b></div>'+
+'<div><span style="color:rgba(240,237,232,0.4)">From</span><br><b>'+p.from_sub+'</b></div>'+
+'<div><span style="color:rgba(240,237,232,0.4)">To</span><br><b>'+p.to_sub+'</b></div>'+
+'<div><span style="color:rgba(240,237,232,0.4)">ISO</span><br><b>'+p.iso+'</b></div>'+
+(p.state?'<div><span style="color:rgba(240,237,232,0.4)">State</span><br><b>'+p.state+'</b></div>':'')+
+'</div></div>');
 plannedLayer.addLayer(line);
 });
 plannedLayer.addTo(map);
