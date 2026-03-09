@@ -1295,9 +1295,8 @@ if(on){
 if(!slopeLayer){
 slopeLayer=L.esri.imageMapLayer({
 url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
-renderingRule:{"rasterFunction":"Slope Map"},
+renderingRule:{rasterFunction:'Slope Map'},
 opacity:0.6,
-useCors:true,
 attribution:'USGS 3DEP'
 });
 }
@@ -1316,9 +1315,8 @@ if(on){
 if(!hillLayer){
 hillLayer=L.esri.imageMapLayer({
 url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
-renderingRule:{"rasterFunction":"Hillshade Gray"},
+renderingRule:{rasterFunction:'Hillshade Gray'},
 opacity:0.5,
-useCors:true,
 attribution:'USGS 3DEP'
 });
 }
