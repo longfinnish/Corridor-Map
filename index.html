@@ -2676,12 +2676,33 @@ document.getElementById('srch-status').textContent='Found '+parcels.length+' par
 
 // Load infrastructure data for proximity checks
 var subs=[];var gas=[];
+// Get substations from layer if loaded
 if(LS.sub&&LS.sub.g){LS.sub.g.eachLayer(function(l){if(l.getLatLng)subs.push(l.getLatLng())})}
-// Also check loaded gas data
+// Get gas data — try loaded layer first, then fetch directly
 if(window.gasIxData){
 window.gasIxData.forEach(function(pl){
 pl.points.forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
 });
+}
+// If gas data not loaded, fetch it now
+if(gas.length===0){
+try{
+var gr=await fetch('data/gas_interconnects.json');
+var gd=await gr.json();
+window.gasIxData=gd;
+gd.forEach(function(pl){
+pl.points.forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
+});
+document.getElementById('srch-status').textContent='Loaded '+gas.length+' gas points. Querying Regrid...';
+}catch(ge){console.log('Gas data not available for search');}
+}
+// If substations not loaded, fetch from data file
+if(subs.length===0){
+try{
+var sr=await fetch('data/substations.json');
+var sd=await sr.json();
+sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng})});
+}catch(se){console.log('Substation data not available for search');}
 }
 
 var results=[];
@@ -2689,8 +2710,8 @@ parcels.forEach(function(f){
 var p=f.properties.fields;
 var geom=f.geometry;
 var acres=p.ll_gisacre||0;
-var txDistFt=p.transmission_line_distance||999999;
-var txDistMi=txDistFt/5280;
+var txDistM=p.transmission_line_distance||999999;
+var txDistMi=txDistM*0.000621371;
 var rough=p.roughness_rating||0;
 var fema=p.fema_nri_risk_rating||'';
 var zoneType=p.zoning_type||'';
@@ -2706,12 +2727,13 @@ if(femaFilter==='mod'&&(fema==='Very High'||fema==='Relatively High'))return;
 // Compute distances to our infrastructure
 var nearSub=999;var nearGas=999;var nearGasName='';var nearGasPipe='';var nearGasAvail=0;
 if(lat&&lon){
-subs.forEach(function(s){var d=haversine(lat,lon,s.lat,s.lng);if(d<nearSub)nearSub=d});
-gas.forEach(function(g){var d=haversine(lat,lon,g.lat,g.lng);if(d<nearGas){nearGas=d;nearGasName=g.name;nearGasPipe=g.pipeline;nearGasAvail=g.avail}});
+if(subs.length>0)subs.forEach(function(s){var d=haversine(lat,lon,s.lat,s.lng);if(d<nearSub)nearSub=d});
+if(gas.length>0)gas.forEach(function(g){var d=haversine(lat,lon,g.lat,g.lng);if(d<nearGas){nearGas=d;nearGasName=g.name;nearGasPipe=g.pipeline;nearGasAvail=g.avail}});
 }
 
-if(nearSub>maxSubDist)return;
-if(nearGas>maxGasDist)return;
+// Only apply sub/gas distance filters if data is loaded
+if(subs.length>0&&nearSub>maxSubDist)return;
+if(gas.length>0&&nearGas>maxGasDist)return;
 
 results.push({
 owner:p.owner||'Unknown',
