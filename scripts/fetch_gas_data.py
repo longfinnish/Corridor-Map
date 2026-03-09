@@ -214,6 +214,46 @@ def fetch_et_capacity(base_domain, asset):
 
 
 # ============================================================
+# TC ENERGY (eConnects ReportViewer CSV)
+# ============================================================
+
+TC_PIPELINES = [
+    {'asset': 3005, 'report': 'OperationallyAvailableCapacityANR', 'name': 'ANR Pipeline Company', 'short': 'ANR Pipeline'},
+    {'asset': 51, 'report': 'OperationallyAvailableCapacity', 'name': 'Columbia Gas Transmission, LLC', 'short': 'Columbia Gas'},
+    {'asset': 14, 'report': 'OperationallyAvailableCapacity', 'name': 'Columbia Gulf Transmission, LLC', 'short': 'Columbia Gulf'},
+    {'asset': 3029, 'report': 'OperationallyAvailableCapacity', 'name': 'Northern Border Pipeline Company', 'short': 'Northern Border'},
+]
+
+def fetch_tc_capacity(asset_id, report_name):
+    """Fetch OAC CSV from TC Energy eConnects ReportViewer."""
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    
+    oac_url = f'https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/{report_name}&pAssetNbr={asset_id}&rs:Format=CSV'
+    r = s.get(oac_url, timeout=30)
+    if r.status_code != 200:
+        return [], {}
+    oac_rows = list(csv.DictReader(io.StringIO(r.text)))
+    
+    # Also fetch location data for county/state
+    loc_url = f'https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/LocationDataDownload&assetNbr={asset_id}&rs:Format=CSV&rc:NoHeader=true'
+    r2 = s.get(loc_url, timeout=30)
+    loc_map = {}
+    if r2.status_code == 200 and len(r2.text) > 100:
+        loc_reader = csv.DictReader(io.StringIO(r2.text))
+        for row in loc_reader:
+            loc_id = row.get('Loc', '').strip()
+            if loc_id:
+                loc_map[loc_id] = {
+                    'county': row.get('Loc Cnty', '').strip(),
+                    'state': row.get('Loc St Abbrev', '').strip(),
+                    'zone': row.get('Loc Zone', '').strip(),
+                }
+    
+    return oac_rows, loc_map
+
+
+# ============================================================
 # PARSING HELPERS
 # ============================================================
 
@@ -550,6 +590,60 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
     
+    # TC Energy (eConnects)
+    for pl in TC_PIPELINES:
+        print(f"Fetching TC {pl['short']}...")
+        try:
+            oac_rows, loc_map = fetch_tc_capacity(pl['asset'], pl['report'])
+            
+            # Aggregate by location (may have multiple rows per location for rate schedules)
+            loc_data = {}
+            for row in oac_rows:
+                loc_id = row.get('Location', '').strip()
+                if not loc_id:
+                    continue
+                
+                purp = row.get('LocPurpDesc', '').strip()
+                if 'Segment' in purp:
+                    continue
+                
+                dc = parse_int_safe(row.get('DesignCapacity'))
+                sched = parse_int_safe(row.get('TotalSchedQty', row.get('TotalScheduledQuantity', '')))
+                avail = parse_int_safe(row.get('OperationallyAvailableCapacity'))
+                
+                if dc == 0:
+                    continue
+                
+                key = f"{loc_id}|{purp}"
+                if key not in loc_data or dc > loc_data[key]['design']:
+                    ptype = 'delivery' if 'Delivery' in purp else ('receipt' if 'Receipt' in purp else 'other')
+                    loc_info = loc_map.get(loc_id, {})
+                    
+                    loc_data[key] = {
+                        'id': loc_id,
+                        'name': row.get('LocationName', '').strip()[:50],
+                        'type': ptype,
+                        'county': loc_info.get('county', ''),
+                        'state': loc_info.get('state', ''),
+                        'design': dc,
+                        'scheduled': sched,
+                        'available': avail,
+                        'utilization': round(sched / dc * 100) if dc > 0 else 0,
+                        'connected': '',
+                    }
+            
+            points = list(loc_data.values())
+            pipelines.append({
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': points,
+            })
+            print(f"  {pl['short']}: {len(points)} points (from {len(oac_rows)} rows, {len(loc_map)} locations)")
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+    
     return pipelines
 
 
@@ -630,6 +724,10 @@ PIPELINE_HIFLD_MAP = {
     'Panhandle Eastern Pipe Line Company': ['PANHANDLE EASTERN PIPE LINE COMPANY'],
     'Trunkline Gas Company, LLC': ['TRUNKLINE LNG COMPANY', 'TRUNKLINE GAS COMPANY'],
     'Rover Pipeline LLC': ['ROVER PIPELINE'],
+    'ANR Pipeline Company': ['ANR PIPELINE COMPANY'],
+    'Columbia Gas Transmission, LLC': ['COLUMBIA GAS TRANSMISSION'],
+    'Columbia Gulf Transmission, LLC': ['COLUMBIA GULF TRANSMISSION'],
+    'Northern Border Pipeline Company': ['NORTHERN BORDER PIPELINE COMPANY'],
 }
 
 ZONE_COORDS = {
