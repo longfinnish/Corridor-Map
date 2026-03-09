@@ -2387,32 +2387,39 @@ uLeg();
 }
 function renderLMP(data){
 lmpLayer.clearLayers();
-// Zone markers — large labeled circles
-data.zones.forEach(function(z){
-var col=lmpColor(z.price);
-var priceStr=z.price<0?'-$'+Math.abs(z.price).toFixed(2):'$'+z.price.toFixed(2);
+var nodes=data.nodes||[];
+var date=data.date||'';
+
+nodes.forEach(function(n){
+var col=lmpColor(n.avg);
+var isZone=n.type==='zone';
+var priceStr='$'+n.avg.toFixed(2);
+var spread='$'+n.min.toFixed(2)+' - $'+n.max.toFixed(2);
+
+if(isZone){
+// Large labeled markers for zones/hubs
 var icon=L.divIcon({
 className:'',
-html:'<div style="background:'+col+';color:#1B2B3A;padding:4px 8px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.8);text-align:center;line-height:1.3"><div style="font-size:9px;font-weight:400;opacity:0.7">'+z.label+'</div>'+priceStr+'/MWh</div>',
+html:'<div style="background:'+col+';color:#1B2B3A;padding:4px 8px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.8);text-align:center;line-height:1.3"><div style="font-size:8px;font-weight:400;opacity:0.7">'+n.node+'</div>'+priceStr+'/MWh</div>',
 iconSize:[null,null],
 iconAnchor:[50,20]
 });
-var m=L.marker([z.lat,z.lng],{icon:icon,interactive:true,pane:'tooltipPane'});
-m.bindPopup('<b>'+z.label+'</b> ('+z.id+')<br>Settlement Price: <b style="color:'+col+'">'+priceStr+'/MWh</b><br><span style="font-size:10px;color:rgba(240,237,232,0.4)">'+data.interval+'</span>');
+var m=L.marker([n.lat,n.lng],{icon:icon,interactive:true,pane:'tooltipPane'});
+m.bindPopup('<b>'+n.node+'</b><br>Avg: <b style="color:'+col+'">'+priceStr+'/MWh</b><br>Range: '+spread+'<br><span style="font-size:10px;color:rgba(240,237,232,0.4)">Day-Ahead '+date+'</span>');
 lmpLayer.addLayer(m);
+}else{
+// Colored circles for resource nodes
+var radius=n.kv>=345?7:n.kv>=230?6:5;
+var c=L.circleMarker([n.lat,n.lng],{
+radius:radius,
+fillColor:col,
+color:'rgba(255,255,255,0.6)',
+weight:1,
+fillOpacity:0.85
 });
-// Hub markers — smaller
-data.hubs.forEach(function(h){
-var col=lmpColor(h.price);
-var priceStr=h.price<0?'-$'+Math.abs(h.price).toFixed(2):'$'+h.price.toFixed(2);
-var icon=L.divIcon({
-className:'',
-html:'<div style="background:rgba(27,43,58,0.85);color:'+col+';padding:3px 6px;border-radius:4px;font-family:DM Sans,sans-serif;font-size:10px;font-weight:600;white-space:nowrap;border:1px solid '+col+';text-align:center">'+h.label+' '+priceStr+'</div>',
-iconSize:[null,null],
-iconAnchor:[50,15]
-});
-var m=L.marker([h.lat,h.lng],{icon:icon,interactive:true,pane:'tooltipPane'});
-lmpLayer.addLayer(m);
+c.bindPopup('<b>'+n.node+'</b><br>Substation: '+n.sub+'<br>'+(n.kv>0?n.kv+' kV<br>':'')+'Avg: <b style="color:'+col+'">'+priceStr+'/MWh</b><br>Range: '+spread+'<br><span style="font-size:10px;color:rgba(240,237,232,0.4)">Day-Ahead '+date+'</span>');
+lmpLayer.addLayer(c);
+}
 });
 lmpLayer.addTo(map);
 }
