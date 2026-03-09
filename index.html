@@ -1295,53 +1295,60 @@ uLeg();
 
 // Planned Transmission
 
-// Slope Map (USGS 3DEP)
+// Slope Map — R2 static tiles (z6-10) + USGS live (z11+)
 var slopeLayer=null;
+var slopeR2=null;
+var slopeUSGS=null;
+var R2_BASE='https://pub-9dff06b37e4f49368dffbeb217d8668d.r2.dev';
 function togSlope(){
 var on=document.getElementById('t-slope').checked;
 if(on){
-if(!slopeLayer){
-slopeLayer=L.esri.imageMapLayer({
+if(!slopeR2){
+slopeR2=L.tileLayer(R2_BASE+'/slope/{z}/{x}/{y}.png',{
+minZoom:6,maxZoom:10,opacity:0.55,attribution:'USGS 3DEP',
+errorTileUrl:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAA0lEQVQI12P4z8BQDwAEgAF/QualzQAAAABJRU5ErkJggg=='
+});
+slopeUSGS=L.esri.imageMapLayer({
 url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
 renderingRule:{rasterFunction:'Slope Map'},
-opacity:0.55,
-format:'jpgpng',
-maxZoom:15,
-useCors:false,
-updateInterval:500,
-attribution:'USGS 3DEP'
+opacity:0.55,format:'jpgpng',minZoom:11,maxZoom:15,
+useCors:false,updateInterval:500,attribution:'USGS 3DEP'
 });
-slopeLayer.on('load',function(){document.getElementById('slope-legend').style.display='block'});
-slopeLayer.on('remove',function(){document.getElementById('slope-legend').style.display='none'});
 }
-slopeLayer.addTo(map);
+slopeR2.addTo(map);
+slopeUSGS.addTo(map);
+document.getElementById('slope-legend').style.display='block';
 }else{
-if(slopeLayer)map.removeLayer(slopeLayer);
+if(slopeR2)map.removeLayer(slopeR2);
+if(slopeUSGS)map.removeLayer(slopeUSGS);
 document.getElementById('slope-legend').style.display='none';
 }
 uLeg();
 }
 
-// Hillshade (USGS 3DEP)
-var hillLayer=null;
+// Hillshade — R2 static tiles (z6-10) + USGS live (z11+)
+var hillR2=null;
+var hillUSGS=null;
 function togHillshade(){
 var on=document.getElementById('t-hill').checked;
 if(on){
-if(!hillLayer){
-hillLayer=L.esri.imageMapLayer({
+if(!hillR2){
+hillR2=L.tileLayer(R2_BASE+'/hillshade/{z}/{x}/{y}.png',{
+minZoom:6,maxZoom:10,opacity:0.45,attribution:'USGS 3DEP',
+errorTileUrl:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAA0lEQVQI12P4z8BQDwAEgAF/QualzQAAAABJRU5ErkJggg=='
+});
+hillUSGS=L.esri.imageMapLayer({
 url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
 renderingRule:{rasterFunction:'Hillshade Gray'},
-opacity:0.45,
-format:'jpgpng',
-maxZoom:15,
-useCors:false,
-updateInterval:500,
-attribution:'USGS 3DEP'
+opacity:0.45,format:'jpgpng',minZoom:11,maxZoom:15,
+useCors:false,updateInterval:500,attribution:'USGS 3DEP'
 });
 }
-hillLayer.addTo(map);
+hillR2.addTo(map);
+hillUSGS.addTo(map);
 }else{
-if(hillLayer)map.removeLayer(hillLayer);
+if(hillR2)map.removeLayer(hillR2);
+if(hillUSGS)map.removeLayer(hillUSGS);
 }
 uLeg();
 }
