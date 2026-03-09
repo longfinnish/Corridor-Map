@@ -1540,11 +1540,19 @@ var weight=2;
 if(kv>=345)weight=4;
 else if(kv>=230)weight=3;
 var dashArray=isUpg?'6 4':'8 6';
-var line=L.polyline([[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]],{
+// Use real line geometry if matched, otherwise straight line
+var lineCoords;
+if(p.matched_coords&&p.matched_coords.length>1){
+lineCoords=p.matched_coords.map(function(c){return[c[1],c[0]]});// [lng,lat] -> [lat,lng]
+dashArray=isUpg?'':'';// solid line for real geometry
+}else{
+lineCoords=[[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]];
+}
+var line=L.polyline(lineCoords,{
 color:color,weight:weight,opacity:0.85,dashArray:dashArray
 });
 if(isUpg){
-var glow=L.polyline([[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]],{
+var glow=L.polyline(lineCoords,{
 color:color,weight:weight+4,opacity:0.2
 });
 plannedLayer.addLayer(glow);
