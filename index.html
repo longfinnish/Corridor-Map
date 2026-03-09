@@ -1069,10 +1069,45 @@ else s.col='#4FC3F7';
 s.congLabel=s.utilization>=80?'Constrained':s.utilization>=50?'Busy':s.utilization>=20?'Moderate':s.activeMW>0?'Available':'No data';
 });
 return subList;
-}).catch(function(){return[]}).then(function(subList){
+}).catch(function(){return[]}).then(async function(subList){
+// Query Regrid for parcel data at this point
+var rgData=null;
+try{
+var rgUrl='https://app.regrid.com/api/v2/parcels/point?token='+REGRID_TOKEN+'&lat='+lat+'&lon='+lon+'&limit=1';
+var rgR=await fetch(rgUrl);
+var rgD=await rgR.json();
+if(rgD.parcels&&rgD.parcels.features&&rgD.parcels.features.length){
+rgData=rgD.parcels.features[0].properties.fields;
+}
+}catch(re){}
+
 var h='<div style="text-align:center;padding:4px">';
 if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:4px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
 h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.2)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
+
+// Regrid parcel data section
+if(rgData){
+h+='<div style="text-align:left;margin:4px 0;padding:6px 0;border-top:1px solid rgba(240,237,232,0.1);border-bottom:1px solid rgba(240,237,232,0.1)">';
+h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:5px;text-align:center">PARCEL DATA</div>';
+if(rgData.owner)h+='<div style="font-size:12px;font-weight:700;color:#F0EDE8;margin-bottom:3px">'+rgData.owner+'</div>';
+var details=[];
+if(rgData.ll_gisacre)details.push(parseFloat(rgData.ll_gisacre).toFixed(1)+' acres');
+if(rgData.address)details.push(rgData.address);
+if(details.length)h+='<div style="font-size:10px;color:rgba(240,237,232,0.6);margin-bottom:4px">'+details.join(' &bull; ')+'</div>';
+// Key metrics in a compact grid
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:9.5px;color:rgba(240,237,232,0.5)">';
+if(rgData.zoning)h+='<div><b style="color:rgba(240,237,232,0.7)">Zoning:</b> '+rgData.zoning+(rgData.zoning_type?' ('+rgData.zoning_type+')':'')+'</div>';
+if(rgData.transmission_line_distance!=null){var txMi=(rgData.transmission_line_distance*0.000621371).toFixed(1);h+='<div><b style="color:rgba(240,237,232,0.7)">TX Line:</b> '+txMi+' mi</div>'}
+if(rgData.roughness_rating!=null)h+='<div><b style="color:rgba(240,237,232,0.7)">Roughness:</b> '+rgData.roughness_rating+'</div>';
+if(rgData.fema_nri_risk_rating)h+='<div><b style="color:rgba(240,237,232,0.7)">FEMA:</b> '+rgData.fema_nri_risk_rating.replace('Relatively ','Rel ')+'</div>';
+if(rgData.highest_parcel_elevation)h+='<div><b style="color:rgba(240,237,232,0.7)">Elev:</b> '+rgData.lowest_parcel_elevation+"'-"+rgData.highest_parcel_elevation+"'</div>";
+if(rgData.ll_bldg_count)h+='<div><b style="color:rgba(240,237,232,0.7)">Buildings:</b> '+rgData.ll_bldg_count+'</div>';
+if(rgData.landval)h+='<div><b style="color:rgba(240,237,232,0.7)">Land Val:</b> $'+parseInt(rgData.landval).toLocaleString()+'</div>';
+if(rgData.parval)h+='<div><b style="color:rgba(240,237,232,0.7)">Total Val:</b> $'+parseInt(rgData.parval).toLocaleString()+'</div>';
+h+='</div>';
+if(rgData.mailadd){h+='<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-top:3px">Mail: '+rgData.mailadd+(rgData.mail_city?', '+rgData.mail_city:'')+(rgData.mail_state2?', '+rgData.mail_state2:'')+(rgData.mail_zip?' '+rgData.mail_zip:'')+'</div>'}
+h+='</div>';
+}
 // Nearby substations section
 if(subList&&subList.length){
 h+='<div style="text-align:left;margin:6px 0;padding-top:6px;border-top:1px solid rgba(240,237,232,0.1)">';
