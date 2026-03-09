@@ -715,7 +715,7 @@ if(lumenLayer){map.removeLayer(lumenLayer);lumenLayer=null}
 uLeg();return;
 }
 // Load Infrapedia
-fiberLayer=L.vectorGrid.protobuf('https://www.infrapedia.com/map/cables/{z}/{x}/{y}.pbf',{
+fiberLayer=L.vectorGrid.protobuf('https://infrapedia-proxy.brett-419.workers.dev/infrapedia/{z}/{x}/{y}.pbf',{
 maxZoom:16,minZoom:3,
 vectorTileLayerStyles:{
 cables:function(p){
