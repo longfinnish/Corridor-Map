@@ -1071,41 +1071,47 @@ s.congLabel=s.utilization>=80?'Constrained':s.utilization>=50?'Busy':s.utilizati
 return subList;
 }).catch(function(){return[]}).then(async function(subList){
 // Query Regrid for parcel data at this point
-var rgData=null;
+var rgData=null;var rgPath='';
 try{
 var rgUrl='https://app.regrid.com/api/v2/parcels/point?token='+REGRID_TOKEN+'&lat='+lat+'&lon='+lon+'&limit=1';
 var rgR=await fetch(rgUrl);
 var rgD=await rgR.json();
 if(rgD.parcels&&rgD.parcels.features&&rgD.parcels.features.length){
 rgData=rgD.parcels.features[0].properties.fields;
+rgPath=rgD.parcels.features[0].properties.path||'';
 }
 }catch(re){}
 
-var h='<div style="text-align:center;padding:4px">';
-if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:4px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
-h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.2)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
+var h='<div style="text-align:center;padding:4px;min-width:280px">';
+if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.4);margin-bottom:2px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
+h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:12px;font-weight:500;color:rgba(240,237,232,0.6);margin-bottom:6px;cursor:pointer;padding:2px 6px;border-radius:3px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.15)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
 
 // Regrid parcel data section
 if(rgData){
-h+='<div style="text-align:left;margin:4px 0;padding:6px 0;border-top:1px solid rgba(240,237,232,0.1);border-bottom:1px solid rgba(240,237,232,0.1)">';
-h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:5px;text-align:center">PARCEL DATA</div>';
-if(rgData.owner)h+='<div style="font-size:12px;font-weight:700;color:#F0EDE8;margin-bottom:3px">'+rgData.owner+'</div>';
-var details=[];
-if(rgData.ll_gisacre)details.push(parseFloat(rgData.ll_gisacre).toFixed(1)+' acres');
-if(rgData.address)details.push(rgData.address);
-if(details.length)h+='<div style="font-size:10px;color:rgba(240,237,232,0.6);margin-bottom:4px">'+details.join(' &bull; ')+'</div>';
-// Key metrics in a compact grid
-h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:9.5px;color:rgba(240,237,232,0.5)">';
-if(rgData.zoning)h+='<div><b style="color:rgba(240,237,232,0.7)">Zoning:</b> '+rgData.zoning+(rgData.zoning_type?' ('+rgData.zoning_type+')':'')+'</div>';
-if(rgData.transmission_line_distance!=null){var txMi=(rgData.transmission_line_distance*0.000621371).toFixed(1);h+='<div><b style="color:rgba(240,237,232,0.7)">TX Line:</b> '+txMi+' mi</div>'}
-if(rgData.roughness_rating!=null)h+='<div><b style="color:rgba(240,237,232,0.7)">Roughness:</b> '+rgData.roughness_rating+'</div>';
-if(rgData.fema_nri_risk_rating)h+='<div><b style="color:rgba(240,237,232,0.7)">FEMA:</b> '+rgData.fema_nri_risk_rating.replace('Relatively ','Rel ')+'</div>';
-if(rgData.highest_parcel_elevation)h+='<div><b style="color:rgba(240,237,232,0.7)">Elev:</b> '+rgData.lowest_parcel_elevation+"'-"+rgData.highest_parcel_elevation+"'</div>";
-if(rgData.ll_bldg_count)h+='<div><b style="color:rgba(240,237,232,0.7)">Buildings:</b> '+rgData.ll_bldg_count+'</div>';
-if(rgData.landval)h+='<div><b style="color:rgba(240,237,232,0.7)">Land Val:</b> $'+parseInt(rgData.landval).toLocaleString()+'</div>';
-if(rgData.parval)h+='<div><b style="color:rgba(240,237,232,0.7)">Total Val:</b> $'+parseInt(rgData.parval).toLocaleString()+'</div>';
+h+='<div style="text-align:left;padding:8px 0 6px;border-top:1px solid rgba(196,133,76,0.3)">';
+// Owner headline
+var acreStr=rgData.ll_gisacre?parseFloat(rgData.ll_gisacre).toFixed(1)+' acres':'';
+if(rgData.owner)h+='<div style="font-size:13px;font-weight:700;color:#F0EDE8;margin-bottom:1px">'+rgData.owner+'</div>';
+if(acreStr)h+='<div style="font-size:12px;font-weight:600;color:#C4854C;margin-bottom:3px">'+acreStr+'</div>';
+// Address line
+if(rgData.address)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:5px">'+rgData.address+'</div>';
+// Metrics grid
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:10px;margin-bottom:5px">';
+if(rgData.zoning){h+='<div><span style="color:rgba(240,237,232,0.4)">Zoning</span><br><span style="color:#F0EDE8;font-weight:500">'+rgData.zoning+(rgData.zoning_type?' ('+rgData.zoning_type+')':'')+'</span></div>'}
+if(rgData.usedesc){h+='<div><span style="color:rgba(240,237,232,0.4)">Use</span><br><span style="color:#F0EDE8;font-weight:500">'+rgData.usedesc+'</span></div>'}
+if(rgData.transmission_line_distance!=null){var txMi=(rgData.transmission_line_distance*0.000621371).toFixed(1);h+='<div><span style="color:rgba(240,237,232,0.4)">TX Line</span><br><span style="color:'+(txMi<=3?'#66BB6A':txMi<=10?'#FDD835':'#EF5350')+';font-weight:600">'+txMi+' mi</span></div>'}
+if(rgData.fema_nri_risk_rating){var fr=rgData.fema_nri_risk_rating;var fc=fr.indexOf('High')>=0&&fr.indexOf('Relatively')<0?'#EF5350':fr.indexOf('Moderate')>=0?'#FDD835':'#66BB6A';h+='<div><span style="color:rgba(240,237,232,0.4)">FEMA Risk</span><br><span style="color:'+fc+';font-weight:500">'+fr.replace('Relatively ','Rel ')+'</span></div>'}
+if(rgData.roughness_rating!=null){var rr=rgData.roughness_rating;h+='<div><span style="color:rgba(240,237,232,0.4)">Roughness</span><br><span style="color:'+(rr<=1?'#66BB6A':rr<=2?'#FDD835':'#EF5350')+';font-weight:500">'+rr+(rr<=1?' (Flat)':rr<=2?' (Gentle)':' (Rough)')+'</span></div>'}
+if(rgData.highest_parcel_elevation){h+='<div><span style="color:rgba(240,237,232,0.4)">Elevation</span><br><span style="color:#F0EDE8;font-weight:500">'+rgData.lowest_parcel_elevation+"\' - "+rgData.highest_parcel_elevation+"\'</span></div>"}
+if(rgData.ll_bldg_count!=null){h+='<div><span style="color:rgba(240,237,232,0.4)">Buildings</span><br><span style="color:#F0EDE8;font-weight:500">'+rgData.ll_bldg_count+'</span></div>'}
+if(rgData.ll_bldg_footprint_sqft){h+='<div><span style="color:rgba(240,237,232,0.4)">Bldg Sqft</span><br><span style="color:#F0EDE8;font-weight:500">'+parseInt(rgData.ll_bldg_footprint_sqft).toLocaleString()+'</span></div>'}
+if(rgData.landval){h+='<div><span style="color:rgba(240,237,232,0.4)">Land Value</span><br><span style="color:#F0EDE8;font-weight:500">$'+parseInt(rgData.landval).toLocaleString()+'</span></div>'}
+if(rgData.parval){h+='<div><span style="color:rgba(240,237,232,0.4)">Total Value</span><br><span style="color:#F0EDE8;font-weight:500">$'+parseInt(rgData.parval).toLocaleString()+'</span></div>'}
+if(rgData.yearbuilt){h+='<div><span style="color:rgba(240,237,232,0.4)">Year Built</span><br><span style="color:#F0EDE8;font-weight:500">'+rgData.yearbuilt+'</span></div>'}
+if(rgData.saleprice&&parseFloat(rgData.saleprice)>0){h+='<div><span style="color:rgba(240,237,232,0.4)">Last Sale</span><br><span style="color:#F0EDE8;font-weight:500">$'+parseInt(rgData.saleprice).toLocaleString()+'</span></div>'}
 h+='</div>';
-if(rgData.mailadd){h+='<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-top:3px">Mail: '+rgData.mailadd+(rgData.mail_city?', '+rgData.mail_city:'')+(rgData.mail_state2?', '+rgData.mail_state2:'')+(rgData.mail_zip?' '+rgData.mail_zip:'')+'</div>'}
+// Mailing address
+if(rgData.mailadd){h+='<div style="font-size:9px;color:rgba(240,237,232,0.3);padding-top:3px;border-top:1px solid rgba(240,237,232,0.05)">Mail: '+rgData.mailadd+(rgData.mail_city?', '+rgData.mail_city:'')+(rgData.mail_state2?', '+rgData.mail_state2:'')+(rgData.mail_zip?' '+rgData.mail_zip:'')+'</div>'}
 h+='</div>';
 }
 // Nearby substations section
@@ -1114,16 +1120,15 @@ h+='<div style="text-align:left;margin:6px 0;padding-top:6px;border-top:1px soli
 h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:5px;text-align:center">NEAREST SUBSTATIONS <span style="color:rgba(240,237,232,0.25);font-weight:400">(25 mi)</span></div>';
 subList.forEach(function(s,i){
 if(i>=5)return;
-h+='<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:10px">';
-h+='<div style="width:8px;height:8px;border-radius:50%;background:'+s.col+';flex-shrink:0"></div>';
+h+='<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;font-size:10px;border-bottom:1px solid rgba(240,237,232,0.04)">';
+h+='<div style="width:8px;height:8px;border-radius:50%;background:'+s.col+';flex-shrink:0;margin-top:3px"></div>';
 h+='<div style="flex:1;min-width:0">';
 var nameStyle=s.isNamed?'font-weight:600;color:#F0EDE8':'font-weight:400;color:rgba(240,237,232,0.5);font-style:italic';
-h+='<div style="'+nameStyle+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.name;
-if(s.v>0)h+=' <span style="color:rgba(240,237,232,0.3);font-weight:400;font-style:normal">'+s.v+'kV</span>';
+h+='<div style="'+nameStyle+'">'+s.name;
+if(s.v>0)h+=' <span style="color:rgba(240,237,232,0.35);font-weight:400;font-style:normal">'+s.v+'kV</span>';
 h+='</div>';
 h+='<div style="color:rgba(240,237,232,0.4);font-size:9px">'+s.dist.toFixed(1)+' mi';
-if(s.v>0)h+=' &middot; '+s.v+'kV';
-if(s.lines>0)h+=' &middot; '+s.lines+' lines';
+if(s.lines>0)h+=' &middot; '+s.lines+' line'+(s.lines>1?'s':'');
 if(s.estCapacity>0)h+=' &middot; ~'+s.estCapacity.toLocaleString()+' MW est.';
 h+='</div>';
 h+='<div style="font-size:9px">';
@@ -1141,13 +1146,14 @@ h+='</div></div>';
 });
 h+='</div>';
 }
-h+='<div style="display:flex;gap:6px;justify-content:center;margin-top:6px">';
-h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px">Open Regrid</a>';
+h+='<div style="display:flex;gap:6px;justify-content:center;margin-top:8px;padding-top:6px;border-top:1px solid rgba(240,237,232,0.1)">';
+var rgLink=rgPath?'https://app.regrid.com'+rgPath:'https://app.regrid.com/us/#map=16/'+lat+'/'+lon;
+h+='<a href="#" onclick="window.open(\''+rgLink+'\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px">Open Regrid</a>';
 if(ctyName&&stAbbr){
-h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:7px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
+h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
 h+='</div>';
-h+='<div style="margin-top:6px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.15);color:#66BB6A;padding:5px 12px;border-radius:5px;text-decoration:none;font-weight:600;font-size:10px;border:1px solid rgba(102,187,106,0.3)">+ Save to Pipeline</a></div>';
+h+='<div style="margin-top:5px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.12);color:#66BB6A;padding:5px 14px;border-radius:4px;text-decoration:none;font-weight:600;font-size:10px;border:1px solid rgba(102,187,106,0.25)">+ Save to Pipeline</a></div>';
 h+='</div>';
 L.popup({maxWidth:340}).setLatLng(e.latlng).setContent(h).openOn(map);
 });
