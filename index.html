@@ -2731,7 +2731,7 @@ path.forEach(function(pt){txLines.push({lat:pt[1],lng:pt[0],kv:kv})});
 });}
 }catch(te){console.log('TX line data not available');}
 
-// Load fiber routes for proximity
+// Load fiber routes for proximity — Lumen + Infrapedia
 var fiberPts=[];
 try{
 var fr=await fetch('data/lumen_routes.json');
@@ -2739,9 +2739,17 @@ var fd=await fr.json();
 if(fd.features){fd.features.forEach(function(f){
 if(f.geometry&&f.geometry.coordinates){
 var coords=f.geometry.type==='MultiLineString'?f.geometry.coordinates.flat():f.geometry.coordinates;
-coords.forEach(function(c,i){if(i%5===0&&c.length>=2)fiberPts.push({lat:c[1],lng:c[0]})});
+coords.forEach(function(c,i){if(i%5===0&&c.length>=2)fiberPts.push({lat:c[1],lng:c[0],name:'Lumen'})});
 }});}
-}catch(fe){console.log('Fiber data not available');}
+}catch(fe){}
+try{
+var fr2=await fetch('data/infrapedia_fiber.json');
+var fd2=await fr2.json();
+if(fd2.features){fd2.features.forEach(function(f){
+if(f.geometry&&f.geometry.coordinates){
+f.geometry.coordinates.forEach(function(c,i){if(i%3===0&&c.length>=2)fiberPts.push({lat:c[1],lng:c[0],name:f.properties.name||'Fiber'})});
+}});}
+}catch(fe2){}
 
 document.getElementById('srch-status').textContent='Loaded '+subs.length+' subs, '+gas.length+' gas, '+txLines.length+' TX pts, '+fiberPts.length+' fiber pts. Querying Regrid...';
 
@@ -2769,9 +2777,9 @@ for(var vk in wantV){if(wantV[vk]&&nearTxByV[vk]<nearTxSelected){nearTxSelected=
 var effectiveTxDist=nearTxSelected<999?nearTxSelected:txDistMi;
 
 // Fiber distance
-var nearFiber=999;
+var nearFiber=999;var nearFiberName='';
 if(lat&&lon&&fiberPts.length>0){
-fiberPts.forEach(function(f){var d=haversine(lat,lon,f.lat,f.lng);if(d<nearFiber)nearFiber=d});
+fiberPts.forEach(function(f){var d=haversine(lat,lon,f.lat,f.lng);if(d<nearFiber){nearFiber=d;nearFiberName=f.name||''}});
 }
 var rough=p.roughness_rating||0;
 var fema=p.fema_nri_risk_rating||'';
@@ -2810,6 +2818,7 @@ gasName:nearGasName,
 gasPipe:nearGasPipe,
 gasAvail:nearGasAvail,
 fiberDist:nearFiber,
+fiberName:nearFiberName,
 fema:fema,
 rough:rough,
 elev_high:p.highest_parcel_elevation,
@@ -2845,7 +2854,7 @@ html+='<div class="sr-item-badges">';
 html+='<span class="sr-badge '+txBadge+'">TX: '+r.txDist.toFixed(1)+'mi'+(r.txKV?' ('+r.txKV+'kV)':'')+'</span>';
 html+='<span class="sr-badge '+gasBadge+'">Gas: '+r.gasDist.toFixed(1)+'mi</span>';
 html+='<span class="sr-badge">Sub: '+r.subDist.toFixed(1)+'mi</span>';
-if(r.fiberDist<999)html+='<span class="sr-badge '+(r.fiberDist<3?'sr-badge-good':r.fiberDist<10?'sr-badge-warn':'sr-badge-bad')+'">Fiber: '+r.fiberDist.toFixed(1)+'mi</span>';
+if(r.fiberDist<999)html+='<span class="sr-badge '+(r.fiberDist<3?'sr-badge-good':r.fiberDist<10?'sr-badge-warn':'sr-badge-bad')+'">Fiber: '+r.fiberDist.toFixed(1)+'mi'+(r.fiberName?' ('+r.fiberName+')':'')+'</span>';
 if(r.fema)html+='<span class="sr-badge '+femaBadge+'">'+r.fema.replace('Relatively ','Rel ')+'</span>';
 html+='</div></div>';
 
@@ -2858,7 +2867,7 @@ popup+='<b>TX Line:</b> '+r.txDist.toFixed(1)+' mi'+(r.txKV?' ('+r.txKV+' kV)':'
 popup+='<b>Nearest Sub:</b> '+r.subDist.toFixed(1)+' mi<br>';
 popup+='<b>Nearest Gas:</b> '+r.gasDist.toFixed(1)+' mi'+(r.gasPipe?' ('+r.gasPipe+')':'')+'<br>';
 if(r.gasAvail)popup+='<b>Gas Available:</b> '+r.gasAvail.toLocaleString()+' Dth/d<br>';
-if(r.fiberDist<999)popup+='<b>Nearest Fiber:</b> '+r.fiberDist.toFixed(1)+' mi<br>';
+if(r.fiberDist<999)popup+='<b>Nearest Fiber:</b> '+r.fiberDist.toFixed(1)+' mi'+(r.fiberName?' ('+r.fiberName+')':'')+'<br>';
 if(r.fema)popup+='<b>FEMA Risk:</b> '+r.fema+'<br>';
 popup+='<b>Roughness:</b> '+r.rough+'<br>';
 if(r.elev_high)popup+='<b>Elevation:</b> '+r.elev_low+"' - "+r.elev_high+"'<br>";
