@@ -2667,12 +2667,12 @@ var radiusM=Math.min(Math.round(diagMi/2*1609.34),50000); // meters, max 50km
 var url='https://app.regrid.com/api/v2/parcels/point?token='+REGRID_TOKEN
 +'&lat='+b.getCenter().lat+'&lon='+b.getCenter().lng
 +'&radius='+radiusM
-+'&limit=200&ll_gisacre_min='+minAcres;
++'&limit=1000';
 var r=await fetch(url);
 var d=await r.json();
 var parcels=d.parcels?d.parcels.features:(d.features||[]);
 
-document.getElementById('srch-status').textContent='Found '+parcels.length+' parcels over '+minAcres+' acres. Scoring...';
+document.getElementById('srch-status').textContent='Found '+parcels.length+' parcels from Regrid. Filtering by '+minAcres+'+ acres...';
 
 // Load infrastructure data for proximity checks
 var subs=[];var gas=[];
@@ -2718,6 +2718,7 @@ var zoneType=p.zoning_type||'';
 var lat=parseFloat(p.lat);var lon=parseFloat(p.lon);
 
 // Apply filters
+if(acres<minAcres)return;
 if(txDistMi>maxTxDist)return;
 if(noRes&&zoneType.toLowerCase().indexOf('resid')>=0)return;
 if(rough>roughFilter&&roughFilter<999)return;
