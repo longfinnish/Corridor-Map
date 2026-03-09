@@ -1529,17 +1529,20 @@ var isNew=p.ftype==='Line New';
 if(isUpg&&!showUpg)return;
 if(isNew&&!showNew)return;
 if(!isUpg&&!isNew&&!showOther)return;
+// Sanitize strings
+var pName=(p.name||'').replace(/'/g,'&#39;').replace(/"/g,'&#34;');
+var pProj=(p.proj||'').replace(/'/g,'&#39;').replace(/"/g,'&#34;');
+var pFrom=(p.from_sub||'').replace(/'/g,'&#39;');
+var pTo=(p.to_sub||'').replace(/'/g,'&#39;');
 // Color and style
 var color=isNew?'#00E676':isUpg?'#FFB74D':'#78909C';
 var weight=2;
 if(kv>=345)weight=4;
 else if(kv>=230)weight=3;
-// Upgrades get a thicker glow effect
 var dashArray=isUpg?'6 4':'8 6';
 var line=L.polyline([[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]],{
 color:color,weight:weight,opacity:0.85,dashArray:dashArray
 });
-// Add glow behind upgrades for visibility
 if(isUpg){
 var glow=L.polyline([[p.from_lat,p.from_lng],[p.to_lat,p.to_lng]],{
 color:color,weight:weight+4,opacity:0.2
@@ -1548,19 +1551,20 @@ plannedLayer.addLayer(glow);
 }
 var costStr=p.cost?'$'+(p.cost>=1e9?(p.cost/1e9).toFixed(1)+'B':p.cost>=1e6?(p.cost/1e6).toFixed(1)+'M':(p.cost/1e3).toFixed(0)+'K'):'N/A';
 var badge=isNew?'rgba(0,230,118,0.15);color:#00E676':isUpg?'rgba(255,183,77,0.15);color:#FFB74D':'rgba(120,144,156,0.15);color:#78909C';
-line.bindPopup('<div style="min-width:220px"><b style="font-size:13px">'+p.name+'</b><br>'+
-(p.proj&&p.proj!==p.name?'<div style="font-size:10px;color:rgba(240,237,232,0.4);margin:2px 0">'+p.proj+'</div>':'')+
-'<span style="display:inline-block;background:'+badge+';padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;margin:4px 0">'+(p.ftype||'Planned')+'</span><br>'+
-'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:11px;margin-top:4px">'+
-'<div><span style="color:rgba(240,237,232,0.4)">Voltage</span><br><b>'+(p.kv||'—')+'kV</b></div>'+
-'<div><span style="color:rgba(240,237,232,0.4)">Cost</span><br><b>'+costStr+'</b></div>'+
-'<div><span style="color:rgba(240,237,232,0.4)">Status</span><br><b>'+(p.status||'—')+'</b></div>'+
-'<div><span style="color:rgba(240,237,232,0.4)">Target Date</span><br><b>'+(p.isd||'—')+'</b></div>'+
-'<div><span style="color:rgba(240,237,232,0.4)">From</span><br><b>'+p.from_sub+'</b></div>'+
-'<div><span style="color:rgba(240,237,232,0.4)">To</span><br><b>'+p.to_sub+'</b></div>'+
-'<div><span style="color:rgba(240,237,232,0.4)">ISO</span><br><b>'+p.iso+'</b></div>'+
-(p.state?'<div><span style="color:rgba(240,237,232,0.4)">State</span><br><b>'+p.state+'</b></div>':'')+
-'</div></div>');
+var popup='<div style="min-width:220px"><b style="font-size:13px">'+pName+'</b><br>';
+if(pProj&&pProj!==pName)popup+='<div style="font-size:10px;color:rgba(240,237,232,0.4);margin:2px 0">'+pProj+'</div>';
+popup+='<span style="display:inline-block;background:'+badge+';padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;margin:4px 0">'+(p.ftype||'Planned')+'</span><br>';
+popup+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:11px;margin-top:4px">';
+popup+='<div><span style="color:rgba(240,237,232,0.4)">Voltage</span><br><b>'+(p.kv||'—')+'kV</b></div>';
+popup+='<div><span style="color:rgba(240,237,232,0.4)">Cost</span><br><b>'+costStr+'</b></div>';
+popup+='<div><span style="color:rgba(240,237,232,0.4)">Status</span><br><b>'+(p.status||'—')+'</b></div>';
+popup+='<div><span style="color:rgba(240,237,232,0.4)">Target Date</span><br><b>'+(p.isd||'—')+'</b></div>';
+popup+='<div><span style="color:rgba(240,237,232,0.4)">From</span><br><b>'+pFrom+'</b></div>';
+popup+='<div><span style="color:rgba(240,237,232,0.4)">To</span><br><b>'+pTo+'</b></div>';
+popup+='<div><span style="color:rgba(240,237,232,0.4)">ISO</span><br><b>'+(p.iso||'')+'</b></div>';
+if(p.state)popup+='<div><span style="color:rgba(240,237,232,0.4)">State</span><br><b>'+p.state+'</b></div>';
+popup+='</div></div>';
+line.bindPopup(popup);
 plannedLayer.addLayer(line);
 });
 plannedLayer.addTo(map);
