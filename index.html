@@ -2659,10 +2659,16 @@ document.getElementById('srch-go-btn').disabled=true;
 searchResultsLayer.clearLayers();
 
 try{
-var url='https://app.regrid.com/api/v2/parcels/query?token='+REGRID_TOKEN+'&polygon='+encodeURIComponent(poly)+'&limit=200&ll_gisacre_min='+minAcres;
+// Build bounding box from drawn polygon for Regrid query
+var layer=null;searchDrawLayer.eachLayer(function(l){layer=l});
+var b=layer.getBounds();
+var url='https://app.regrid.com/api/v2/parcels/point?token='+REGRID_TOKEN
++'&lat='+b.getCenter().lat+'&lon='+b.getCenter().lng
++'&radius='+(haversine(b.getSouth(),b.getWest(),b.getNorth(),b.getEast())*5280/2).toFixed(0)
++'&limit=200&return_geometry=true&ll_gisacre_min='+minAcres;
 var r=await fetch(url);
 var d=await r.json();
-var parcels=d.parcels?d.parcels.features:d.features||[];
+var parcels=d.parcels?d.parcels.features:(d.features||[]);
 
 document.getElementById('srch-status').textContent='Found '+parcels.length+' parcels over '+minAcres+' acres. Scoring...';
 
