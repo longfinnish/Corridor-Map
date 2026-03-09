@@ -1079,7 +1079,11 @@ parcelGroups[st].clearLayers();
 if(!d.features||!d.features.length){parcelLoading[st]=false;return}
 L.geoJSON(d,{
 style:function(){return{color:'#FFB74D',weight:1.5,opacity:0.85,fillColor:'#FFB74D',fillOpacity:0.08}},
-onEachFeature:function(f,ly){ly.bindPopup(parcelPopup(st,f.properties),{maxWidth:320})}
+onEachFeature:function(f,ly){
+var baseHtml=parcelPopup(st,f.properties);
+ly.bindPopup(baseHtml+'<div id="ba-'+f.id+'" style="margin-top:6px;font-size:10px;color:rgba(240,237,232,0.4)">Click for buildability analysis...</div>',{maxWidth:360,maxHeight:500});
+ly.on('click',function(){analyzeBuildability(f,ly,st)});
+}
 }).addTo(parcelGroups[st]);
 parcelLoading[st]=false;
 }).catch(function(e){console.error('Parcel '+st+' error:',e);parcelLoading[st]=false});
@@ -1088,6 +1092,145 @@ parcelLoading[st]=false;
 map.on('moveend',function(){
 for(var st in PARCEL_URLS){if(parcelEnabled[st])loadParcels(st)}
 });
+
+// Buildability Analysis
+function analyzeBuildability(feature,layer,st){
+if(!feature.geometry||!feature.geometry.coordinates)return;
+var popup=layer.getPopup();
+if(!popup)return;
+var baseHtml=parcelPopup(st,feature.properties);
+popup.setContent(baseHtml+'<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0"><div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">BUILDABILITY ANALYSIS</div><div style="color:rgba(240,237,232,0.5);font-size:10px"><span class="ba-spin">&#9696;</span> Sampling elevation grid...</div>');
+
+// Get bounding box of parcel polygon
+var coords=feature.geometry.type==='MultiPolygon'?feature.geometry.coordinates[0][0]:feature.geometry.coordinates[0];
+var minLat=90,maxLat=-90,minLng=180,maxLng=-180;
+coords.forEach(function(c){
+if(c[1]<minLat)minLat=c[1];if(c[1]>maxLat)maxLat=c[1];
+if(c[0]<minLng)minLng=c[0];if(c[0]>maxLng)maxLng=c[0];
+});
+
+// Calculate acreage from bbox (rough estimate)
+var dxMi=(maxLng-minLng)*54.6;
+var dyMi=(maxLat-minLat)*69.0;
+
+// Build sample grid (up to 10x10 = 100 points)
+var gridN=Math.min(10,Math.max(3,Math.round(Math.max(dxMi,dyMi)/0.1)));
+var pts=[];
+var latStep=(maxLat-minLat)/(gridN-1);
+var lngStep=(maxLng-minLng)/(gridN-1);
+for(var i=0;i<gridN;i++){
+for(var j=0;j<gridN;j++){
+var pLat=minLat+i*latStep;
+var pLng=minLng+j*lngStep;
+if(pointInPoly(pLng,pLat,coords))pts.push({lat:pLat,lng:pLng});
+}
+}
+if(pts.length<4){
+popup.setContent(baseHtml+'<div style="color:#FF9800;font-size:10px;margin-top:6px">Parcel too small to sample</div>');
+return;
+}
+
+// Query USGS 3DEP for elevation at each point
+var elUrl='https://epqs.nationalmap.gov/v1/json?';
+var done=0;
+var elevations=[];
+var batchSize=pts.length;
+pts.forEach(function(pt,idx){
+fetch(elUrl+'x='+pt.lng.toFixed(6)+'&y='+pt.lat.toFixed(6)+'&wkid=4326&units=Feet&includeDate=false').then(function(r){return r.json()}).then(function(d){
+var elev=parseFloat(d.value);
+if(!isNaN(elev)&&elev>-100){
+elevations.push({lat:pt.lat,lng:pt.lng,elev:elev,idx:idx,i:Math.floor(idx/gridN),j:idx%gridN});
+}
+done++;
+if(done>=batchSize)computeBuildability(feature,layer,st,baseHtml,elevations,gridN,latStep,lngStep,coords,popup);
+}).catch(function(){
+done++;
+if(done>=batchSize)computeBuildability(feature,layer,st,baseHtml,elevations,gridN,latStep,lngStep,coords,popup);
+});
+});
+}
+
+function computeBuildability(feature,layer,st,baseHtml,elevations,gridN,latStep,lngStep,coords,popup){
+if(elevations.length<4){
+popup.setContent(baseHtml+'<div style="color:#FF9800;font-size:10px;margin-top:6px">Insufficient elevation data</div>');
+return;
+}
+
+// Compute slope between neighboring points
+var slopes=[];
+var elevMap={};
+elevations.forEach(function(e){elevMap[e.i+','+e.j]=e.elev});
+
+elevations.forEach(function(e){
+var maxSlope=0;
+[[-1,0],[1,0],[0,-1],[0,1]].forEach(function(d){
+var ni=e.i+d[0],nj=e.j+d[1];
+var nElev=elevMap[ni+','+nj];
+if(nElev!=null){
+var dElev=Math.abs(e.elev-nElev);
+var dHoriz=Math.sqrt(Math.pow(d[0]*latStep*364000,2)+Math.pow(d[1]*lngStep*288200,2));
+if(dHoriz>0){var slopePct=(dElev/dHoriz)*100;if(slopePct>maxSlope)maxSlope=slopePct;}
+}
+});
+slopes.push(maxSlope);
+});
+
+// Calculate acreage using Shoelace formula on polygon
+var area=0;
+for(var i=0;i<coords.length-1;i++){
+area+=coords[i][0]*coords[i+1][1]-coords[i+1][0]*coords[i][1];
+}
+var sqDeg=Math.abs(area)/2;
+var acresPerSqDegLat=69.0*5280/43560;
+var acresPerSqDegLng=54.6*5280/43560;
+var avgLat=(coords[0][1]+coords[Math.floor(coords.length/2)][1])/2;
+var totalAcres=sqDeg*acresPerSqDegLat*acresPerSqDegLng*Math.cos(avgLat*Math.PI/180)*43560;
+// Simpler: convert sq degrees to sq miles then to acres
+
+totalAcres=sqDeg*69.0*54.6*Math.cos(avgLat*Math.PI/180)*640;
+
+// Use property acreage if available
+var propAcres=feature.properties.LEGAL_AREA||feature.properties.ASSDACRES||feature.properties.acres_poly;
+if(propAcres){totalAcres=parseFloat(propAcres)}
+
+// Stats
+var avgSlope=slopes.reduce(function(a,b){return a+b},0)/slopes.length;
+var maxSlope=Math.max.apply(null,slopes);
+var under5=slopes.filter(function(s){return s<5}).length;
+var under5Pct=Math.round(under5/slopes.length*100);
+var under5Acres=Math.round(totalAcres*under5Pct/100);
+var avgElev=elevations.reduce(function(a,b){return a+b.elev},0)/elevations.length;
+var elevRange=Math.max.apply(null,elevations.map(function(e){return e.elev}))-Math.min.apply(null,elevations.map(function(e){return e.elev}));
+
+// Slope color
+var slopeCol=avgSlope<3?'#66BB6A':avgSlope<5?'#FDD835':avgSlope<10?'#FF9800':'#EF5350';
+var gradeLabel=avgSlope<3?'Flat — Excellent':avgSlope<5?'Gentle — Good':avgSlope<10?'Moderate — Challenging':'Steep — Difficult';
+
+var h=baseHtml;
+h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
+h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">BUILDABILITY ANALYSIS</div>';
+if(totalAcres>0)h+='<div style="display:flex;justify-content:space-between"><span>Total Acreage</span><b>'+Math.round(totalAcres).toLocaleString()+' ac</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Avg Slope</span><b style="color:'+slopeCol+'">'+avgSlope.toFixed(1)+'%</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Max Slope</span><b>'+maxSlope.toFixed(1)+'%</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Grade</span><b style="color:'+slopeCol+'">'+gradeLabel+'</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Acreage &lt;5% slope</span><b style="color:#66BB6A">'+under5Acres.toLocaleString()+' ac ('+under5Pct+'%)</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Avg Elevation</span><b>'+Math.round(avgElev).toLocaleString()+' ft</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Elevation Range</span><b>'+Math.round(elevRange)+' ft</b></div>';
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:4px">Based on '+elevations.length+' sample points from USGS 3DEP | Slope is local max between grid neighbors</div>';
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.2)">Does not include flood zone or wetland deductions. Enable those layers separately for full screening.</div>';
+
+popup.setContent(h);
+popup.update();
+}
+
+function pointInPoly(x,y,poly){
+var inside=false;
+for(var i=0,j=poly.length-1;i<poly.length;j=i++){
+var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];
+if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))inside=!inside;
+}
+return inside;
+}
 function ldSt(){
 if(LS.st.ly)return;
 fetch('data/states.geojson').then(function(r){return r.json()}).then(function(data){
