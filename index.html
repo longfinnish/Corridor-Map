@@ -341,6 +341,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div id="ctx"><div class="ci" onclick="openSV()">&#x1F6E3;&#xFE0F; Street View</div><div class="ci" onclick="copyC()">&#x1F4CB; Copy Coords</div><div class="ci" onclick="openGM()">&#x1F5FA;&#xFE0F; Google Maps</div></div>
 <div id="lg"></div>
 <div id="map"></div>
+<div id="slope-legend" style="display:none;position:fixed;bottom:30px;right:12px;background:rgba(27,43,58,0.92);border:1px solid rgba(196,133,76,0.3);border-radius:8px;padding:10px 14px;z-index:1000;font-size:11px;color:#F0EDE8">
+<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:6px">SLOPE</div>
+<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="display:inline-block;width:20px;height:10px;background:#9E9E9E;border-radius:2px"></span> Flat (0-2%)</div>
+<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="display:inline-block;width:20px;height:10px;background:#FFEE58;border-radius:2px"></span> Gentle (2-5%)</div>
+<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="display:inline-block;width:20px;height:10px;background:#FFA726;border-radius:2px"></span> Moderate (5-15%)</div>
+<div style="display:flex;align-items:center;gap:6px;margin:3px 0"><span style="display:inline-block;width:20px;height:10px;background:#D84315;border-radius:2px"></span> Steep (15%+)</div>
+<div style="font-size:8px;color:rgba(240,237,232,0.3);margin-top:4px">Source: USGS 3DEP</div>
+</div>
 <script>
 var TXURL='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query';
 var GASURL='https://geo.dot.gov/server/rest/services/hosted/Natural_Gas_Pipelines_US_EIA/FeatureServer/0/query';
@@ -1296,13 +1304,20 @@ if(!slopeLayer){
 slopeLayer=L.esri.imageMapLayer({
 url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
 renderingRule:{rasterFunction:'Slope Map'},
-opacity:0.6,
+opacity:0.55,
+format:'jpgpng',
+maxZoom:15,
+useCors:false,
+updateInterval:500,
 attribution:'USGS 3DEP'
 });
+slopeLayer.on('load',function(){document.getElementById('slope-legend').style.display='block'});
+slopeLayer.on('remove',function(){document.getElementById('slope-legend').style.display='none'});
 }
 slopeLayer.addTo(map);
 }else{
 if(slopeLayer)map.removeLayer(slopeLayer);
+document.getElementById('slope-legend').style.display='none';
 }
 uLeg();
 }
@@ -1316,7 +1331,11 @@ if(!hillLayer){
 hillLayer=L.esri.imageMapLayer({
 url:'https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer',
 renderingRule:{rasterFunction:'Hillshade Gray'},
-opacity:0.5,
+opacity:0.45,
+format:'jpgpng',
+maxZoom:15,
+useCors:false,
+updateInterval:500,
 attribution:'USGS 3DEP'
 });
 }
