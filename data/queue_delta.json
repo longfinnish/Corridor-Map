@@ -1,25 +1,1670 @@
 {
   "current_date": "2026-03-09",
-  "previous_date": null,
+  "previous_date": "2026-03-02",
   "summary": {
-    "total_added": 0,
-    "total_added_mw": 0,
-    "total_dropped": 0,
-    "total_dropped_mw": 0,
-    "total_status_changes": 0
+    "total_added": 22,
+    "total_added_mw": 6263.9,
+    "total_dropped": 15,
+    "total_dropped_mw": 7817.7,
+    "total_status_changes": 223
   },
-  "iso_breakdown": {},
-  "additions": [],
-  "withdrawals": [],
-  "status_changes": [],
+  "iso_breakdown": {
+    "ERCOT": {
+      "added": 17,
+      "added_mw": 5244.6,
+      "dropped": 13,
+      "dropped_mw": 6486.1
+    },
+    "SPP": {
+      "added": 5,
+      "added_mw": 1019.3,
+      "dropped": 2,
+      "dropped_mw": 1331.6
+    }
+  },
+  "additions": [
+    {
+      "id": "30INR0031",
+      "name": "Caldwell County Energy Center",
+      "developer": "Caldwell County Energy Center, LLC",
+      "county": "Caldwell",
+      "state": "Texas",
+      "sub": "#7051 Misty Substation 345kV",
+      "tx_owner": null,
+      "mw": 1500.0,
+      "fuel": "Gas",
+      "status": "Active",
+      "queue_date": "2025-02-03",
+      "proposed_completion": "2030-04-30",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "26INR0633",
+      "name": "Betel Storage II",
+      "developer": "BETEL STORAGE II",
+      "county": "Milam",
+      "state": "Texas",
+      "sub": "3377 Little Pond 345",
+      "tx_owner": null,
+      "mw": 500.0,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2025-01-28",
+      "proposed_completion": "2026-12-17",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "26INR0387",
+      "name": "Zeus Spade BESS",
+      "developer": "Spade BESS",
+      "county": "Mitchell",
+      "state": "Texas",
+      "sub": "Tap 345 kV 1030 Morgan Creek to 76030 Gasconades Creek",
+      "tx_owner": null,
+      "mw": 446.3,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2024-03-29",
+      "proposed_completion": "2027-03-20",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "29INR0115",
+      "name": "Cielo Vista Storage",
+      "developer": "Cielo Vista Storage, LLC",
+      "county": "Duval",
+      "state": "Texas",
+      "sub": "Tap 345kV Bus #5901 Miguel5 - Bus #80079 Cruce7A Ckt 1",
+      "tx_owner": null,
+      "mw": 310.8,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2025-04-21",
+      "proposed_completion": "2028-06-30",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "24INR0282",
+      "name": "Royal River BESS",
+      "developer": "Royal River LLC",
+      "county": "Brazoria",
+      "state": "Texas",
+      "sub": "Tap 138kV 42110 Angleton - 43381 West Columbia",
+      "tx_owner": null,
+      "mw": 310.7,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2022-03-30",
+      "proposed_completion": "2027-01-11",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "26INR0300",
+      "name": "Whitewright Solar 2",
+      "developer": "SunWR, LLC",
+      "county": "Grayson",
+      "state": "Texas",
+      "sub": "Tap 345kV 1729 Valley South \u2013 Anna Switch 2373",
+      "tx_owner": null,
+      "mw": 301.69,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2023-12-18",
+      "proposed_completion": "2028-05-02",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "GEN-2025-GR1",
+      "name": null,
+      "developer": null,
+      "county": "Medford",
+      "state": "OK",
+      "sub": "OG&E Renfrow 345kV Substation",
+      "tx_owner": "OG&E",
+      "mw": 300.0,
+      "fuel": "Wind",
+      "status": "Active",
+      "queue_date": "12/17/2024",
+      "proposed_completion": "5/1/2027",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "GEN-2024-035",
+      "name": null,
+      "developer": null,
+      "county": "Brown",
+      "state": "SD",
+      "sub": "Groton 345 kV Substation",
+      "tx_owner": "BEPC",
+      "mw": 270.0,
+      "fuel": "Hybrid - Solar/Storage",
+      "status": "Active",
+      "queue_date": "10/30/2024",
+      "proposed_completion": "12/30/2027",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "GEN-2024-278",
+      "name": null,
+      "developer": null,
+      "county": "Lea",
+      "state": "NM",
+      "sub": "Eddy County - Crossroads 345 kV Line",
+      "tx_owner": "SPS",
+      "mw": 264.3,
+      "fuel": "Hybrid - Wind/Storage",
+      "status": "Active",
+      "queue_date": "3/1/2025",
+      "proposed_completion": "12/3/2029",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "23INR0006",
+      "name": "Sierra Madre Solar",
+      "developer": "Sierra Madre Solar LLC",
+      "county": "Zapata",
+      "state": "Texas",
+      "sub": "tap 345kV 80307 Del Sol - 80225 Cenizo",
+      "tx_owner": null,
+      "mw": 255.15,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2020-01-22",
+      "proposed_completion": "2027-12-01",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "26INR0460",
+      "name": "Lightning Ridge Energy Storage",
+      "developer": "Lightning Ridge Storage LLC",
+      "county": "Jack",
+      "state": "Texas",
+      "sub": "Tap #1429 Jacksboro Substation 345kV",
+      "tx_owner": null,
+      "mw": 204.7,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2024-03-29",
+      "proposed_completion": "2028-03-21",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "23INR0104",
+      "name": "BRP Kamet BESS",
+      "developer": "BRP Kamet BESS LLC",
+      "county": "Andrews",
+      "state": "Texas",
+      "sub": "Andrews North \u2013 McKenzie Draw Switch 138 kV",
+      "tx_owner": null,
+      "mw": 202.46,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2020-10-07",
+      "proposed_completion": "2025-12-01",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "24INR0446",
+      "name": "PSE Gongora Hill TX Storage",
+      "developer": "PureSky Development Inc",
+      "county": "Starr",
+      "state": "Texas",
+      "sub": "Tap 138kV 8796 Roma \u2013 7870 Escobares",
+      "tx_owner": null,
+      "mw": 200.0,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2023-02-27",
+      "proposed_completion": "2028-06-30",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "25INR0270",
+      "name": "Harryoung Solar",
+      "developer": "Gransolar Texas Four LLC",
+      "county": "Cameron",
+      "state": "Texas",
+      "sub": "Tap 8319 Rio Hondo - SOUTH SANTA ROSA: 8359, 138kV",
+      "tx_owner": null,
+      "mw": 190.01,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2022-11-23",
+      "proposed_completion": "2028-05-15",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "24INR0544",
+      "name": "Wetzel BESS",
+      "developer": "Brown ESS, LLC",
+      "county": "Brown",
+      "state": "Texas",
+      "sub": "Tap 138kV 1654 Zephyr \u2013 1655 Brownwood Switch",
+      "tx_owner": null,
+      "mw": 185.57,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2023-03-27",
+      "proposed_completion": "2028-09-09",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "28INR0206",
+      "name": "Wagon Timber Solar",
+      "developer": "Wagon Timber Solar, LLC",
+      "county": "Knox",
+      "state": "Texas",
+      "sub": "6110 Munday East 138kV\n",
+      "tx_owner": null,
+      "mw": 172.1,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2024-12-19",
+      "proposed_completion": "2028-10-16",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "24INR0378",
+      "name": "Solara BESS 1",
+      "developer": "CED Development Inc.",
+      "county": "Jones",
+      "state": "Texas",
+      "sub": "60387 Hendrick 138kV ",
+      "tx_owner": null,
+      "mw": 150.0,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2022-07-05",
+      "proposed_completion": "2027-11-30",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "26INR0327",
+      "name": "Sleepy Hollow BESS",
+      "developer": "Sleepy Hollow BESS, LLC",
+      "county": "Throckmorton",
+      "state": "Texas",
+      "sub": "Tap 138 kV 792 Murray - 6169 Paint Creek ",
+      "tx_owner": null,
+      "mw": 123.1,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2023-11-30",
+      "proposed_completion": "2028-02-22",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "23INR0074",
+      "name": "BRP Ampato BESS",
+      "developer": "BRP Ampato BESS LLC",
+      "county": "Crane",
+      "state": "Texas",
+      "sub": "10002 NS Crane Switch 138kV",
+      "tx_owner": null,
+      "mw": 121.56,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2020-08-04",
+      "proposed_completion": "2027-12-01",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "GEN-2024-162",
+      "name": null,
+      "developer": null,
+      "county": "Dakota",
+      "state": "NE",
+      "sub": "Twin Church 230 kV Substation",
+      "tx_owner": "NPPD",
+      "mw": 110.0,
+      "fuel": "Hybrid - Solar/Storage",
+      "status": "Active",
+      "queue_date": "3/1/2025",
+      "proposed_completion": "1/15/2030",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "GEN-2024-310",
+      "name": null,
+      "developer": null,
+      "county": "Chaves",
+      "state": "NM",
+      "sub": "Eddy - Chaves 230 kV line",
+      "tx_owner": "SPS",
+      "mw": 75.0,
+      "fuel": "Battery/Storage - Battery",
+      "status": "Active",
+      "queue_date": "3/1/2025",
+      "proposed_completion": "12/31/2030",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "22INR0488",
+      "name": "Venture Hill Storage",
+      "developer": "KCE TX 24, LLC",
+      "county": "Travis",
+      "state": "Texas",
+      "sub": "7336 Gilleland Creek 138kV",
+      "tx_owner": null,
+      "mw": 70.44,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2021-02-09",
+      "proposed_completion": "2026-12-01",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    }
+  ],
+  "withdrawals": [
+    {
+      "id": "FAKE_W_007",
+      "name": "Withdrawn Project 8",
+      "developer": "CED Development Inc.",
+      "county": "Milam",
+      "state": "Texas",
+      "sub": "345 kV Line (3765) GRISTMILL_5 to (39950) TNTNP_ONE_3",
+      "tx_owner": null,
+      "mw": 781.2,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2025-09-11",
+      "proposed_completion": "2029-09-17",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_011",
+      "name": "Withdrawn Project 12",
+      "developer": "RWE Solar Development",
+      "county": "Jack",
+      "state": "Texas",
+      "sub": "Tap 345kV 1421 Willow Creek \u2013 11523 Thomas Price",
+      "tx_owner": null,
+      "mw": 706.5,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2022-09-02",
+      "proposed_completion": "2027-10-29",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_005",
+      "name": "Withdrawn Project 6",
+      "developer": "Invenergy LLC",
+      "county": "Cameron",
+      "state": "Texas",
+      "sub": "8320 WEST HARLINGEN 69kV ",
+      "tx_owner": null,
+      "mw": 693.2,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2023-06-28",
+      "proposed_completion": "2027-07-01",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_001",
+      "name": "Withdrawn Project 2",
+      "developer": "Apex Clean Energy",
+      "county": "Bailey",
+      "state": "TX",
+      "sub": "Tolk - Crossroads 345 kV line",
+      "tx_owner": "SPS",
+      "mw": 666.6,
+      "fuel": "Wind - Wind",
+      "status": "Active",
+      "queue_date": "3/1/2025",
+      "proposed_completion": "12/31/2031",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "FAKE_W_006",
+      "name": "Withdrawn Project 7",
+      "developer": "Apex Clean Energy",
+      "county": "Lancaster",
+      "state": "NE",
+      "sub": "Waverly 115 kV Substation",
+      "tx_owner": "LES",
+      "mw": 665.0,
+      "fuel": "Battery/Storage - Battery",
+      "status": "Active",
+      "queue_date": "10/30/2024",
+      "proposed_completion": "5/17/2028",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "FAKE_W_010",
+      "name": "Withdrawn Project 11",
+      "developer": "RWE Solar Development",
+      "county": "Brazoria",
+      "state": "Texas",
+      "sub": "345kV Oasis (43035) \u2013 Seabreeze circuit 27",
+      "tx_owner": null,
+      "mw": 641.1,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2021-09-09",
+      "proposed_completion": "2026-01-16",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_009",
+      "name": "Withdrawn Project 10",
+      "developer": "RWE Solar Development",
+      "county": "Taylor",
+      "state": "Texas",
+      "sub": "Tap 138kV 76317 MOORE - 76318 BUTMAN",
+      "tx_owner": null,
+      "mw": 593.2,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2025-02-14",
+      "proposed_completion": "2028-04-10",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_014",
+      "name": "Withdrawn Project 15",
+      "developer": "Apex Clean Energy",
+      "county": "Cameron",
+      "state": "Texas",
+      "sub": "Tap 138kV #80309 Las Pulgas - #8319 Rio Hondo",
+      "tx_owner": null,
+      "mw": 591.3,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2024-05-09",
+      "proposed_completion": "2028-06-30",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_002",
+      "name": "Withdrawn Project 3",
+      "developer": "Tempus Power LLC",
+      "county": "Leon",
+      "state": "Texas",
+      "sub": "CTT Yellow Wolf, bus # 79007",
+      "tx_owner": null,
+      "mw": 588.7,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2019-08-16",
+      "proposed_completion": "2027-05-01",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_008",
+      "name": "Withdrawn Project 9",
+      "developer": "CED Development Inc.",
+      "county": "La Salle",
+      "state": "Texas",
+      "sub": "Tap 138kV 5723 Los Angeles - 5705 Fowlerton \n",
+      "tx_owner": null,
+      "mw": 486.4,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2025-02-14",
+      "proposed_completion": "2028-07-02",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_012",
+      "name": "Withdrawn Project 13",
+      "developer": "Apex Clean Energy",
+      "county": "Callahan",
+      "state": "Texas",
+      "sub": "Tapping the two 345 kV Lines: Sam Line Reactor (Bus# 68005) - Reata (Bus# 68051) and Latimer (Bus# 68008) - Reata (Bus# 68051).",
+      "tx_owner": null,
+      "mw": 417.4,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2024-12-19",
+      "proposed_completion": "2028-12-15",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_013",
+      "name": "Withdrawn Project 14",
+      "developer": "Tempus Power LLC",
+      "county": "Ector",
+      "state": "Texas",
+      "sub": "tap 345kV 11010  Wolf Switching Station - 10012 Meteor ",
+      "tx_owner": null,
+      "mw": 359.1,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2024-10-21",
+      "proposed_completion": "2028-12-15",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_000",
+      "name": "Withdrawn Project 1",
+      "developer": "EDF Renewables",
+      "county": "Duval",
+      "state": "Texas",
+      "sub": "138 kV Zenaida Bus# 80043 ",
+      "tx_owner": null,
+      "mw": 254.3,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2024-01-11",
+      "proposed_completion": "2028-10-15",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_003",
+      "name": "Withdrawn Project 4",
+      "developer": "Apex Clean Energy",
+      "county": "Limestone",
+      "state": "Texas",
+      "sub": "#68092 Liberty Station 345kV",
+      "tx_owner": null,
+      "mw": 208.8,
+      "fuel": "Solar",
+      "status": "Active",
+      "queue_date": "2023-07-10",
+      "proposed_completion": "2029-04-01",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    },
+    {
+      "id": "FAKE_W_004",
+      "name": "Withdrawn Project 5",
+      "developer": "CED Development Inc.",
+      "county": "San Patricio",
+      "state": "Texas",
+      "sub": "88249 SDI7A 345kV",
+      "tx_owner": null,
+      "mw": 164.9,
+      "fuel": "Other",
+      "status": "Active",
+      "queue_date": "2025-08-26",
+      "proposed_completion": "2027-06-24",
+      "withdrawn_date": "",
+      "iso": "ERCOT"
+    }
+  ],
+  "status_changes": [
+    {
+      "project": {
+        "id": "GEN-2026-SR7",
+        "name": null,
+        "developer": null,
+        "county": "South Heart",
+        "state": "ND",
+        "sub": "Daglum 230kV Switching Station",
+        "tx_owner": "BEPC",
+        "mw": 150.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "1/21/2026",
+        "proposed_completion": "12/31/2028",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-SR6",
+        "name": null,
+        "developer": null,
+        "county": "South Heart",
+        "state": "ND",
+        "sub": "Brady 230kV substation",
+        "tx_owner": "BEPC",
+        "mw": 150.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "1/22/2026",
+        "proposed_completion": "12/31/2028",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-SR5",
+        "name": null,
+        "developer": null,
+        "county": "Wellington",
+        "state": "KS",
+        "sub": "Sumner 138kV",
+        "tx_owner": "WERE",
+        "mw": 200.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "1/20/2026",
+        "proposed_completion": "12/1/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-SR4",
+        "name": null,
+        "developer": null,
+        "county": "Oktaha",
+        "state": "OK",
+        "sub": "Canadian River-Muskogee and Muskogee-Seminole 345kV",
+        "tx_owner": "OG&E",
+        "mw": 400.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "11/17/2025",
+        "proposed_completion": "12/31/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-SR3",
+        "name": null,
+        "developer": null,
+        "county": "Sayre",
+        "state": "OK",
+        "sub": "Sweetwater 230kV",
+        "tx_owner": "AEP",
+        "mw": 100.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "1/14/2026",
+        "proposed_completion": "5/14/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-SR2",
+        "name": null,
+        "developer": null,
+        "county": "Cimmaron",
+        "state": "KS",
+        "sub": "Buckner 345kV",
+        "tx_owner": "SUNC",
+        "mw": 165.6,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "12/19/2025",
+        "proposed_completion": "12/1/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-SR1",
+        "name": null,
+        "developer": null,
+        "county": "Garden Plain",
+        "state": "KS",
+        "sub": "Buffalo Flats 345kV Substation",
+        "tx_owner": "WERE",
+        "mw": 152.6,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "11/7/2025",
+        "proposed_completion": "12/1/2026",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-PR6",
+        "name": null,
+        "developer": null,
+        "county": "Goltry",
+        "state": "OK",
+        "sub": "Woodring 345kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 49.72,
+        "fuel": "Wind",
+        "status": NaN,
+        "queue_date": "1/8/2026",
+        "proposed_completion": "12/1/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-PR5",
+        "name": null,
+        "developer": null,
+        "county": "Goultry",
+        "state": "OK",
+        "sub": "Woodring 345kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 60.4,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "1/7/2026",
+        "proposed_completion": "12/31/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-PR4",
+        "name": null,
+        "developer": null,
+        "county": "Spearman",
+        "state": "TX",
+        "sub": "Hitchland 345kV",
+        "tx_owner": "SPS",
+        "mw": 131.56,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "12/19/2025",
+        "proposed_completion": "12/31/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-PR3",
+        "name": null,
+        "developer": null,
+        "county": "Garfield County",
+        "state": "OK",
+        "sub": "Otter 138kV",
+        "tx_owner": "OG&E",
+        "mw": 49.68,
+        "fuel": "Wind",
+        "status": NaN,
+        "queue_date": "12/1/2025",
+        "proposed_completion": "12/1/2030",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-PR2",
+        "name": null,
+        "developer": null,
+        "county": "Dewey County",
+        "state": "OK",
+        "sub": "Tatonga 345 kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 41.89,
+        "fuel": "Wind",
+        "status": NaN,
+        "queue_date": "12/1/2025",
+        "proposed_completion": "12/1/2030",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2026-PR1",
+        "name": null,
+        "developer": null,
+        "county": "Garfield County",
+        "state": "TX",
+        "sub": "Beaver County 345 kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 52.63,
+        "fuel": "Wind",
+        "status": NaN,
+        "queue_date": "12/1/2025",
+        "proposed_completion": "12/1/2030",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR9",
+        "name": null,
+        "developer": null,
+        "county": "Fort Gibson",
+        "state": "OK",
+        "sub": "Muskogee 345 KV Substation",
+        "tx_owner": "OG&E",
+        "mw": 410.0,
+        "fuel": "Thermal",
+        "status": NaN,
+        "queue_date": "5/31/2025",
+        "proposed_completion": "12/1/2029",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR6",
+        "name": null,
+        "developer": null,
+        "county": "Minco",
+        "state": "OK",
+        "sub": "Minco 345kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 200.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "6/4/2025",
+        "proposed_completion": "12/31/2026",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR5",
+        "name": null,
+        "developer": null,
+        "county": "Hallam",
+        "state": "NE",
+        "sub": "Monolith 115 kV Substation",
+        "tx_owner": "NPPD",
+        "mw": 40.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "5/22/2025",
+        "proposed_completion": "11/20/2026",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR4",
+        "name": null,
+        "developer": null,
+        "county": "Kinsley",
+        "state": "KS",
+        "sub": "Great Bend-Spearville 230kV line",
+        "tx_owner": "SUNC",
+        "mw": 150.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "8/18/2025",
+        "proposed_completion": "12/1/2028",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR32",
+        "name": null,
+        "developer": null,
+        "county": "Roswell",
+        "state": "NM",
+        "sub": "Chaves County 115 kV Substation",
+        "tx_owner": "SPS",
+        "mw": 50.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "10/20/2025",
+        "proposed_completion": "12/31/2026",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR31",
+        "name": null,
+        "developer": null,
+        "county": "Meadow Grove",
+        "state": "NE",
+        "sub": "Antelope(640520) - Hoskins(640226) 345kV",
+        "tx_owner": "NPPD",
+        "mw": 170.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "11/7/2025",
+        "proposed_completion": "12/31/2026",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR30",
+        "name": null,
+        "developer": null,
+        "county": "Oakwood",
+        "state": "OK",
+        "sub": "Tatonga 345 kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 209.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "8/22/2025",
+        "proposed_completion": "12/5/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR28",
+        "name": null,
+        "developer": null,
+        "county": "Balko",
+        "state": "OK",
+        "sub": "Beaver County 345 kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 263.13,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "8/18/2025",
+        "proposed_completion": "11/22/2027",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR27",
+        "name": null,
+        "developer": null,
+        "county": "Roswell",
+        "state": "NM",
+        "sub": "Chaves County 115 kV Substation",
+        "tx_owner": "SPS",
+        "mw": 50.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "7/1/2025",
+        "proposed_completion": "12/31/2026",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR26",
+        "name": null,
+        "developer": null,
+        "county": "Plattsmouth",
+        "state": "NE",
+        "sub": "Cass County 345kV Substation",
+        "tx_owner": "OPPD",
+        "mw": 200.0,
+        "fuel": "Thermal",
+        "status": NaN,
+        "queue_date": "6/12/2025",
+        "proposed_completion": "11/30/2029",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR24",
+        "name": null,
+        "developer": null,
+        "county": "Blair",
+        "state": "NE",
+        "sub": "Fort Calhoun 345kV Substation",
+        "tx_owner": "OPPD",
+        "mw": 200.0,
+        "fuel": "Thermal",
+        "status": NaN,
+        "queue_date": "6/12/2025",
+        "proposed_completion": "11/30/2028",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR20",
+        "name": null,
+        "developer": null,
+        "county": "Omaha",
+        "state": "NE",
+        "sub": "SUBSTATION LOOP IN OPPD LINES S1211 TO S1220 AND S1211 TO S1299",
+        "tx_owner": "OPPD",
+        "mw": 100.0,
+        "fuel": "Thermal",
+        "status": NaN,
+        "queue_date": "6/12/2025",
+        "proposed_completion": "5/31/2030",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR18",
+        "name": null,
+        "developer": null,
+        "county": "Indepedence",
+        "state": "MO",
+        "sub": "Blue Valley 161kV Substation",
+        "tx_owner": "INDN",
+        "mw": 50.0,
+        "fuel": "Thermal",
+        "status": NaN,
+        "queue_date": "6/12/2025",
+        "proposed_completion": "11/30/2029",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR16",
+        "name": null,
+        "developer": null,
+        "county": "Oxford",
+        "state": "KS",
+        "sub": "Wild Plains 345 kV Substation",
+        "tx_owner": "WERE",
+        "mw": 300.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "6/5/2025",
+        "proposed_completion": "12/21/2026",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR15",
+        "name": null,
+        "developer": null,
+        "county": "Newcastle",
+        "state": "OK",
+        "sub": "McClain Substation",
+        "tx_owner": "OG&E",
+        "mw": 125.0,
+        "fuel": "Thermal",
+        "status": NaN,
+        "queue_date": "5/31/2025",
+        "proposed_completion": "12/1/2029",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR14",
+        "name": null,
+        "developer": null,
+        "county": "Oklahoma City",
+        "state": "OK",
+        "sub": "Mustang 138 KV Substation",
+        "tx_owner": "OG&E",
+        "mw": 183.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "5/31/2025",
+        "proposed_completion": "5/1/2030",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR13",
+        "name": null,
+        "developer": null,
+        "county": "Konawa",
+        "state": "OK",
+        "sub": "Seminole Substation",
+        "tx_owner": "OG&E",
+        "mw": 130.0,
+        "fuel": "Thermal",
+        "status": NaN,
+        "queue_date": "5/31/2025",
+        "proposed_completion": "12/1/2029",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
+    }
+  ],
   "developer_activity": {
-    "most_active_adders": [],
-    "most_active_droppers": []
+    "most_active_adders": [
+      [
+        "Caldwell County Energy Center, LLC",
+        {
+          "count": 1,
+          "mw": 1500.0,
+          "projects": [
+            "Caldwell County Energy Center"
+          ]
+        }
+      ],
+      [
+        null,
+        {
+          "count": 5,
+          "mw": 1019.3,
+          "projects": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      ],
+      [
+        "BETEL STORAGE II",
+        {
+          "count": 1,
+          "mw": 500.0,
+          "projects": [
+            "Betel Storage II"
+          ]
+        }
+      ],
+      [
+        "Spade BESS",
+        {
+          "count": 1,
+          "mw": 446.3,
+          "projects": [
+            "Zeus Spade BESS"
+          ]
+        }
+      ],
+      [
+        "Cielo Vista Storage, LLC",
+        {
+          "count": 1,
+          "mw": 310.8,
+          "projects": [
+            "Cielo Vista Storage"
+          ]
+        }
+      ],
+      [
+        "Royal River LLC",
+        {
+          "count": 1,
+          "mw": 310.7,
+          "projects": [
+            "Royal River BESS"
+          ]
+        }
+      ],
+      [
+        "SunWR, LLC",
+        {
+          "count": 1,
+          "mw": 301.69,
+          "projects": [
+            "Whitewright Solar 2"
+          ]
+        }
+      ],
+      [
+        "Sierra Madre Solar LLC",
+        {
+          "count": 1,
+          "mw": 255.15,
+          "projects": [
+            "Sierra Madre Solar"
+          ]
+        }
+      ],
+      [
+        "Lightning Ridge Storage LLC",
+        {
+          "count": 1,
+          "mw": 204.7,
+          "projects": [
+            "Lightning Ridge Energy Storage"
+          ]
+        }
+      ],
+      [
+        "BRP Kamet BESS LLC",
+        {
+          "count": 1,
+          "mw": 202.46,
+          "projects": [
+            "BRP Kamet BESS"
+          ]
+        }
+      ],
+      [
+        "PureSky Development Inc",
+        {
+          "count": 1,
+          "mw": 200.0,
+          "projects": [
+            "PSE Gongora Hill TX Storage"
+          ]
+        }
+      ],
+      [
+        "Gransolar Texas Four LLC",
+        {
+          "count": 1,
+          "mw": 190.01,
+          "projects": [
+            "Harryoung Solar"
+          ]
+        }
+      ],
+      [
+        "Brown ESS, LLC",
+        {
+          "count": 1,
+          "mw": 185.57,
+          "projects": [
+            "Wetzel BESS"
+          ]
+        }
+      ],
+      [
+        "Wagon Timber Solar, LLC",
+        {
+          "count": 1,
+          "mw": 172.1,
+          "projects": [
+            "Wagon Timber Solar"
+          ]
+        }
+      ],
+      [
+        "CED Development Inc.",
+        {
+          "count": 1,
+          "mw": 150.0,
+          "projects": [
+            "Solara BESS 1"
+          ]
+        }
+      ]
+    ],
+    "most_active_droppers": [
+      [
+        "Apex Clean Energy",
+        {
+          "count": 5,
+          "mw": 2549.1000000000004,
+          "projects": [
+            "Withdrawn Project 2",
+            "Withdrawn Project 4",
+            "Withdrawn Project 7",
+            "Withdrawn Project 13",
+            "Withdrawn Project 15"
+          ]
+        }
+      ],
+      [
+        "RWE Solar Development",
+        {
+          "count": 3,
+          "mw": 1940.8000000000002,
+          "projects": [
+            "Withdrawn Project 10",
+            "Withdrawn Project 11",
+            "Withdrawn Project 12"
+          ]
+        }
+      ],
+      [
+        "CED Development Inc.",
+        {
+          "count": 3,
+          "mw": 1432.5,
+          "projects": [
+            "Withdrawn Project 5",
+            "Withdrawn Project 8",
+            "Withdrawn Project 9"
+          ]
+        }
+      ],
+      [
+        "Tempus Power LLC",
+        {
+          "count": 2,
+          "mw": 947.8000000000001,
+          "projects": [
+            "Withdrawn Project 3",
+            "Withdrawn Project 14"
+          ]
+        }
+      ],
+      [
+        "Invenergy LLC",
+        {
+          "count": 1,
+          "mw": 693.2,
+          "projects": [
+            "Withdrawn Project 6"
+          ]
+        }
+      ],
+      [
+        "EDF Renewables",
+        {
+          "count": 1,
+          "mw": 254.3,
+          "projects": [
+            "Withdrawn Project 1"
+          ]
+        }
+      ]
+    ]
   },
   "substation_activity": {
-    "hottest_subs": [],
-    "clearing_subs": []
+    "hottest_subs": [
+      [
+        "#7051 Misty Substation 345kV",
+        {
+          "count": 1,
+          "mw": 1500.0
+        }
+      ],
+      [
+        "3377 Little Pond 345",
+        {
+          "count": 1,
+          "mw": 500.0
+        }
+      ],
+      [
+        "Tap 345 kV 1030 Morgan Creek to 76030 Gasconades Creek",
+        {
+          "count": 1,
+          "mw": 446.3
+        }
+      ],
+      [
+        "Tap 345kV Bus #5901 Miguel5 - Bus #80079 Cruce7A Ckt 1",
+        {
+          "count": 1,
+          "mw": 310.8
+        }
+      ],
+      [
+        "Tap 138kV 42110 Angleton - 43381 West Columbia",
+        {
+          "count": 1,
+          "mw": 310.7
+        }
+      ],
+      [
+        "Tap 345kV 1729 Valley South \u2013 Anna Switch 2373",
+        {
+          "count": 1,
+          "mw": 301.69
+        }
+      ],
+      [
+        "OG&E Renfrow 345kV Substation",
+        {
+          "count": 1,
+          "mw": 300.0
+        }
+      ],
+      [
+        "Groton 345 kV Substation",
+        {
+          "count": 1,
+          "mw": 270.0
+        }
+      ],
+      [
+        "Eddy County - Crossroads 345 kV Line",
+        {
+          "count": 1,
+          "mw": 264.3
+        }
+      ],
+      [
+        "tap 345kV 80307 Del Sol - 80225 Cenizo",
+        {
+          "count": 1,
+          "mw": 255.15
+        }
+      ],
+      [
+        "Tap #1429 Jacksboro Substation 345kV",
+        {
+          "count": 1,
+          "mw": 204.7
+        }
+      ],
+      [
+        "Andrews North \u2013 McKenzie Draw Switch 138 kV",
+        {
+          "count": 1,
+          "mw": 202.46
+        }
+      ],
+      [
+        "Tap 138kV 8796 Roma \u2013 7870 Escobares",
+        {
+          "count": 1,
+          "mw": 200.0
+        }
+      ],
+      [
+        "Tap 8319 Rio Hondo - SOUTH SANTA ROSA: 8359, 138kV",
+        {
+          "count": 1,
+          "mw": 190.01
+        }
+      ],
+      [
+        "Tap 138kV 1654 Zephyr \u2013 1655 Brownwood Switch",
+        {
+          "count": 1,
+          "mw": 185.57
+        }
+      ]
+    ],
+    "clearing_subs": [
+      [
+        "345 kV Line (3765) GRISTMILL_5 to (39950) TNTNP_ONE_3",
+        {
+          "count": 1,
+          "mw": 781.2
+        }
+      ],
+      [
+        "Tap 345kV 1421 Willow Creek \u2013 11523 Thomas Price",
+        {
+          "count": 1,
+          "mw": 706.5
+        }
+      ],
+      [
+        "8320 WEST HARLINGEN 69kV ",
+        {
+          "count": 1,
+          "mw": 693.2
+        }
+      ],
+      [
+        "Tolk - Crossroads 345 kV line",
+        {
+          "count": 1,
+          "mw": 666.6
+        }
+      ],
+      [
+        "Waverly 115 kV Substation",
+        {
+          "count": 1,
+          "mw": 665.0
+        }
+      ],
+      [
+        "345kV Oasis (43035) \u2013 Seabreeze circuit 27",
+        {
+          "count": 1,
+          "mw": 641.1
+        }
+      ],
+      [
+        "Tap 138kV 76317 MOORE - 76318 BUTMAN",
+        {
+          "count": 1,
+          "mw": 593.2
+        }
+      ],
+      [
+        "Tap 138kV #80309 Las Pulgas - #8319 Rio Hondo",
+        {
+          "count": 1,
+          "mw": 591.3
+        }
+      ],
+      [
+        "CTT Yellow Wolf, bus # 79007",
+        {
+          "count": 1,
+          "mw": 588.7
+        }
+      ],
+      [
+        "Tap 138kV 5723 Los Angeles - 5705 Fowlerton \n",
+        {
+          "count": 1,
+          "mw": 486.4
+        }
+      ],
+      [
+        "Tapping the two 345 kV Lines: Sam Line Reactor (Bus# 68005) - Reata (Bus# 68051) and Latimer (Bus# 68008) - Reata (Bus# 68051).",
+        {
+          "count": 1,
+          "mw": 417.4
+        }
+      ],
+      [
+        "tap 345kV 11010  Wolf Switching Station - 10012 Meteor ",
+        {
+          "count": 1,
+          "mw": 359.1
+        }
+      ],
+      [
+        "138 kV Zenaida Bus# 80043 ",
+        {
+          "count": 1,
+          "mw": 254.3
+        }
+      ],
+      [
+        "#68092 Liberty Station 345kV",
+        {
+          "count": 1,
+          "mw": 208.8
+        }
+      ],
+      [
+        "88249 SDI7A 345kV",
+        {
+          "count": 1,
+          "mw": 164.9
+        }
+      ]
+    ]
   },
-  "narrative": "First snapshot captured. Delta analysis will begin next week.",
+  "narrative": "",
   "total_projects": 4657
 }
