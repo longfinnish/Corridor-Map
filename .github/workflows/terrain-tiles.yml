@@ -1,0 +1,87 @@
+name: Pre-fetch Terrain Tiles
+
+on:
+  workflow_dispatch:
+    inputs:
+      tile_type:
+        description: 'Tile type to fetch'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - slope
+          - hillshade
+          - both
+      max_zoom:
+        description: 'Maximum zoom level'
+        required: true
+        default: '10'
+        type: choice
+        options:
+          - '9'
+          - '10'
+          - '11'
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-tiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180  # 3 hours max
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install requests
+      
+      - name: Fetch terrain tiles from USGS
+        run: |
+          python scripts/prefetch_terrain_tiles.py \
+            --type ${{ inputs.tile_type }} \
+            --min-zoom 6 \
+            --max-zoom ${{ inputs.max_zoom }} \
+            --out-dir tiles \
+            --concurrent 4
+      
+      - name: Install rclone for R2 upload
+        run: |
+          curl -O https://downloads.rclone.org/current/rclone-current-linux-amd64.deb
+          sudo dpkg -i rclone-current-linux-amd64.deb
+      
+      - name: Configure rclone for Cloudflare R2
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf << EOF
+          [r2]
+          type = s3
+          provider = Cloudflare
+          access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
+          secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          endpoint = https://${{ secrets.CF_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          acl = private
+          no_check_bucket = true
+          EOF
+      
+      - name: Upload tiles to R2
+        run: |
+          rclone sync tiles/ r2:corridor-terrain-tiles/ \
+            --transfers 16 \
+            --checkers 8 \
+            --s3-upload-concurrency 4 \
+            --progress
+      
+      - name: Report
+        run: |
+          echo "Tile counts:"
+          for type_dir in tiles/*/; do
+            type=$(basename "$type_dir")
+            count=$(find "$type_dir" -name "*.png" | wc -l)
+            size=$(du -sh "$type_dir" | cut -f1)
+            echo "  $type: $count tiles, $size"
+          done
