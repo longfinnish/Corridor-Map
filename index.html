@@ -302,7 +302,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="lg-group-hdr" onclick="this.parentElement.classList.toggle('collapsed')"><div class="lg-title">Hyperscalers &amp; Data Centers</div><span class="lg-arrow">&#x25BC;</span></div>
 <div class="lg-body">
 <div class="lg">
-<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Data Centers (Hyperscaler)</span><label class="tg"><input type="checkbox" id="t-hs" onchange="tog('hs')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#E91E63"></span>Hyperscalers (All)</span><label class="tg"><input type="checkbox" id="t-hs" onchange="togHSAll(this.checked)"><span class="ts"></span></label></div>
+<div id="hs-subs" style="padding-left:18px;display:none">
+<div class="li"><span class="ll"><span class="ld" style="background:#FF9800"></span>AWS</span><label class="tg"><input type="checkbox" id="t-hs-aws" onchange="togHSSub()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#4285F4"></span>Google</span><label class="tg"><input type="checkbox" id="t-hs-google" onchange="togHSSub()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#0668E1"></span>Meta</span><label class="tg"><input type="checkbox" id="t-hs-meta" onchange="togHSSub()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#7FBA00"></span>Microsoft</span><label class="tg"><input type="checkbox" id="t-hs-msft" onchange="togHSSub()"><span class="ts"></span></label></div>
+</div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (Colo)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
 </div>
 </div>
@@ -828,12 +834,13 @@ dcLoaded=true;s.ld=false;
 
 var hsColors={AWS:"#FF9800",Google:"#4285F4",Meta:"#0668E1",Microsoft:"#7FBA00"};
 var hsLoaded=false;
+var hsData=null;
+var hsGroups={AWS:L.layerGroup(),Google:L.layerGroup(),Meta:L.layerGroup(),Microsoft:L.layerGroup()};
 function ldHS(){
-var s=LS.hs;if(hsLoaded||s.ld)return;s.ld=true;
+if(hsLoaded)return;
 fetch("data/datacenters.json").then(function(r){return r.json()}).then(function(data){
-s.g.clearLayers();
-var hyper=data.filter(function(f){return f.source!=='Colo'});
-hyper.forEach(function(f){
+hsData=data.filter(function(f){return f.source!=='Colo'});
+hsData.forEach(function(f){
 var col=hsColors[f.source]||"#78909C";
 var mw=parseFloat(f.mw)||0;
 var sz=mw>50?9:mw>10?7:5;
@@ -846,9 +853,33 @@ if(f.year&&f.year!=='0')popup+="<b>Year:</b> "+f.year+"<br>";
 if(f.address)popup+="<b>Address:</b> "+f.address+"<br>";
 popup+="<b>State:</b> "+f.state;
 if(f.airport)popup+=" ("+f.airport+")";
-m.bindPopup(popup);s.g.addLayer(m)});
-hsLoaded=true;s.ld=false;
-}).catch(function(e){console.error("HS error:",e);s.ld=false});
+m.bindPopup(popup);
+if(hsGroups[f.source])hsGroups[f.source].addLayer(m);
+});
+hsLoaded=true;
+togHSSub();
+}).catch(function(e){console.error("HS error:",e)});
+}
+function togHSAll(on){
+document.getElementById('hs-subs').style.display=on?'block':'none';
+['aws','google','meta','msft'].forEach(function(k){document.getElementById('t-hs-'+k).checked=on});
+if(on){ldHS();togHSSub()}else{
+Object.values(hsGroups).forEach(function(g){map.removeLayer(g)});
+}
+uLeg();
+}
+function togHSSub(){
+var map_={aws:'AWS',google:'Google',meta:'Meta',msft:'Microsoft'};
+for(var k in map_){
+var on=document.getElementById('t-hs-'+k).checked;
+var g=hsGroups[map_[k]];
+if(on){if(!map.hasLayer(g))g.addTo(map)}else{map.removeLayer(g)}
+}
+// Sync master toggle
+var anyOn=['aws','google','meta','msft'].some(function(k){return document.getElementById('t-hs-'+k).checked});
+document.getElementById('t-hs').checked=anyOn;
+document.getElementById('hs-subs').style.display=anyOn||document.getElementById('t-hs').checked?'block':'none';
+uLeg();
 }
 
 var ctyLoaded=false;
