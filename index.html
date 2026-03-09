@@ -2659,13 +2659,15 @@ document.getElementById('srch-go-btn').disabled=true;
 searchResultsLayer.clearLayers();
 
 try{
-// Build bounding box from drawn polygon for Regrid query
+// Build search from drawn area center + radius
 var layer=null;searchDrawLayer.eachLayer(function(l){layer=l});
 var b=layer.getBounds();
+var diagMi=haversine(b.getSouth(),b.getWest(),b.getNorth(),b.getEast());
+var radiusM=Math.min(Math.round(diagMi/2*1609.34),50000); // meters, max 50km
 var url='https://app.regrid.com/api/v2/parcels/point?token='+REGRID_TOKEN
 +'&lat='+b.getCenter().lat+'&lon='+b.getCenter().lng
-+'&radius='+(haversine(b.getSouth(),b.getWest(),b.getNorth(),b.getEast())*5280/2).toFixed(0)
-+'&limit=200&return_geometry=true&ll_gisacre_min='+minAcres;
++'&radius='+radiusM
++'&limit=200&ll_gisacre_min='+minAcres;
 var r=await fetch(url);
 var d=await r.json();
 var parcels=d.parcels?d.parcels.features:(d.features||[]);
