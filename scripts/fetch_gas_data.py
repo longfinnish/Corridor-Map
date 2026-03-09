@@ -41,6 +41,8 @@ KM_PIPELINES = [
     {'code': 'NGPL', 'name': 'Natural Gas Pipeline Company of America', 'short': 'NGPL'},
     {'code': 'MEP', 'name': 'Midcontinent Express Pipeline', 'short': 'Midcontinent Express'},
     {'code': 'SNG', 'name': 'Southern Natural Gas Company, LLC', 'short': 'Southern Natural'},
+    {'code': 'FGT', 'name': 'Florida Gas Transmission Company, LLC', 'short': 'Florida Gas'},
+    {'code': 'CIG', 'name': 'Colorado Interstate Gas Company, LLC', 'short': 'Colorado Interstate'},
 ]
 
 def fetch_km_capacity(code):
@@ -140,6 +142,7 @@ def fetch_williams_capacity(buid):
 
 ENBRIDGE_PIPELINES = [
     {'bu': 'TE', 'name': 'Texas Eastern Transmission, LP', 'short': 'Texas Eastern'},
+    {'bu': 'AG', 'name': 'Algonquin Gas Transmission, LLC', 'short': 'Algonquin'},
 ]
 
 def fetch_enbridge_capacity(bu_code):
@@ -531,6 +534,9 @@ PIPELINE_HIFLD_MAP = {
     'Southern Natural Gas Company, LLC': ['SOUTHERN NATURAL GAS COMPANY LLC'],
     'Transcontinental Gas Pipe Line Company (Transco)': ['TRANSCONTINENTAL GAS PIPE LINE COMPANY, LLC'],
     'Texas Eastern Transmission, LP': ['TEXAS EASTERN TRANSMISSION'],
+    'Florida Gas Transmission Company, LLC': ['FLORIDA GAS TRANSMISSION COMPANY'],
+    'Colorado Interstate Gas Company, LLC': ['COLORADO INTERSTATE GAS COMPANY'],
+    'Algonquin Gas Transmission, LLC': ['ALGONQUIN GAS TRANSMISSION'],
 }
 
 ZONE_COORDS = {
@@ -556,6 +562,12 @@ ZONE_COORDS = {
         'M1': {'lat': 40.3, 'lng': -75.0, 'state': 'PA/NJ'},
         'M2': {'lat': 40.8, 'lng': -74.0, 'state': 'NJ'},
         'M3': {'lat': 41.2, 'lng': -73.0, 'state': 'CT'},
+    },
+    # Algonquin zones
+    'Algonquin': {
+        'SE': {'lat': 41.0, 'lng': -73.5, 'state': 'CT'},
+        'NE': {'lat': 42.0, 'lng': -72.0, 'state': 'MA'},
+        'AG': {'lat': 41.5, 'lng': -73.0, 'state': 'CT/NY'},
     },
 }
 
