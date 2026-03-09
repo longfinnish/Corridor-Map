@@ -2663,19 +2663,20 @@ searchDrawLayer.eachLayer(function(l){layer=l});
 if(!layer)return null;
 if(layer.getLatLngs){
 var latlngs=layer.getLatLngs()[0];
-return latlngs.map(function(ll){return ll.lng+' '+ll.lat}).join(',');
+var coords=latlngs.map(function(ll){return[ll.lng,ll.lat]});
+coords.push(coords[0]); // close ring
+return JSON.stringify({type:'Polygon',coordinates:[coords]});
 }
 if(layer.getRadius){
 var c=layer.getLatLng();var r=layer.getRadius();
 var pts=[];
-for(var i=0;i<32;i++){
+for(var i=0;i<=32;i++){
 var a=i/32*Math.PI*2;
 var dlat=r/111320*Math.cos(a);
 var dlng=r/(111320*Math.cos(c.lat*Math.PI/180))*Math.sin(a);
-pts.push((c.lng+dlng).toFixed(5)+' '+(c.lat+dlat).toFixed(5));
+pts.push([parseFloat((c.lng+dlng).toFixed(5)),parseFloat((c.lat+dlat).toFixed(5))]);
 }
-pts.push(pts[0]);
-return pts.join(',');
+return JSON.stringify({type:'Polygon',coordinates:[pts]});
 }
 return null;
 }
@@ -2714,20 +2715,16 @@ document.getElementById('srch-go-btn').disabled=true;
 searchResultsLayer.clearLayers();
 
 try{
-// Build search from drawn area center + radius
-var layer=null;searchDrawLayer.eachLayer(function(l){layer=l});
-var b=layer.getBounds();
-var diagMi=haversine(b.getSouth(),b.getWest(),b.getNorth(),b.getEast());
-var radiusM=Math.min(Math.round(diagMi/2*1609.34),50000); // meters, max 50km
-var url='https://app.regrid.com/api/v2/parcels/point?token='+REGRID_TOKEN
-+'&lat='+b.getCenter().lat+'&lon='+b.getCenter().lng
-+'&radius='+radiusM
+// Use Regrid Query endpoint with GeoJSON polygon + server-side acreage filter
+var url='https://app.regrid.com/api/v2/parcels/query?token='+REGRID_TOKEN
++'&geojson='+encodeURIComponent(poly)
++'&fields[ll_gisacre][gte]='+minAcres
 +'&limit=1000';
 var r=await fetch(url);
 var d=await r.json();
 var parcels=d.parcels?d.parcels.features:(d.features||[]);
 
-document.getElementById('srch-status').textContent='Found '+parcels.length+' parcels from Regrid. Filtering by '+minAcres+'+ acres...';
+document.getElementById('srch-status').textContent='Found '+parcels.length+' parcels '+minAcres+'+ acres. Scoring...';
 
 // Load infrastructure data for proximity checks
 var subs=[];var gas=[];
@@ -2828,8 +2825,7 @@ var fema=p.fema_nri_risk_rating||'';
 var zoneType=p.zoning_type||'';
 var lat=parseFloat(p.lat);var lon=parseFloat(p.lon);
 
-// Apply filters
-if(acres<minAcres)return;
+// Apply filters (acreage already filtered server-side by Regrid)
 if(effectiveTxDist>maxTxDist)return;
 if(noRes&&zoneType.toLowerCase().indexOf('resid')>=0)return;
 if(rough>roughFilter&&roughFilter<999)return;
