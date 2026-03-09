@@ -1,0 +1,25 @@
+{
+  "current_date": "2026-03-09",
+  "previous_date": null,
+  "summary": {
+    "total_added": 0,
+    "total_added_mw": 0,
+    "total_dropped": 0,
+    "total_dropped_mw": 0,
+    "total_status_changes": 0
+  },
+  "iso_breakdown": {},
+  "additions": [],
+  "withdrawals": [],
+  "status_changes": [],
+  "developer_activity": {
+    "most_active_adders": [],
+    "most_active_droppers": []
+  },
+  "substation_activity": {
+    "hottest_subs": [],
+    "clearing_subs": []
+  },
+  "narrative": "First snapshot captured. Delta analysis will begin next week.",
+  "total_projects": 4657
+}
