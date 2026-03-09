@@ -360,9 +360,20 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <button class="srch-btn" onclick="clearSearch()" style="background:rgba(239,83,80,0.15);color:#EF5350">&#x2715; Clear</button>
 </div>
 <div class="sf"><label>Min Acreage</label><input type="number" id="sf-acres" value="100" min="0" step="10"></div>
-<div class="sf"><label>Max Distance to 345kV+ Line (mi)</label><input type="number" id="sf-txdist" value="5" min="0" step="1"></div>
+<div class="sf" style="flex-direction:column;align-items:flex-start">
+<label style="margin-bottom:4px">Max Distance to TX Line (mi)</label>
+<div style="display:flex;align-items:center;gap:6px;width:100%">
+<input type="number" id="sf-txdist" value="5" min="0" step="1" style="width:50px">
+<label style="font-size:9px;display:flex;gap:3px;align-items:center"><input type="checkbox" id="sf-v765" checked><span style="color:#9C27B0">765</span></label>
+<label style="font-size:9px;display:flex;gap:3px;align-items:center"><input type="checkbox" id="sf-v500" checked><span style="color:#EF5350">500</span></label>
+<label style="font-size:9px;display:flex;gap:3px;align-items:center"><input type="checkbox" id="sf-v345" checked><span style="color:#4FC3F7">345</span></label>
+<label style="font-size:9px;display:flex;gap:3px;align-items:center"><input type="checkbox" id="sf-v230"><span style="color:#66BB6A">230</span></label>
+<label style="font-size:9px;display:flex;gap:3px;align-items:center"><input type="checkbox" id="sf-v115"><span style="color:#FDD835">115</span></label>
+</div>
+</div>
 <div class="sf"><label>Max Distance to Substation (mi)</label><input type="number" id="sf-subdist" value="10" min="0" step="1"></div>
-<div class="sf"><label>Max Distance to Gas Interconnect (mi)</label><input type="number" id="sf-gasdist" value="10" min="0" step="1"></div>
+<div class="sf"><label>Max Distance to Gas Interconnect (mi)</label><input type="number" id="sf-gasdist" value="25" min="0" step="1"></div>
+<div class="sf"><label>Max Distance to Fiber (mi)</label><input type="number" id="sf-fiberdist" value="25" min="0" step="1"></div>
 <div class="sf"><label>FEMA Risk Rating</label><select id="sf-fema"><option value="">Any</option><option value="low">Low / Relatively Low</option><option value="mod">Moderate or below</option></select></div>
 <div class="sf"><label>Max Roughness</label><select id="sf-rough"><option value="">Any</option><option value="1">1 - Flat</option><option value="2">2 - Gentle</option><option value="3">3 - Moderate</option></select></div>
 <div class="sf"><label>Exclude Residential Zoning</label><label class="tg" style="margin-left:auto"><input type="checkbox" id="sf-nores"><span class="ts"></span></label></div>
@@ -2650,9 +2661,11 @@ var minAcres=parseFloat(document.getElementById('sf-acres').value)||0;
 var maxTxDist=parseFloat(document.getElementById('sf-txdist').value)||999;
 var maxSubDist=parseFloat(document.getElementById('sf-subdist').value)||999;
 var maxGasDist=parseFloat(document.getElementById('sf-gasdist').value)||999;
+var maxFiberDist=parseFloat(document.getElementById('sf-fiberdist').value)||999;
 var femaFilter=document.getElementById('sf-fema').value;
 var roughFilter=parseFloat(document.getElementById('sf-rough').value)||999;
 var noRes=document.getElementById('sf-nores').checked;
+var wantV={765:document.getElementById('sf-v765').checked,500:document.getElementById('sf-v500').checked,345:document.getElementById('sf-v345').checked,230:document.getElementById('sf-v230').checked,115:document.getElementById('sf-v115').checked};
 
 document.getElementById('srch-status').textContent='Querying Regrid...';
 document.getElementById('srch-go-btn').disabled=true;
@@ -2701,7 +2714,36 @@ pls.forEach(function(pl){
 });
 }catch(ge){console.log('Gas data not available');}
 }
-document.getElementById('srch-status').textContent='Loaded '+subs.length+' substations, '+gas.length+' gas points. Querying Regrid...';
+document.getElementById('srch-status').textContent='Loaded '+subs.length+' substations, '+gas.length+' gas points. Loading TX lines & fiber...';
+
+// Load TX lines from HIFLD for the search area for voltage-specific distance
+var txLines=[];
+try{
+var txBounds=b.pad(0.2);
+var txUrl=TXURL+'?where=VOLTAGE>=100&geometry='+txBounds.getWest()+','+txBounds.getSouth()+','+txBounds.getEast()+','+txBounds.getNorth()+'&geometryType=esriGeometryEnvelope&inSR=4326&outFields=VOLTAGE,SUB_1,SUB_2&returnGeometry=true&outSR=4326&f=json&resultRecordCount=2000';
+var txr=await fetch(txUrl);
+var txd=await txr.json();
+if(txd.features){txd.features.forEach(function(f){
+var kv=f.attributes.VOLTAGE||0;
+if(f.geometry&&f.geometry.paths){f.geometry.paths.forEach(function(path){
+path.forEach(function(pt){txLines.push({lat:pt[1],lng:pt[0],kv:kv})});
+})}
+});}
+}catch(te){console.log('TX line data not available');}
+
+// Load fiber routes for proximity
+var fiberPts=[];
+try{
+var fr=await fetch('data/lumen_routes.json');
+var fd=await fr.json();
+if(fd.features){fd.features.forEach(function(f){
+if(f.geometry&&f.geometry.coordinates){
+var coords=f.geometry.type==='MultiLineString'?f.geometry.coordinates.flat():f.geometry.coordinates;
+coords.forEach(function(c,i){if(i%5===0&&c.length>=2)fiberPts.push({lat:c[1],lng:c[0]})});
+}});}
+}catch(fe){console.log('Fiber data not available');}
+
+document.getElementById('srch-status').textContent='Loaded '+subs.length+' subs, '+gas.length+' gas, '+txLines.length+' TX pts, '+fiberPts.length+' fiber pts. Querying Regrid...';
 
 var results=[];
 parcels.forEach(function(f){
@@ -2710,6 +2752,27 @@ var geom=f.geometry;
 var acres=p.ll_gisacre||0;
 var txDistM=p.transmission_line_distance||999999;
 var txDistMi=txDistM*0.000621371;
+
+// Voltage-specific TX distance from our HIFLD data
+var nearTxByV={765:999,500:999,345:999,230:999,115:999};
+if(lat&&lon&&txLines.length>0){
+txLines.forEach(function(t){
+var d=haversine(lat,lon,t.lat,t.lng);
+var vk=t.kv>=700?765:t.kv>=450?500:t.kv>=300?345:t.kv>=200?230:115;
+if(d<nearTxByV[vk])nearTxByV[vk]=d;
+});
+}
+// Find nearest TX line at any selected voltage
+var nearTxSelected=999;var nearTxKV=0;
+for(var vk in wantV){if(wantV[vk]&&nearTxByV[vk]<nearTxSelected){nearTxSelected=nearTxByV[vk];nearTxKV=parseInt(vk)}}
+// Use HIFLD distance if available, else fall back to Regrid's generic distance
+var effectiveTxDist=nearTxSelected<999?nearTxSelected:txDistMi;
+
+// Fiber distance
+var nearFiber=999;
+if(lat&&lon&&fiberPts.length>0){
+fiberPts.forEach(function(f){var d=haversine(lat,lon,f.lat,f.lng);if(d<nearFiber)nearFiber=d});
+}
 var rough=p.roughness_rating||0;
 var fema=p.fema_nri_risk_rating||'';
 var zoneType=p.zoning_type||'';
@@ -2717,11 +2780,12 @@ var lat=parseFloat(p.lat);var lon=parseFloat(p.lon);
 
 // Apply filters
 if(acres<minAcres)return;
-if(txDistMi>maxTxDist)return;
+if(effectiveTxDist>maxTxDist)return;
 if(noRes&&zoneType.toLowerCase().indexOf('resid')>=0)return;
 if(rough>roughFilter&&roughFilter<999)return;
 if(femaFilter==='low'&&fema.indexOf('High')>=0&&fema.indexOf('Relatively')<0)return;
 if(femaFilter==='mod'&&(fema==='Very High'||fema==='Relatively High'))return;
+if(fiberPts.length>0&&nearFiber>maxFiberDist)return;
 
 // Compute distances to our infrastructure
 var nearSub=999;var nearGas=999;var nearGasName='';var nearGasPipe='';var nearGasAvail=0;
@@ -2738,12 +2802,14 @@ results.push({
 owner:p.owner||'Unknown',
 address:p.address||'',
 acres:acres,
-txDist:txDistMi,
+txDist:effectiveTxDist,
+txKV:nearTxKV,
 subDist:nearSub,
 gasDist:nearGas,
 gasName:nearGasName,
 gasPipe:nearGasPipe,
 gasAvail:nearGasAvail,
+fiberDist:nearFiber,
 fema:fema,
 rough:rough,
 elev_high:p.highest_parcel_elevation,
@@ -2753,7 +2819,9 @@ zoning_type:zoneType,
 bldg_count:p.ll_bldg_count||0,
 lat:lat,lon:lon,
 geom:geom,
-path:f.properties.path||''
+path:f.properties.path||'',
+county:p.county||'',
+state:p.state2||''
 });
 });
 
@@ -2771,12 +2839,13 @@ var gasBadge=r.gasDist<3?'sr-badge-good':r.gasDist<7?'sr-badge-warn':'sr-badge-b
 var femaBadge=r.fema.indexOf('Low')>=0?'sr-badge-good':r.fema.indexOf('Moderate')>=0?'sr-badge-warn':'sr-badge-bad';
 
 html+='<div class="sr-item" onclick="zoomResult('+i+')">';
-html+='<div class="sr-item-name">'+r.owner+'</div>';
-html+='<div class="sr-item-detail">'+Math.round(r.acres)+' acres'+( r.address?' &bull; '+r.address:'')+( r.zoning?' &bull; '+r.zoning:'')+'</div>';
+html+='<div style="display:flex;justify-content:space-between;align-items:center"><div class="sr-item-name">'+r.owner+'</div><button class="sr-badge sr-badge-good" style="cursor:pointer;border:none;font-family:inherit" onclick="event.stopPropagation();addToPipeline('+i+')" title="Add to Pipeline">+ Pipeline</button></div>';
+html+='<div class="sr-item-detail">'+Math.round(r.acres)+' acres'+(r.address?' &bull; '+r.address:'')+(r.zoning?' &bull; '+r.zoning:'')+'</div>';
 html+='<div class="sr-item-badges">';
-html+='<span class="sr-badge '+txBadge+'">TX: '+r.txDist.toFixed(1)+'mi</span>';
+html+='<span class="sr-badge '+txBadge+'">TX: '+r.txDist.toFixed(1)+'mi'+(r.txKV?' ('+r.txKV+'kV)':'')+'</span>';
 html+='<span class="sr-badge '+gasBadge+'">Gas: '+r.gasDist.toFixed(1)+'mi</span>';
 html+='<span class="sr-badge">Sub: '+r.subDist.toFixed(1)+'mi</span>';
+if(r.fiberDist<999)html+='<span class="sr-badge '+(r.fiberDist<3?'sr-badge-good':r.fiberDist<10?'sr-badge-warn':'sr-badge-bad')+'">Fiber: '+r.fiberDist.toFixed(1)+'mi</span>';
 if(r.fema)html+='<span class="sr-badge '+femaBadge+'">'+r.fema.replace('Relatively ','Rel ')+'</span>';
 html+='</div></div>';
 
@@ -2785,15 +2854,17 @@ if(r.geom){
 var style={color:'#C4854C',weight:2,fillColor:r.txDist<2?'#66BB6A':'#FF9800',fillOpacity:0.3};
 var gl=L.geoJSON(r.geom,{style:style});
 var popup='<b>'+r.owner+'</b><br>'+Math.round(r.acres)+' acres<br>';
-popup+='<b>TX Line:</b> '+r.txDist.toFixed(1)+' mi<br>';
+popup+='<b>TX Line:</b> '+r.txDist.toFixed(1)+' mi'+(r.txKV?' ('+r.txKV+' kV)':'')+'<br>';
 popup+='<b>Nearest Sub:</b> '+r.subDist.toFixed(1)+' mi<br>';
 popup+='<b>Nearest Gas:</b> '+r.gasDist.toFixed(1)+' mi'+(r.gasPipe?' ('+r.gasPipe+')':'')+'<br>';
 if(r.gasAvail)popup+='<b>Gas Available:</b> '+r.gasAvail.toLocaleString()+' Dth/d<br>';
+if(r.fiberDist<999)popup+='<b>Nearest Fiber:</b> '+r.fiberDist.toFixed(1)+' mi<br>';
 if(r.fema)popup+='<b>FEMA Risk:</b> '+r.fema+'<br>';
 popup+='<b>Roughness:</b> '+r.rough+'<br>';
 if(r.elev_high)popup+='<b>Elevation:</b> '+r.elev_low+"' - "+r.elev_high+"'<br>";
 if(r.bldg_count)popup+='<b>Buildings:</b> '+r.bldg_count+'<br>';
-if(r.zoning)popup+='<b>Zoning:</b> '+r.zoning+(r.zoning_type?' ('+r.zoning_type+')':'');
+if(r.zoning)popup+='<b>Zoning:</b> '+r.zoning+(r.zoning_type?' ('+r.zoning_type+')':'')+'<br>';
+popup+='<br><button onclick="addToPipeline('+i+')" style="background:#C4854C;color:#1B2B3A;border:none;padding:5px 12px;border-radius:3px;font-weight:600;cursor:pointer;font-size:11px">+ Add to Pipeline</button>';
 gl.bindPopup(popup);
 searchResultsLayer.addLayer(gl);
 }
@@ -2811,6 +2882,48 @@ console.error('Search error:',e);
 function zoomResult(i){
 var r=window._searchResults[i];
 if(r&&r.lat&&r.lon)map.setView([r.lat,r.lon],14);
+}
+
+function addToPipeline(i){
+var r=window._searchResults[i];
+if(!r)return;
+// Use existing pipeline CRM if available
+if(typeof openPipeline==='function')openPipeline();
+// Build pipeline entry from search result
+var entry={
+name:r.owner+' - '+Math.round(r.acres)+' ac',
+county:r.county,
+state:r.state,
+acres:Math.round(r.acres),
+lat:r.lat,
+lng:r.lon,
+address:r.address||'',
+zoning:r.zoning||'',
+txDist:r.txDist?r.txDist.toFixed(1)+'mi':'',
+txKV:r.txKV||'',
+subDist:r.subDist?r.subDist.toFixed(1)+'mi':'',
+gasDist:r.gasDist<999?r.gasDist.toFixed(1)+'mi':'',
+gasPipeline:r.gasPipe||'',
+gasAvail:r.gasAvail||0,
+fiberDist:r.fiberDist<999?r.fiberDist.toFixed(1)+'mi':'',
+fema:r.fema||'',
+rough:r.rough||'',
+status:'Prospect',
+source:'Site Search',
+added:new Date().toISOString().split('T')[0]
+};
+// Add to pipeline storage
+var pipeline=JSON.parse(localStorage.getItem('corridor_pipeline')||'[]');
+// Check for duplicate
+var dup=pipeline.some(function(p){return p.lat===entry.lat&&p.lng===entry.lng});
+if(dup){alert('Already in pipeline');return}
+pipeline.push(entry);
+localStorage.setItem('corridor_pipeline',JSON.stringify(pipeline));
+// Add marker to map
+var m=L.marker([r.lat,r.lon],{icon:L.divIcon({className:'',html:'<div style="background:#C4854C;color:#1B2B3A;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;white-space:nowrap;border:1px solid #fff">PIPELINE</div>',iconSize:[60,20],iconAnchor:[30,10]})});
+m.addTo(map);
+alert('Added to pipeline: '+entry.name);
+if(typeof refreshPipeline==='function')refreshPipeline();
 }
 </script>
 </body>
