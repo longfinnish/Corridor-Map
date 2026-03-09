@@ -1385,9 +1385,12 @@ s.ly=L.esri.dynamicMapLayer({
 url:'https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer',
 layers:[28],
 layerDefs:defs,
-opacity:which==='fld100'?0.75:0.65,
-format:'png32',
+opacity:which==='fld100'?0.55:0.45,
+format:'png8',
+minZoom:10,
+maxZoom:16,
 useCors:false,
+updateInterval:400,
 attribution:'FEMA NFHL'
 });
 s.ly.addTo(map);
@@ -1407,8 +1410,12 @@ uLeg();return;
 // Load wetlands raster
 sw.ly=L.esri.imageMapLayer({
 url:'https://fwsprimary.wim.usgs.gov/server/rest/services/Wetlands_Raster/ImageServer',
-opacity:0.75,
+opacity:0.55,
+format:'jpgpng',
+minZoom:10,
+maxZoom:16,
 useCors:false,
+updateInterval:400,
 attribution:'USFWS NWI'
 });
 sw.ly.addTo(map);
