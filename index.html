@@ -2392,9 +2392,7 @@ var date=data.date||'';
 
 nodes.forEach(function(n){
 if(n.type==='zone')return;
-var col=lmpColor(n.avg);
-var priceStr='$'+n.avg.toFixed(2);
-var spread='$'+n.min.toFixed(2)+' - $'+n.max.toFixed(2);
+var col=lmpColor(n.avg_30d||n.avg||0);
 var radius=n.kv>=345?8:n.kv>=230?7:6;
 var c=L.circleMarker([n.lat,n.lng],{
 radius:radius,
@@ -2403,7 +2401,7 @@ color:'rgba(255,255,255,0.5)',
 weight:1.5,
 fillOpacity:0.9
 });
-c.bindPopup('<div style="min-width:180px"><b style="font-size:12px">'+n.sub+'</b><br><span style="font-size:10px;color:rgba(240,237,232,0.5)">'+n.node+'</span>'+(n.kv>0?' &middot; '+n.kv+' kV':'')+'<br><br><span style="font-size:18px;font-weight:700;color:'+col+'">'+priceStr+'<span style="font-size:11px;font-weight:400">/MWh</span></span><br><span style="font-size:10px;color:rgba(240,237,232,0.4)">Range: '+spread+'</span><br><span style="font-size:9px;color:rgba(240,237,232,0.3)">Day-Ahead '+date+'</span></div>');
+c.bindPopup('<div style="min-width:200px"><b style="font-size:13px">'+n.sub+'</b><br><span style="font-size:10px;color:rgba(240,237,232,0.4)">'+n.node+(n.zone?' &middot; '+n.zone:'')+'</span>'+(n.kv>0?' &middot; '+n.kv+' kV':'')+'<br><br><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:rgba(240,237,232,0.4)">30-Day Avg</span><span style="font-size:20px;font-weight:700;color:'+col+'">$'+n.avg_30d.toFixed(2)+'<span style="font-size:11px;font-weight:400">/MWh</span></span></div>'+(n.today?'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">Today Avg</span><span style="color:#F0EDE8;font-weight:500">$'+n.today.toFixed(2)+'/MWh</span></div>':'')+'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">30d Range</span><span style="color:rgba(240,237,232,0.6)">$'+n.min_30d.toFixed(2)+' - $'+n.max_30d.toFixed(2)+'</span></div>'+(n.std_30d?'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">Volatility (σ)</span><span style="color:rgba(240,237,232,0.6)">$'+n.std_30d.toFixed(2)+'</span></div>':'')+'<div style="font-size:9px;color:rgba(240,237,232,0.25);margin-top:6px">Day-Ahead SPP &middot; '+date+'</div></div>');
 lmpLayer.addLayer(c);
 });
 lmpLayer.addTo(map);
