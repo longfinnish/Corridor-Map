@@ -2684,17 +2684,20 @@ sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.nam
 }catch(se){console.log('Substation data not available');}
 // Get gas data
 if(window.gasIxData){
-window.gasIxData.forEach(function(pl){
-pl.points.forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
+var gpls=Array.isArray(window.gasIxData)?window.gasIxData:(window.gasIxData.pipelines||[]);
+gpls.forEach(function(pl){
+(pl.points||[]).forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
 });
 }
 if(gas.length===0){
 try{
 var gr=await fetch('data/gas_interconnects.json');
 var gd=await gr.json();
-window.gasIxData=gd;
-gd.forEach(function(pl){
-pl.points.forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
+var pls=gd.pipelines||gd;
+if(!Array.isArray(pls))pls=[pls];
+window.gasIxData=pls;
+pls.forEach(function(pl){
+(pl.points||[]).forEach(function(p){if(p.lat&&p.lng)gas.push({lat:p.lat,lng:p.lng,avail:p.available||0,name:p.name,pipeline:pl.short})});
 });
 }catch(ge){console.log('Gas data not available');}
 }
