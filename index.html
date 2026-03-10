@@ -158,6 +158,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .sf label{font-size:10.5px;color:rgba(240,237,232,0.6);flex:1}
 .sf input[type=number],.sf select{width:70px;background:rgba(240,237,232,0.08);border:1px solid rgba(240,237,232,0.15);color:#F0EDE8;font-size:11px;padding:4px 6px;border-radius:3px;font-family:'DM Sans',sans-serif;text-align:right}
 .sf select{width:auto;min-width:70px;text-align:left}
+.sf select option{background:#1B2B3A;color:#F0EDE8}
 .srch-go{width:100%;margin-top:12px;padding:10px;background:#C4854C;color:#1B2B3A;border:none;border-radius:5px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'DM Sans',sans-serif}
 .srch-go:disabled{opacity:0.4;cursor:not-allowed}
 .srch-go:not(:disabled):hover{background:#D4955C}
@@ -3052,7 +3053,7 @@ async function runPowerScan(){
   try{
     var sr=await fetch('data/capacity_screening.json');
     var sd=await sr.json();
-    sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0,cap_mw:s.cap_mw||0})});
+    sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0,safe_mw:s.safe_mw||0,load:s.existing_load||0})});
   }catch(e){}
 
   status.textContent='Scanning '+window.gasIxData.pipelines.length+' pipelines...';
@@ -3132,8 +3133,9 @@ async function runPowerScan(){
       }
       var gridMW=0;var subInfo='';
       if(nearestSub&&nearestSubDist<15){
-        gridMW=nearestSub.cap_mw||100;// Synthetic estimate until CEII
-        subInfo=nearestSub.name+' ('+nearestSubDist.toFixed(1)+' mi)';
+        gridMW=nearestSub.safe_mw||100;// Synthetic safe injection MW until CEII
+        if(gridMW>1000)gridMW=Math.min(gridMW,500);// Cap synthetic estimates at 500 MW
+        subInfo=nearestSub.name+' ('+nearestSubDist.toFixed(1)+' mi, '+nearestSub.kv+' kV)';
       }
 
       var combinedMW=gasMW+gridMW;
