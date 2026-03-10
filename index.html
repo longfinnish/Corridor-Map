@@ -364,7 +364,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="sf"><label>Min Combined MW</label><select id="ps-minmw"><option value="100">100 MW</option><option value="300" selected>300 MW</option><option value="500">500 MW</option><option value="1000">1,000 MW</option></select></div>
 <div class="sf"><label>Region</label><select id="ps-region"><option value="all">All (ERCOT/MISO/SPP)</option><option value="ERCOT">ERCOT (Texas)</option><option value="MISO">MISO</option><option value="SPP">SPP</option></select></div>
 <div class="sf"><label>Near Hyperscaler</label><select id="ps-hyper"><option value="">Any location</option><option value="Google">Google campuses</option><option value="AWS">AWS campuses</option><option value="Meta">Meta campuses</option><option value="Microsoft">Microsoft campuses</option></select></div>
-<div class="sf"><label>Max Distance from DC (mi)</label><input type="number" id="ps-dcdist" value="30" min="5" max="100" step="5"></div>
+<div class="sf"><label>Max Distance from DC (mi)</label><input type="number" id="ps-dcdist" value="50" min="5" max="150" step="5"></div>
 <button class="srch-go" onclick="runPowerScan()" id="ps-go-btn">&#x26A1; Scan for Power</button>
 <div id="ps-status" style="font-size:11px;color:rgba(240,237,232,0.4);margin-top:8px;min-height:14px"></div>
 <div id="ps-results" style="margin-top:8px;max-height:400px;overflow-y:auto"></div>
