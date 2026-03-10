@@ -2,7 +2,6 @@ name: IOC Manual Refresh Reminder
 
 on:
   schedule:
-    # Quarterly: Jan 3, Apr 3, Jul 3, Oct 3 at 9am CT (14:00 UTC)
     - cron: '0 14 3 1,4,7,10 *'
   workflow_dispatch:
 
@@ -23,38 +22,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `IOC Quarterly Refresh — ${quarter} ${year}`,
-              labels: ['data-refresh', 'manual'],
-              body: `## Quarterly IOC Refresh Due
-
-New Index of Customers filings should be available. Export and upload to Claude for processing.
-
-### Kinder Morgan (5 pipelines — manual Excel export)
-
-1. [El Paso Natural Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=EPNG)
-2. [Tennessee Gas Pipeline](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TGP)
-3. [NGPL](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=NGPL)
-4. [Southern Natural Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=SNG)
-5. [Colorado Interstate Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=CIG)
-
-**Steps:** Click each link → Index of Customers in left tree → Export to Excel → Upload all 5 files to Claude
-
-### Northern Natural Gas (manual CSV download)
-
-6. [NNG Index of Customers](https://www.northernnaturalgas.com/infopostings/Pages/IndexOfCustomers.aspx)
-7. [NNG Locations](https://www.northernnaturalgas.com/infopostings/Pages/Locations.aspx)
-
-**Steps:** Download CSV from each page → Upload to Claude
-
-### Automated (no action needed)
-These refresh daily via GitHub Actions:
-- Panhandle Eastern, Trunkline, Florida Gas, Transwestern, Tiger, Sea Robin, Rover, Enable MRT (ET iPost)
-- Texas Eastern (Enbridge Link)
-- Southern Star (CSI API)
-
-### Not Yet Automated (future)
-- ANR Pipeline, Columbia Gas, Columbia Gulf, Northern Border — [TC Energy portal](https://ebb.tceconnects.com/infopost/) (login required)
-
----
-*Current coverage: 19 pipelines | 6,088 contracts | 1,454 expiring 2026-27 | 28.7M Dth/d (~351 GW CC equiv)*
-            `
+              body: `## Quarterly IOC Refresh Due\n\nNew Index of Customers filings should be available. Export and upload to Claude for processing.\n\n### Kinder Morgan (5 pipelines — manual Excel export)\n\n1. [El Paso Natural Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=EPNG)\n2. [Tennessee Gas Pipeline](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TGP)\n3. [NGPL](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=NGPL)\n4. [Southern Natural Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=SNG)\n5. [Colorado Interstate Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=CIG)\n\n**Steps:** Click each link → Index of Customers in left tree → Export to Excel → Upload all 5 files to Claude\n\n### Northern Natural Gas (manual CSV download)\n\n6. [NNG Index of Customers](https://www.northernnaturalgas.com/infopostings/Pages/IndexOfCustomers.aspx)\n7. [NNG Locations](https://www.northernnaturalgas.com/infopostings/Pages/Locations.aspx)\n\n**Steps:** Download CSV from each page → Upload to Claude\n\n### Automated (no action needed)\nThese refresh daily via GitHub Actions:\n- Panhandle Eastern, Trunkline, Florida Gas, Transwestern, Tiger, Sea Robin, Rover, Enable MRT (ET iPost)\n- Texas Eastern (Enbridge Link)\n- Southern Star (CSI API)\n\n### Not Yet Automated (future)\n- ANR Pipeline, Columbia Gas, Columbia Gulf, Northern Border — TC Energy portal (login required)\n\n---\n*Current coverage: 21 pipelines | 5,656 contracts | 1,491 expiring 2026-27 | 30.9M Dth/d (~377 GW CC equiv)*`
             });
