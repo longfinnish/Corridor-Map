@@ -3051,18 +3051,26 @@ function executePowerScan(btn,status,results){
   var iocRef=window.psIocData;
   var subData=window.psSubData||[];
 
+  console.log('PS: gasData=',!!gasData,'unsubData=',!!unsubData,'iocRef=',!!iocRef,'subData=',subData.length);
+
   if(!gasData||!gasData.pipelines){
     status.textContent='ERROR: gas data not loaded';
     btn.disabled=false;btn.textContent='\u26A1 Scan for Power';return;
   }
 
+  console.log('PS: pipelines=',gasData.pipelines.length);
+
   var subs=[];
   subData.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0,safe_mw:s.safe_mw||0})});
+
+  console.log('PS: subs=',subs.length);
 
   var minMW=parseInt(document.getElementById('ps-minmw').value)||300;
   var region=document.getElementById('ps-region').value;
   var hyperscaler=document.getElementById('ps-hyper').value;
   var maxDCDist=parseInt(document.getElementById('ps-dcdist').value)||30;
+
+  console.log('PS: minMW=',minMW,'region=',region,'hyperscaler=',hyperscaler);
 
   // Load DC locations if hyperscaler filter set
   var dcLocs=[];
@@ -3099,8 +3107,11 @@ function executePowerScan(btn,status,results){
   var scanned=0;
 
   try{
+  var loopCount=0;
   pipelines.forEach(function(pl){
     var pipeName=pl.short||pl.name;
+    loopCount++;
+    if(loopCount<=2)console.log('PS loop: pipe=',pipeName,'points=',pl.points.length);
     
     // Get IOC data for this pipeline
     var pipeIOC=null;
@@ -3197,10 +3208,13 @@ function executePowerScan(btn,status,results){
     });
   });
   }catch(scanErr){
+    console.log('PS ERROR:',scanErr.message,scanErr.stack);
     status.textContent='ERROR: '+scanErr.message;
     btn.disabled=false;btn.textContent='\u26A1 Scan for Power';
     return;
   }
+
+  console.log('PS: loop done, candidates=',candidates.length,'scanned=',scanned);
 
   // Sort by combined MW descending
   candidates.sort(function(a,b){return b.combinedMW-a.combinedMW});
