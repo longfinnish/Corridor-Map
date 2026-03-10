@@ -990,6 +990,7 @@ map.on('click',function(e){
 if(mOn)return;
 if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<14)return;
 if(e.originalEvent&&e.originalEvent.target.closest('.leaflet-popup'))return;
+if(e.originalEvent&&e.originalEvent.target.closest('path'))return;
 var now=Date.now();if(now-_rgLast<1200)return;
 _rgLast=now;
 // Resolve county via ArcGIS spatial query
