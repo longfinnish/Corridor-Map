@@ -2365,7 +2365,7 @@ function screenGas(lat, lng) {
           dist: d, name: p.name, pipeline: pl.short||pl.name,
           type: p.type, design: p.design||0, available: p.available||0,
           utilization: p.utilization||0, state: p.state, county: p.county,
-          lat: p.lat, lng: p.lng
+          lat: p.lat, lng: p.lng, id: p.id||''
         });
       }
     });
@@ -2406,26 +2406,54 @@ function screenGas(lat, lng) {
       h += '<div class="pf-stat"><span class="pf-stat-label">Available</span><span class="pf-stat-value" style="color:'+availCol+'">'+n.available.toLocaleString()+' Dth/d (~'+availMw+' MW CC)</span></div>';
     }
     
-    // IOC for this pipeline — try point-level first, then pipeline-level
+    // IOC for this pipeline — try point-level first (by ID), then pipeline-level
     var pd = pipeIoc[n.pipeline];
     if(pd){
-      // Try to match contracts to this specific point
+      // Try to match contracts to this specific point by location ID
       var pointContracts = [];
-      var pointName = n.name.toUpperCase().replace(/\s+/g,' ').trim();
-      if(pd.contracts){
+      var gasId = String(nearby[0].id||'').trim();
+      // Also try for other nearby points on same pipeline
+      var nearbyIds = nearby.filter(function(g){return g.pipeline===n.pipeline}).map(function(g){return String(g.id||'').trim()}).filter(function(id){return id&&id!=='0'});
+      
+      if(pd.contracts && nearbyIds.length > 0){
         pd.contracts.forEach(function(c){
           if(!c.points) return;
+          var matched = false;
           c.points.forEach(function(cp){
-            var cpName = (cp.name||'').toUpperCase().replace(/\s+/g,' ').trim();
-            // Match if point name contains or is contained by the gas interconnect name
-            if(cpName && pointName && (cpName.indexOf(pointName)>=0 || pointName.indexOf(cpName)>=0 || 
-               // Also try matching first significant word
-               (pointName.split(' ')[0].length>3 && cpName.indexOf(pointName.split(' ')[0])>=0))){
-              pointContracts.push({shipper:c.shipper, mdq:c.mdq, end:c.end, status:c.status, ptMdq:cp.mdq});
+            if(matched) return;
+            var cpId = String(cp.id||'').trim();
+            if(cpId && nearbyIds.indexOf(cpId) >= 0){
+              pointContracts.push({shipper:c.shipper, mdq:c.mdq, end:c.end, status:c.status, ptMdq:cp.mdq, ptName:cp.name});
+              matched = true;
             }
           });
         });
       }
+      
+      // Fallback: try name matching if no ID matches
+      if(pointContracts.length === 0 && pd.contracts){
+        var pointName = (nearby[0].name||'').toUpperCase().replace(/\s+/g,' ').trim();
+        if(pointName.length > 5){
+          pd.contracts.forEach(function(c){
+            if(!c.points) return;
+            c.points.forEach(function(cp){
+              var cpName = (cp.name||'').toUpperCase().replace(/\s+/g,' ').trim();
+              if(cpName && pointName && cpName.length > 5 && (cpName.indexOf(pointName)>=0 || pointName.indexOf(cpName)>=0)){
+                pointContracts.push({shipper:c.shipper, mdq:c.mdq, end:c.end, status:c.status, ptMdq:cp.mdq, ptName:cp.name});
+              }
+            });
+          });
+        }
+      }
+      
+      // Deduplicate by contract
+      var seen = {};
+      pointContracts = pointContracts.filter(function(c){
+        var key = c.shipper+'|'+c.end+'|'+c.mdq;
+        if(seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
       
       var pointExpiring = pointContracts.filter(function(c){return c.status==='expiring_soon'});
       
