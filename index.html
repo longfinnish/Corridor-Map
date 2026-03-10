@@ -2576,7 +2576,7 @@ function screenGrid(lat, lng) {
     var gh = '';
     if(nearSubs.length === 0){
       if(nearAnySubs.length > 0){
-        var ns = nearAnySubs.find(function(s){return s.name && s.name.indexOf('UNKNOWN')<0}) || nearAnySubs[0];
+        var ns = nearAnySubs[0];
         result.nearestSub = ns;
         gh += '<div class="pf-stat"><span class="pf-stat-label">Nearest Substation</span><span class="pf-stat-value">'+ns.name+'</span></div>';
         gh += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+ns.dist.toFixed(1)+' mi</span></div>';
@@ -2586,8 +2586,7 @@ function screenGrid(lat, lng) {
         gh = '<div style="color:rgba(240,237,232,0.3);font-size:11px">No substations within 30 miles</div>';
       }
     } else {
-      // Prefer named substations over UNKNOWN ones
-      var ns = nearSubs.find(function(s){return s.name && s.name.indexOf('UNKNOWN')<0}) || nearSubs[0];
+      var ns = nearSubs[0];
       result.nearestSub = ns;
       
       gh += '<div class="pf-stat"><span class="pf-stat-label">Nearest 345kV+ Sub</span><span class="pf-stat-value">'+ns.name+'</span></div>';
