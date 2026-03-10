@@ -213,6 +213,8 @@ def main():
         ('TW', 'https://twtransfer.energytransfer.com/ipost', 'Transwestern'),
         ('TGR', 'https://tigertransfer.energytransfer.com/ipost', 'Tiger'),
         ('SPC', 'https://spcmessenger.energytransfer.com/ipost', 'Sea Robin'),
+        ('ROVER', 'https://pipelines.energytransfer.com/ipost', 'Rover Pipeline'),
+        ('MRT', 'https://pipelines.energytransfer.com/ipost', 'Enable MRT'),
     ]
     
     for asset, base, name in et_pipes:
@@ -263,3 +265,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
