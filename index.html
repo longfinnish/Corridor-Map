@@ -357,6 +357,18 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div><!-- end panel-layers -->
 <div id="panel-search" class="panel-content">
 <div style="padding:12px 16px">
+<div style="font-size:10px;font-weight:700;color:#C4854C;letter-spacing:1.5px;margin-bottom:8px">POWER SCAN</div>
+<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:10px">Find the best sites by combined gas + grid power potential.</div>
+<div class="sf"><label>Min Combined MW</label><select id="ps-minmw"><option value="100">100 MW</option><option value="300" selected>300 MW</option><option value="500">500 MW</option><option value="1000">1,000 MW</option></select></div>
+<div class="sf"><label>Region</label><select id="ps-region"><option value="all">All (ERCOT/MISO/SPP)</option><option value="ERCOT">ERCOT (Texas)</option><option value="MISO">MISO</option><option value="SPP">SPP</option></select></div>
+<div class="sf"><label>Near Hyperscaler</label><select id="ps-hyper"><option value="">Any location</option><option value="Google">Google campuses</option><option value="AWS">AWS campuses</option><option value="Meta">Meta campuses</option><option value="Microsoft">Microsoft campuses</option></select></div>
+<div class="sf"><label>Max Distance from DC (mi)</label><input type="number" id="ps-dcdist" value="30" min="5" max="100" step="5"></div>
+<button class="srch-go" onclick="runPowerScan()" id="ps-go-btn">&#x26A1; Scan for Power</button>
+<div id="ps-status" style="font-size:11px;color:rgba(240,237,232,0.4);margin-top:8px;min-height:14px"></div>
+<div id="ps-results" style="margin-top:8px;max-height:400px;overflow-y:auto"></div>
+</div>
+<hr style="border:none;border-top:1px solid rgba(240,237,232,0.08);margin:0 16px">
+<div style="padding:12px 16px">
 <div style="font-size:10px;font-weight:700;color:#C4854C;letter-spacing:1.5px;margin-bottom:8px">SITE SEARCH</div>
 <div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:12px">Draw an area on the map, set filters, then search for qualifying parcels.</div>
 <div style="display:flex;gap:6px;margin-bottom:12px">
@@ -2990,6 +3002,224 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
       + '<div style="font-size:10px;color:rgba(240,237,232,0.25);margin-top:8px">Corridor Intelligence \u2022 Pre-feasibility screening \u2022 Not a formal interconnection study</div>'
       + '</div>';
   }
+}
+
+
+// ===== POWER SCAN — Find best sites by combined gas + grid potential =====
+async function runPowerScan(){
+  var btn=document.getElementById('ps-go-btn');
+  var status=document.getElementById('ps-status');
+  var results=document.getElementById('ps-results');
+  btn.disabled=true;btn.textContent='Scanning...';
+  status.textContent='Loading gas data...';
+  results.innerHTML='';
+
+  // Ensure gas data is loaded
+  if(!window.gasIxData){
+    try{
+      var gr=await fetch('data/gas_interconnects.json');
+      window.gasIxData=await gr.json();
+    }catch(e){status.textContent='ERROR: Could not load gas data';btn.disabled=false;btn.textContent='\u26A1 Scan for Power';return}
+  }
+  if(!window.unsubData){
+    try{var ur=await fetch('data/unsub_capacity.json');window.unsubData=await ur.json()}catch(e){}
+  }
+  if(!iocData){
+    try{var ir=await fetch('data/ioc_contracts.json');iocData=await ir.json()}catch(e){}
+  }
+
+  var minMW=parseInt(document.getElementById('ps-minmw').value)||300;
+  var region=document.getElementById('ps-region').value;
+  var hyperscaler=document.getElementById('ps-hyper').value;
+  var maxDCDist=parseInt(document.getElementById('ps-dcdist').value)||30;
+
+  // Load DC locations if hyperscaler filter set
+  var dcLocs=[];
+  if(hyperscaler){
+    status.textContent='Loading data center locations...';
+    try{
+      var dr=await fetch('data/datacenters.json');
+      var dcs=await dr.json();
+      dcLocs=dcs.filter(function(d){
+        var co=(d.Company_Name||d.company||'').toLowerCase();
+        return co.indexOf(hyperscaler.toLowerCase())>=0;
+      });
+    }catch(e){}
+  }
+
+  // Load substations for grid scoring
+  var subs=[];
+  try{
+    var sr=await fetch('data/capacity_screening.json');
+    var sd=await sr.json();
+    sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0,cap_mw:s.cap_mw||0})});
+  }catch(e){}
+
+  status.textContent='Scanning '+window.gasIxData.pipelines.length+' pipelines...';
+
+  // Helper
+  function haversineMi(lat1,lng1,lat2,lng2){
+    var R=3959;var dLat=(lat2-lat1)*Math.PI/180;var dLng=(lng2-lng1)*Math.PI/180;
+    var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  }
+
+  // Scan all gas points
+  var candidates=[];
+  var pipelines=window.gasIxData.pipelines||[];
+
+  pipelines.forEach(function(pl){
+    var pipeName=pl.short||pl.name;
+    
+    // Get IOC data for this pipeline
+    var pipeIOC=null;
+    if(iocData&&iocData.pipelines){
+      pipeIOC=iocData.pipelines[pipeName];
+      if(!pipeIOC){
+        for(var k in iocData.pipelines){
+          if(k.toLowerCase().indexOf(pipeName.toLowerCase().substring(0,10))>=0||pipeName.toLowerCase().indexOf(k.toLowerCase().substring(0,10))>=0){
+            pipeIOC=iocData.pipelines[k];break;
+          }
+        }
+      }
+    }
+
+    // Get unsub data for this pipeline
+    var pipeUnsub=null;
+    if(window.unsubData&&window.unsubData.pipelines){
+      for(var uk in window.unsubData.pipelines){
+        if(pipeName.toLowerCase().indexOf(uk.toLowerCase().substring(0,8))>=0||uk.toLowerCase().indexOf(pipeName.toLowerCase().substring(0,8))>=0){
+          pipeUnsub=window.unsubData.pipelines[uk];break;
+        }
+      }
+    }
+
+    pl.points.forEach(function(p){
+      if(!p.lat||!p.lng)return;
+
+      // Hyperscaler proximity filter
+      if(hyperscaler&&dcLocs.length>0){
+        var nearDC=false;
+        for(var di=0;di<dcLocs.length;di++){
+          var dc=dcLocs[di];
+          var dlat=dc.lat||dc.Latitude||0;var dlng=dc.lng||dc.Longitude||0;
+          if(dlat&&dlng&&haversineMi(p.lat,p.lng,dlat,dlng)<=maxDCDist){nearDC=true;break}
+        }
+        if(!nearDC)return;
+      }
+
+      // Gas MW calculation
+      var unsubDthd=0;
+      if(pipeUnsub){
+        var ptId=String(p.id||'').trim();
+        if(ptId&&pipeUnsub[ptId]!==undefined)unsubDthd=pipeUnsub[ptId];
+      }
+      var unsubMW=Math.round(unsubDthd/24*0.293);
+
+      var expiringMdq=0;var expiringCount=0;
+      if(pipeIOC){expiringMdq=pipeIOC.expiring_mdq||0;expiringCount=pipeIOC.expiring_count||0}
+      var expiringMW=Math.round(expiringMdq/24*0.293);
+
+      var availMW=Math.round((p.available||p.design||0)/24*0.293);
+      var gasMW=Math.max(unsubMW,availMW);
+
+      // Grid MW — find nearest substation
+      var nearestSub=null;var nearestSubDist=999;
+      for(var si=0;si<subs.length;si++){
+        var s=subs[si];
+        var sd=haversineMi(p.lat,p.lng,s.lat,s.lng);
+        if(sd<nearestSubDist){nearestSubDist=sd;nearestSub=s}
+      }
+      var gridMW=0;var subInfo='';
+      if(nearestSub&&nearestSubDist<15){
+        gridMW=nearestSub.cap_mw||100;// Synthetic estimate until CEII
+        subInfo=nearestSub.name+' ('+nearestSubDist.toFixed(1)+' mi)';
+      }
+
+      var combinedMW=gasMW+gridMW;
+      if(combinedMW<minMW)return;
+
+      // Region filter
+      if(region!=='all'){
+        // Simple state-based region check
+        var ercotStates=['TX'];
+        var sppStates=['OK','KS','NE','AR','NM','SD','ND'];
+        var misoStates=['IA','MN','WI','IL','IN','MI','MO','MS','LA','KY','TN','OH'];
+        var st=p.state||'';
+        if(region==='ERCOT'&&ercotStates.indexOf(st)<0)return;
+        if(region==='SPP'&&sppStates.indexOf(st)<0)return;
+        if(region==='MISO'&&misoStates.indexOf(st)<0)return;
+      }
+
+      candidates.push({
+        name:p.name,pipeline:pipeName,lat:p.lat,lng:p.lng,
+        state:p.state||'',county:p.county||'',
+        gasMW:gasMW,gridMW:gridMW,combinedMW:combinedMW,
+        unsubDthd:unsubDthd,unsubMW:unsubMW,
+        expiringMdq:expiringMdq,expiringMW:expiringMW,expiringCount:expiringCount,
+        availMW:availMW,
+        subName:subInfo,subDist:nearestSubDist,
+        design:p.design||0,available:p.available||0,
+      });
+    });
+  });
+
+  // Sort by combined MW descending
+  candidates.sort(function(a,b){return b.combinedMW-a.combinedMW});
+
+  // Deduplicate nearby points (within 2 miles, keep highest)
+  var deduped=[];var used=new Set();
+  candidates.forEach(function(c){
+    var dominated=false;
+    for(var di=0;di<deduped.length;di++){
+      if(haversineMi(c.lat,c.lng,deduped[di].lat,deduped[di].lng)<2){dominated=true;break}
+    }
+    if(!dominated)deduped.push(c);
+  });
+
+  var top=deduped.slice(0,30);
+
+  btn.disabled=false;btn.textContent='\u26A1 Scan for Power';
+  status.textContent='Found '+deduped.length+' sites meeting '+minMW+' MW minimum. Showing top '+top.length+'.';
+
+  if(top.length===0){
+    results.innerHTML='<div style="color:rgba(240,237,232,0.3);font-size:12px;padding:8px 0">No sites found matching criteria. Try lowering the MW threshold or expanding the region.</div>';
+    return;
+  }
+
+  var h='';
+  top.forEach(function(c,idx){
+    var gasCol=c.unsubMW>0?'#66BB6A':'#FDD835';
+    h+='<div onclick="flyToScan('+c.lat+','+c.lng+')" style="padding:10px 8px;border-bottom:1px solid rgba(240,237,232,0.06);cursor:pointer;transition:background 0.15s" onmouseover="this.style.background=\'rgba(196,133,76,0.1)\'" onmouseout="this.style.background=\'none\'">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center">';
+    h+='<span style="font-size:11px;font-weight:700;color:#C4854C">#'+(idx+1)+'</span>';
+    h+='<span style="font-size:14px;font-weight:700;color:#F0EDE8">'+c.combinedMW.toLocaleString()+' MW</span>';
+    h+='</div>';
+    h+='<div style="font-size:12px;font-weight:600;color:#F0EDE8;margin-top:2px">'+c.name.substring(0,35)+'</div>';
+    h+='<div style="font-size:11px;color:#00E5FF">'+c.pipeline+'</div>';
+    h+='<div style="font-size:10px;color:rgba(240,237,232,0.4)">'+c.county+', '+c.state+'</div>';
+    h+='<div style="display:flex;gap:12px;margin-top:4px;font-size:11px">';
+    h+='<span style="color:'+gasCol+'">Gas: '+c.gasMW.toLocaleString()+' MW</span>';
+    h+='<span style="color:#4FC3F7">Grid: ~'+c.gridMW.toLocaleString()+' MW</span>';
+    h+='</div>';
+    if(c.unsubMW>0){
+      h+='<div style="font-size:10px;color:#66BB6A;margin-top:2px">'+c.unsubDthd.toLocaleString()+' Dth/d unsubscribed (contractable now)</div>';
+    }
+    if(c.expiringCount>0){
+      h+='<div style="font-size:10px;color:#FDD835;margin-top:1px">'+c.expiringCount+' contracts expiring ('+c.expiringMdq.toLocaleString()+' Dth/d pipeline-wide)</div>';
+    }
+    if(c.subName){
+      h+='<div style="font-size:10px;color:rgba(240,237,232,0.3);margin-top:1px">Sub: '+c.subName+'</div>';
+    }
+    h+='</div>';
+  });
+  results.innerHTML=h;
+}
+
+function flyToScan(lat,lng){
+  map.flyTo([lat,lng],12);
+  // Auto-trigger screening
+  setTimeout(function(){screenSite(lat,lng)},500);
 }
 
 
