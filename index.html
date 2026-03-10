@@ -2324,13 +2324,9 @@ async function screenSite(lat, lng, triggerBtn) {
   var plannedResult = await screenPlannedTX(lat, lng);
   document.getElementById('si-planned').innerHTML = plannedResult.html;
 
-  // ===== PARCELS (async Regrid API call) =====
-  document.getElementById('si-parcels').innerHTML = '<div class="pf-section"><div class="pf-section-title">PARCELS</div><div class="pf-loading" style="padding:20px 0"><div class="spinner"></div><span>Querying Regrid...</span></div></div>';
-  screenParcels(lat, lng).then(function(parcelResult){
-    document.getElementById('si-parcels').innerHTML = parcelResult.html;
-    // Build summary sentence after all data is in
-    buildSummary(lat, lng, gasResult, gridResult, lmpResult, queueResult, plannedResult, parcelResult);
-  });
+  // ===== PARCELS — removed from screening (use Site Search instead) =====
+  document.getElementById('si-parcels').innerHTML = '';
+  buildSummary(lat, lng, gasResult, gridResult, lmpResult, queueResult, plannedResult, {count300ac:0, noFlood:0});
 
   // Update header
   barSub.textContent = (gridResult.nearestSub ? gridResult.nearestSub.name + ' area' : lat.toFixed(3)+', '+lng.toFixed(3));
