@@ -2842,7 +2842,7 @@ var txDistM=p.transmission_line_distance||999999;
 var txDistMi=txDistM*0.000621371;
 
 // Voltage-specific TX distance from our HIFLD data
-var lat=parseFloat(p.lat);var lon=parseFloat(p.lon);
+var lat=parseFloat(p.lat);var lon=parseFloat(p.lon);if(isNaN(lat)||isNaN(lon))console.log('NaN LAT/LON',(p.owner||'?'),Math.round(acres)+'ac','lat:'+p.lat,'lon:'+p.lon);
 var nearTxByV={765:999,500:999,345:999,230:999,115:999};
 if(lat&&lon&&txLines.length>0){
 txLines.forEach(function(t){
@@ -2867,12 +2867,13 @@ var fema=p.fema_nri_risk_rating||'';
 var zoneType=p.zoning_type||'';
 
 // Apply filters (acreage already filtered server-side by Regrid)
-if(effectiveTxDist>maxTxDist)return;
-if(noRes&&zoneType.toLowerCase().indexOf('resid')>=0)return;
-if(rough>roughFilter&&roughFilter<999)return;
-if(femaFilter==='low'&&fema.indexOf('High')>=0&&fema.indexOf('Relatively')<0)return;
-if(femaFilter==='mod'&&(fema==='Very High'||fema==='Relatively High'))return;
-if(fiberPts.length>0&&nearFiber>maxFiberDist)return;
+var _own=p.owner||'?';var _ac=Math.round(acres);
+if(effectiveTxDist>maxTxDist){console.log('FILTERED',_own,_ac+'ac','TX:'+effectiveTxDist.toFixed(1)+'>'+maxTxDist);return}
+if(noRes&&zoneType.toLowerCase().indexOf('resid')>=0){console.log('FILTERED',_own,_ac+'ac','RESIDENTIAL');return}
+if(rough>roughFilter&&roughFilter<999){console.log('FILTERED',_own,_ac+'ac','ROUGH:'+rough+'>'+roughFilter);return}
+if(femaFilter==='low'&&fema.indexOf('High')>=0&&fema.indexOf('Relatively')<0){console.log('FILTERED',_own,_ac+'ac','FEMA:'+fema);return}
+if(femaFilter==='mod'&&(fema==='Very High'||fema==='Relatively High')){console.log('FILTERED',_own,_ac+'ac','FEMA:'+fema);return}
+if(fiberPts.length>0&&nearFiber>maxFiberDist){console.log('FILTERED',_own,_ac+'ac','FIBER:'+nearFiber.toFixed(1)+'>'+maxFiberDist);return}
 
 // Compute distances to our infrastructure
 var nearSub=999;var nearGas=999;var nearGasName='';var nearGasPipe='';var nearGasAvail=0;
@@ -2882,8 +2883,8 @@ if(gas.length>0)gas.forEach(function(g){var d=haversine(lat,lon,g.lat,g.lng);if(
 }
 
 // Only apply sub/gas distance filters if data is loaded
-if(subs.length>0&&nearSub>maxSubDist)return;
-if(gas.length>0&&nearGas>maxGasDist)return;
+if(subs.length>0&&nearSub>maxSubDist){console.log('FILTERED',_own,_ac+'ac','SUB:'+nearSub.toFixed(1)+'>'+maxSubDist);return}
+if(gas.length>0&&nearGas>maxGasDist){console.log('FILTERED',_own,_ac+'ac','GAS:'+nearGas.toFixed(1)+'>'+maxGasDist);return}
 
 results.push({
 owner:p.owner||'Unknown',
