@@ -3031,6 +3031,10 @@ function runPowerScan(){
     promises.push(fetch('data/capacity_screening.json').then(function(r){return r.json()}).then(function(d){window.psSubData=d}));
   }
 
+  if(!window.psDCData){
+    promises.push(fetch('data/datacenters.json').then(function(r){return r.json()}).then(function(d){window.psDCData=d}));
+  }
+
   Promise.all(promises).then(function(){
     status.textContent='Data loaded. Running scan...';
     try{
@@ -3072,21 +3076,15 @@ function executePowerScan(btn,status,results){
 
   console.log('PS: minMW=',minMW,'region=',region,'hyperscaler=',hyperscaler);
 
-  // Load DC locations if hyperscaler filter set
+  // DC locations for hyperscaler filter
   var dcLocs=[];
-  if(hyperscaler){
-    // Load synchronously from already-fetched or skip
-    try{
-      var xhr=new XMLHttpRequest();
-      xhr.open('GET','data/datacenters.json',false);
-      xhr.send();
-      var dcs=JSON.parse(xhr.responseText);
-      dcLocs=dcs.filter(function(d){
-        var co=(d.Company_Name||d.company||'').toLowerCase();
-        return co.indexOf(hyperscaler.toLowerCase())>=0;
-      });
-    }catch(e){}
+  if(hyperscaler&&window.psDCData){
+    dcLocs=window.psDCData.filter(function(d){
+      var co=(d.Company_Name||d.company||'').toLowerCase();
+      return co.indexOf(hyperscaler.toLowerCase())>=0;
+    });
   }
+  console.log('PS: dcLocs=',dcLocs.length,'hyperscaler=',hyperscaler);
 
   status.textContent='Scanning '+gasData.pipelines.length+' pipelines, '+subs.length+' substations...';
 
