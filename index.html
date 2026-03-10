@@ -1395,10 +1395,11 @@ url:'https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer',
 layers:[28],
 layerDefs:defs,
 opacity:which==='fld100'?0.55:0.45,
-format:'png8',
+format:'png32',
+transparent:true,
 minZoom:10,
 maxZoom:16,
-useCors:false,
+useCors:true,
 updateInterval:400,
 attribution:'FEMA NFHL'
 });
