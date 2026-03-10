@@ -36,8 +36,13 @@ jobs:
         continue-on-error: true
         run: python scripts/fetch_miso_lmp.py
       
+      - name: Fetch IOC contract data
+        continue-on-error: true
+        run: python scripts/fetch_ioc_data.py
+      
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Daily refresh ${{ github.event.schedule && '(auto)' || '(manual)' }}"
-          file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ercot_lmp.json data/miso_lmp.json'
+          file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ercot_lmp.json data/miso_lmp.json data/ioc_contracts.json'
+
