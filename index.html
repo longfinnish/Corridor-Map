@@ -156,9 +156,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .srch-btn.active{background:#C4854C;color:#1B2B3A}
 .sf{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(240,237,232,0.05)}
 .sf label{font-size:10.5px;color:rgba(240,237,232,0.6);flex:1}
-.sf input[type=number],.sf select{width:70px;background:rgba(240,237,232,0.08);border:1px solid rgba(240,237,232,0.15);color:#F0EDE8;font-size:11px;padding:4px 6px;border-radius:3px;font-family:'DM Sans',sans-serif;text-align:right}
+.sf input[type=number],.sf select{width:70px;background:rgba(240,237,232,0.08);border:1px solid rgba(240,237,232,0.15);color:#F0EDE8;font-size:13px;padding:5px 7px;border-radius:3px;font-family:'DM Sans',sans-serif;text-align:right}
 .sf select{width:auto;min-width:70px;text-align:left}
 .sf select option{background:#1B2B3A;color:#F0EDE8}
+.sf label{font-size:12px}
 .srch-go{width:100%;margin-top:12px;padding:10px;background:#C4854C;color:#1B2B3A;border:none;border-radius:5px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;font-family:'DM Sans',sans-serif}
 .srch-go:disabled{opacity:0.4;cursor:not-allowed}
 .srch-go:not(:disabled):hover{background:#D4955C}
@@ -3007,28 +3008,56 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
 
 
 // ===== POWER SCAN — Find best sites by combined gas + grid potential =====
-async function runPowerScan(){
+function runPowerScan(){
   var btn=document.getElementById('ps-go-btn');
   var status=document.getElementById('ps-status');
   var results=document.getElementById('ps-results');
   btn.disabled=true;btn.textContent='Scanning...';
-  status.textContent='Loading gas data...';
+  status.textContent='Loading data...';
   results.innerHTML='';
 
-  // Ensure gas data is loaded
-  if(!window.gasIxData){
+  // Load all data via promises then run scan
+  var promises=[];
+  if(!window.psGasData){
+    promises.push(fetch('data/gas_interconnects.json').then(function(r){return r.json()}).then(function(d){window.psGasData=d}));
+  }
+  if(!window.psUnsubData){
+    promises.push(fetch('data/unsub_capacity.json').then(function(r){return r.json()}).then(function(d){window.psUnsubData=d}));
+  }
+  if(!window.psIocData){
+    promises.push(fetch('data/ioc_contracts.json').then(function(r){return r.json()}).then(function(d){window.psIocData=d}));
+  }
+  if(!window.psSubData){
+    promises.push(fetch('data/capacity_screening.json').then(function(r){return r.json()}).then(function(d){window.psSubData=d}));
+  }
+
+  Promise.all(promises).then(function(){
+    status.textContent='Data loaded. Running scan...';
     try{
-      status.textContent='Loading gas interconnects (2 MB)...';
-      var gr=await fetch('data/gas_interconnects.json');
-      window.gasIxData=await gr.json();
-    }catch(e){status.textContent='ERROR: Could not load gas data: '+e.message;btn.disabled=false;btn.textContent='\u26A1 Scan for Power';return}
+      executePowerScan(btn,status,results);
+    }catch(e){
+      status.textContent='ERROR in scan: '+e.message;
+      btn.disabled=false;btn.textContent='\u26A1 Scan for Power';
+    }
+  }).catch(function(e){
+    status.textContent='ERROR loading data: '+e.message;
+    btn.disabled=false;btn.textContent='\u26A1 Scan for Power';
+  });
+}
+
+function executePowerScan(btn,status,results){
+  var gasData=window.psGasData;
+  var unsubData=window.psUnsubData;
+  var iocRef=window.psIocData;
+  var subData=window.psSubData||[];
+
+  if(!gasData||!gasData.pipelines){
+    status.textContent='ERROR: gas data not loaded';
+    btn.disabled=false;btn.textContent='\u26A1 Scan for Power';return;
   }
-  if(!window.unsubData){
-    try{status.textContent='Loading unsub capacity...';var ur=await fetch('data/unsub_capacity.json');window.unsubData=await ur.json()}catch(e){}
-  }
-  if(typeof iocData==='undefined'||!iocData){
-    try{status.textContent='Loading IOC contracts (3 MB)...';var ir=await fetch('data/ioc_contracts.json');iocData=await ir.json()}catch(e){}
-  }
+
+  var subs=[];
+  subData.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0,safe_mw:s.safe_mw||0})});
 
   var minMW=parseInt(document.getElementById('ps-minmw').value)||300;
   var region=document.getElementById('ps-region').value;
@@ -3038,10 +3067,12 @@ async function runPowerScan(){
   // Load DC locations if hyperscaler filter set
   var dcLocs=[];
   if(hyperscaler){
-    status.textContent='Loading data center locations...';
+    // Load synchronously from already-fetched or skip
     try{
-      var dr=await fetch('data/datacenters.json');
-      var dcs=await dr.json();
+      var xhr=new XMLHttpRequest();
+      xhr.open('GET','data/datacenters.json',false);
+      xhr.send();
+      var dcs=JSON.parse(xhr.responseText);
       dcLocs=dcs.filter(function(d){
         var co=(d.Company_Name||d.company||'').toLowerCase();
         return co.indexOf(hyperscaler.toLowerCase())>=0;
@@ -3049,15 +3080,7 @@ async function runPowerScan(){
     }catch(e){}
   }
 
-  // Load substations for grid scoring
-  var subs=[];
-  try{
-    var sr=await fetch('data/capacity_screening.json');
-    var sd=await sr.json();
-    sd.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0,safe_mw:s.safe_mw||0,load:s.existing_load||0})});
-  }catch(e){}
-
-  status.textContent='Scanning '+window.gasIxData.pipelines.length+' pipelines...';
+  status.textContent='Scanning '+gasData.pipelines.length+' pipelines, '+subs.length+' substations...';
 
   // Helper
   function haversineMi(lat1,lng1,lat2,lng2){
@@ -3072,9 +3095,8 @@ async function runPowerScan(){
 
   // Scan all gas points
   var candidates=[];
-  var pipelines=window.gasIxData.pipelines||[];
-  var iocRef=iocData||window.iocData||null;
-  var scanned=0;var skippedRegion=0;var skippedMW=0;var skippedHyper=0;
+  var pipelines=gasData.pipelines||[];
+  var scanned=0;
 
   try{
   pipelines.forEach(function(pl){
@@ -3086,19 +3108,17 @@ async function runPowerScan(){
       pipeIOC=iocRef.pipelines[pipeName];
       if(!pipeIOC){
         for(var k in iocRef.pipelines){
-          if(k.toLowerCase().indexOf(pipeName.toLowerCase().substring(0,10))>=0||pipeName.toLowerCase().indexOf(k.toLowerCase().substring(0,10))>=0){
-            pipeIOC=iocRef.pipelines[k];break;
-          }
+          if(k.toLowerCase().indexOf(pipeName.toLowerCase().substring(0,10))>=0||pipeName.toLowerCase().indexOf(k.toLowerCase().substring(0,10))>=0){pipeIOC=iocRef.pipelines[k];break}
         }
       }
     }
 
     // Get unsub data for this pipeline
     var pipeUnsub=null;
-    if(window.unsubData&&window.unsubData.pipelines){
-      for(var uk in window.unsubData.pipelines){
+    if(unsubData&&unsubData.pipelines){
+      for(var uk in unsubData.pipelines){
         if(pipeName.toLowerCase().indexOf(uk.toLowerCase().substring(0,8))>=0||uk.toLowerCase().indexOf(pipeName.toLowerCase().substring(0,8))>=0){
-          pipeUnsub=window.unsubData.pipelines[uk];break;
+          pipeUnsub=unsubData.pipelines[uk];break;
         }
       }
     }
