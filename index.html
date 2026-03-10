@@ -3018,15 +3018,16 @@ async function runPowerScan(){
   // Ensure gas data is loaded
   if(!window.gasIxData){
     try{
+      status.textContent='Loading gas interconnects (2 MB)...';
       var gr=await fetch('data/gas_interconnects.json');
       window.gasIxData=await gr.json();
-    }catch(e){status.textContent='ERROR: Could not load gas data';btn.disabled=false;btn.textContent='\u26A1 Scan for Power';return}
+    }catch(e){status.textContent='ERROR: Could not load gas data: '+e.message;btn.disabled=false;btn.textContent='\u26A1 Scan for Power';return}
   }
   if(!window.unsubData){
-    try{var ur=await fetch('data/unsub_capacity.json');window.unsubData=await ur.json()}catch(e){}
+    try{status.textContent='Loading unsub capacity...';var ur=await fetch('data/unsub_capacity.json');window.unsubData=await ur.json()}catch(e){}
   }
-  if(!iocData){
-    try{var ir=await fetch('data/ioc_contracts.json');iocData=await ir.json()}catch(e){}
+  if(typeof iocData==='undefined'||!iocData){
+    try{status.textContent='Loading IOC contracts (3 MB)...';var ir=await fetch('data/ioc_contracts.json');iocData=await ir.json()}catch(e){}
   }
 
   var minMW=parseInt(document.getElementById('ps-minmw').value)||300;
