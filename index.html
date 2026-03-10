@@ -2415,9 +2415,13 @@ function togLMP(){
 var on=document.getElementById('t-lmp').checked;
 if(on){
 if(!lmpLoaded){
-fetch('data/ercot_lmp.json').then(function(r){return r.json()}).then(function(data){
+Promise.all([
+fetch('data/ercot_lmp.json').then(function(r){return r.json()}).catch(function(){return{nodes:[]}}),
+fetch('data/miso_lmp.json').then(function(r){return r.json()}).catch(function(){return{nodes:[]}})
+]).then(function(results){
 lmpLoaded=true;
-renderLMP(data);
+var combined={date:results[0].date||results[1].date||'',period:results[0].period||'',nodes:(results[0].nodes||[]).concat(results[1].nodes||[])};
+renderLMP(combined);
 });
 }else{
 lmpLayer.addTo(map);
@@ -2443,7 +2447,7 @@ color:'rgba(255,255,255,0.5)',
 weight:1.5,
 fillOpacity:0.9
 });
-c.bindPopup('<div style="min-width:200px"><b style="font-size:13px">'+n.sub+'</b><br><span style="font-size:10px;color:rgba(240,237,232,0.4)">'+n.node+((n.lz||n.zone)?' &middot; '+(n.lz||n.zone):'')+'</span>'+(n.kv>0?' &middot; '+n.kv+' kV':'')+'<br><br><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:rgba(240,237,232,0.4)">30-Day Avg</span><span style="font-size:20px;font-weight:700;color:'+col+'">$'+n.avg_30d.toFixed(2)+'<span style="font-size:11px;font-weight:400">/MWh</span></span></div>'+(n.today?'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">Today Avg</span><span style="color:#F0EDE8;font-weight:500">$'+n.today.toFixed(2)+'/MWh</span></div>':'')+'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">30d Range</span><span style="color:rgba(240,237,232,0.6)">$'+n.min_30d.toFixed(2)+' - $'+n.max_30d.toFixed(2)+'</span></div>'+(n.std_30d?'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">Volatility (σ)</span><span style="color:rgba(240,237,232,0.6)">$'+n.std_30d.toFixed(2)+'</span></div>':'')+'<div style="font-size:9px;color:rgba(240,237,232,0.25);margin-top:6px">Day-Ahead SPP &middot; '+date+'</div></div>');
+var isMiso=n.owner||n.node.indexOf('.')>0;c.bindPopup('<div style="min-width:200px"><b style="font-size:13px">'+(isMiso?(n.sub+' <span style="font-size:9px;background:rgba(196,133,76,0.2);color:#C4854C;padding:1px 5px;border-radius:2px;margin-left:4px">MISO</span>'):n.sub)+'</b><br><span style="font-size:10px;color:rgba(240,237,232,0.4)">'+n.node+((n.lz||n.zone)?' &middot; '+(n.lz||n.zone):'')+'</span>'+(n.kv>0?' &middot; '+n.kv+' kV':'')+'<br><br><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:rgba(240,237,232,0.4)">30-Day Avg</span><span style="font-size:20px;font-weight:700;color:'+col+'">$'+n.avg_30d.toFixed(2)+'<span style="font-size:11px;font-weight:400">/MWh</span></span></div>'+(n.today?'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">Today Avg</span><span style="color:#F0EDE8;font-weight:500">$'+n.today.toFixed(2)+'/MWh</span></div>':'')+'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">30d Range</span><span style="color:rgba(240,237,232,0.6)">$'+n.min_30d.toFixed(2)+' - $'+n.max_30d.toFixed(2)+'</span></div>'+(n.std_30d?'<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="color:rgba(240,237,232,0.4)">Volatility (σ)</span><span style="color:rgba(240,237,232,0.6)">$'+n.std_30d.toFixed(2)+'</span></div>':'')+'<div style="font-size:9px;color:rgba(240,237,232,0.25);margin-top:6px">Day-Ahead SPP &middot; '+date+'</div></div>');
 lmpLayer.addLayer(c);
 });
 lmpLayer.addTo(map);
