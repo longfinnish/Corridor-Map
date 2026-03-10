@@ -121,6 +121,62 @@ def fetch_enbridge_ioc(pipe_code, name):
         return []
 
 
+
+
+def fetch_southern_star_ioc():
+    """Fetch IOC from Southern Star CSI portal (tab-delimited H/D/P format)."""
+    url = "https://csi.southernstar.com/infoPosting/api/Posting/GetPostingDocument?p=247841&b=70"
+    try:
+        r = SESSION.get(url, timeout=30)
+        if r.status_code != 200 or len(r.text) < 200:
+            print(f"  WARN: Southern Star returned {r.status_code}")
+            return []
+        
+        lines = r.text.strip().split('\r\n')
+        contracts = []
+        current = None
+        
+        for line in lines:
+            parts = line.split('\t')
+            row_type = parts[0].strip()
+            
+            if row_type == 'D' and len(parts) >= 10:
+                mdq_raw = parts[10].replace(',', '').strip() if len(parts) > 10 else '0'
+                mdq = int(mdq_raw) if mdq_raw.isdigit() else 0
+                
+                current = {
+                    'shipper': parts[1].strip(),
+                    'contract': parts[5].strip(),
+                    'rate_schedule': parts[4].strip(),
+                    'begin': parts[6].strip(),
+                    'end': parts[7].strip(),
+                    'mdq': mdq,
+                    'negotiated': parts[9].strip() if len(parts) > 9 else '',
+                    'points': []
+                }
+                contracts.append(current)
+            
+            elif row_type == 'P' and current and len(parts) >= 5:
+                pt_mdq = 0
+                if len(parts) > 6:
+                    raw = parts[6].replace(',', '').strip()
+                    pt_mdq = int(raw) if raw.isdigit() else 0
+                
+                current['points'].append({
+                    'name': parts[2].strip(),
+                    'id': parts[4].strip() if len(parts) > 4 else '',
+                    'type': parts[1].strip(),
+                    'zone': parts[5].strip() if len(parts) > 5 else '',
+                    'mdq': pt_mdq,
+                })
+        
+        print(f"  Southern Star: {len(contracts)} contracts")
+        return contracts
+    
+    except Exception as e:
+        print(f"  ERROR: Southern Star: {e}")
+        return []
+
 def classify_contract(end_date):
     """Classify contract status based on expiration date."""
     if not end_date:
@@ -234,6 +290,11 @@ def main():
         all_data[name] = (f'Enbridge/{code}', contracts)
         time.sleep(0.5)
     
+    # Southern Star (direct API)
+    print("\nSouthern Star:")
+    ssc_contracts = fetch_southern_star_ioc()
+    all_data['Southern Star'] = ('CSI/SSC', ssc_contracts)
+
     # Build output
     print("\nBuilding output...")
     output = build_output(all_data)
@@ -265,4 +326,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
