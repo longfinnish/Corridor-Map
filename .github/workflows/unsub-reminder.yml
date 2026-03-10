@@ -1,0 +1,83 @@
+name: Monthly Unsub Capacity Refresh Reminder
+
+on:
+  schedule:
+    - cron: '0 14 15 * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create unsub refresh issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const month = new Date().toLocaleString('en-US', {month: 'long', year: 'numeric'});
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Monthly Unsub Capacity Refresh — ${month}`,
+              body: `## Monthly Unsubscribed Capacity Refresh
+
+            Download all 19 files below, drop into \`refresh/unsub/\` folder, run \`/refresh-unsub\` in Claude Code.
+
+            ---
+
+            ### Kinder Morgan (6 files — Excel export from browser)
+
+            1. [Tennessee Gas Pipeline](https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=TGP)
+            2. [NGPL](https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=NGPL)
+            3. [El Paso Natural Gas](https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=EPNG)
+            4. [Southern Natural Gas](https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=SNG)
+            5. [Colorado Interstate Gas](https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=CIG)
+            6. [Midcontinent Express](https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=MEP)
+
+            **Steps:** Click each → Export to Excel
+
+            ### Energy Transfer (3 files — XLS export from browser)
+
+            7. [Panhandle Eastern](https://peplmessenger.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=PEPL)
+            8. [Trunkline](https://tgcmessenger.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=TGC)
+            9. [Transwestern](https://twtransfer.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=TW)
+
+            **Steps:** Click each → Export to XLS/Excel
+
+            ### TC Energy eConnects (5 files — SSRS report export)
+
+            Portal: https://ebb.tceconnects.com/infopost/
+
+            10. ANR Pipeline → Unsubscribed Capacity → Export to Excel
+            11. Columbia Gas (TCO) → Unsubscribed Capacity → Export to Excel
+            12. Columbia Gulf (CGT) → Unsubscribed Capacity → Export to Excel
+            13. Northern Border (NBPL) → Unsubscribed Capacity → Export to Excel
+            14. Crossroads (XRD) → Unsubscribed Capacity → Export to Excel
+
+            ### DT Midstream Trellis (1 file — CSV download)
+
+            15. [Midwestern Gas](https://dtmidstream.trellisenergy.com/ptms/home/infopost/MGT) → Unsubscribed Capacity → CSV
+
+            ### Tallgrass Energy (3 files — txt download)
+
+            Portal: https://pipeline.tallgrassenergylp.com/
+
+            16. Rockies Express (REX) → Point Capacity → Download txt
+            17. Trailblazer → Point Capacity → Download txt
+            18. TIGT → Point Capacity → Download txt
+
+            ### Vector Pipeline (1 file — txt download)
+
+            19. [Vector Unsub Download](https://www.vector-pipeline.com/Informational-Postings/Downloads/Unsubscribed-Capacity)
+
+            ---
+
+            **After downloading all 19 files:**
+            1. Drop them all into \`C:\\Users\\Bing Bong\\Corridor-Map\\refresh\\unsub\\\`
+            2. Open Claude Code in the Corridor-Map directory
+            3. Run \`/refresh-unsub\`
+
+            *Current: 23 pipelines | ~3,500 unsub points*`
+            });
