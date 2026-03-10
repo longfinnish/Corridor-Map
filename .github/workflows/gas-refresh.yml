@@ -21,7 +21,7 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests openpyxl gridstatus pandas
+        run: pip install requests openpyxl gridstatus pandas pytz
       
       - name: Fetch gas data from pipeline portals
         env:
@@ -29,6 +29,7 @@ jobs:
         run: python scripts/fetch_gas_data.py
       
       - name: Fetch ERCOT LMP data
+        continue-on-error: true
         run: python scripts/fetch_lmp_data.py
       
       - name: Commit and push
@@ -36,3 +37,4 @@ jobs:
         with:
           commit_message: "Daily refresh ${{ github.event.schedule && '(auto)' || '(manual)' }}"
           file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ercot_lmp.json'
+
