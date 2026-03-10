@@ -26,7 +26,7 @@ jobs:
               labels: ['data-refresh', 'manual'],
               body: `## Quarterly IOC Refresh Due
 
-New Index of Customers filings should be available. Export each pipeline's IOC as Excel and upload to Claude for processing.
+New Index of Customers filings should be available. Export and upload to Claude for processing.
 
 ### Kinder Morgan (5 pipelines — manual Excel export)
 
@@ -38,16 +38,23 @@ New Index of Customers filings should be available. Export each pipeline's IOC a
 
 **Steps:** Click each link → Index of Customers in left tree → Export to Excel → Upload all 5 files to Claude
 
+### Northern Natural Gas (manual CSV download)
+
+6. [NNG Index of Customers](https://www.northernnaturalgas.com/infopostings/Pages/IndexOfCustomers.aspx)
+7. [NNG Locations](https://www.northernnaturalgas.com/infopostings/Pages/Locations.aspx)
+
+**Steps:** Download CSV from each page → Upload to Claude
+
 ### Automated (no action needed)
 These refresh daily via GitHub Actions:
 - Panhandle Eastern, Trunkline, Florida Gas, Transwestern, Tiger, Sea Robin, Rover, Enable MRT (ET iPost)
 - Texas Eastern (Enbridge Link)
+- Southern Star (CSI API)
 
-### Not Yet Automated
+### Not Yet Automated (future)
 - ANR Pipeline, Columbia Gas, Columbia Gulf, Northern Border — [TC Energy portal](https://ebb.tceconnects.com/infopost/) (login required)
-- Northern Natural Gas — BHE portal
 
 ---
-*Current coverage: 17 pipelines, 4,488 contracts, 960 expiring 2026-27, 22.2M Dth/d*
+*Current coverage: 19 pipelines | 6,088 contracts | 1,454 expiring 2026-27 | 28.7M Dth/d (~351 GW CC equiv)*
             `
             });
