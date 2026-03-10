@@ -2487,7 +2487,7 @@ function screenGas(lat, lng) {
         
         pointExpiring.sort(function(a,b){return(b.mdq||0)-(a.mdq||0)});
         pointExpiring.slice(0,3).forEach(function(c){
-          h += '<div style="font-size:9px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.5)">'+c.shipper.substring(0,30)+'</span><span>'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
+          h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:2px 0"><span style="color:rgba(240,237,232,0.5)">'+c.shipper.substring(0,30)+'</span><span>'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
         });
       } else if(pd.expiring_count > 0){
         // Fall back to pipeline-level
@@ -2496,16 +2496,16 @@ function screenGas(lat, lng) {
         result.iocMdq = pd.expiring_mdq;
         result.iocPointLevel = false;
         h += '<hr style="border:none;border-top:1px solid rgba(240,237,232,0.08);margin:8px 0">';
-        h += '<div style="font-size:10px;color:rgba(240,237,232,0.35);margin-bottom:4px">'+n.pipeline+' system-wide (not point-specific):</div>';
+        h += '<div style="font-size:12px;color:rgba(240,237,232,0.35);margin-bottom:4px">'+n.pipeline+' system-wide (not point-specific):</div>';
         h += '<div class="pf-stat"><span class="pf-stat-label">Contracts Expiring 2026-27</span><span class="pf-stat-value" style="color:#FDD835">'+pd.expiring_count+'</span></div>';
         h += '<div class="pf-stat"><span class="pf-stat-label">Expiring MDQ (pipeline-wide)</span><span class="pf-stat-value" style="color:#FDD835">'+pd.expiring_mdq.toLocaleString()+' Dth/d</span></div>';
         h += '<div class="pf-stat"><span class="pf-stat-label">CC Generation Equiv</span><span class="pf-stat-value" style="color:#FDD835">~'+expMw.toLocaleString()+' MW</span></div>';
         
         var topExp = pd.contracts.filter(function(c){return c.status==='expiring_soon'}).sort(function(a,b){return(b.mdq||0)-(a.mdq||0)}).slice(0,3);
         if(topExp.length){
-          h += '<div style="font-size:8px;color:rgba(240,237,232,0.35);margin-top:4px">Largest expiring:</div>';
+          h += '<div style="font-size:11px;color:rgba(240,237,232,0.35);margin-top:4px">Largest expiring:</div>';
           topExp.forEach(function(c){
-            h += '<div style="font-size:9px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.5)">'+c.shipper.substring(0,30)+'</span><span>'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
+            h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:2px 0"><span style="color:rgba(240,237,232,0.5)">'+c.shipper.substring(0,30)+'</span><span>'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
           });
         }
       }
@@ -2514,7 +2514,7 @@ function screenGas(lat, lng) {
     // Other nearby points
     if(nearby.length > 1){
       h += '<hr style="border:none;border-top:1px solid rgba(240,237,232,0.08);margin:8px 0">';
-      h += '<div style="font-size:9px;color:rgba(240,237,232,0.35)">'+nearby.length+' gas interconnects within 15 mi across '+Object.keys(pipeIoc).length+' pipelines</div>';
+      h += '<div style="font-size:12px;color:rgba(240,237,232,0.35)">'+nearby.length+' gas interconnects within 15 mi across '+Object.keys(pipeIoc).length+' pipelines</div>';
     }
   }
   h += '</div>';
