@@ -3136,14 +3136,17 @@ function executePowerScan(btn,status,results){
       if(!p.lat||!p.lng)return;
 
       // Hyperscaler proximity filter
+      var nearestDCName='';var nearestDCDist=999;
       if(hyperscaler&&dcLocs.length>0){
-        var nearDC=false;
         for(var di=0;di<dcLocs.length;di++){
           var dc=dcLocs[di];
-          var dlat=dc.lat||dc.Latitude||0;var dlng=dc.lng||dc.Longitude||0;
-          if(dlat&&dlng&&haversineMi(p.lat,p.lng,dlat,dlng)<=maxDCDist){nearDC=true;break}
+          var dlat=dc.lat||0;var dlng=dc.lng||0;
+          if(dlat&&dlng){
+            var dd=haversineMi(p.lat,p.lng,dlat,dlng);
+            if(dd<nearestDCDist){nearestDCDist=dd;nearestDCName=(dc.name||dc.Facility_Name||'')+(dc.state?', '+dc.state:'')}
+          }
         }
-        if(!nearDC)return;
+        if(nearestDCDist>maxDCDist)return;
       }
 
       // Region filter first (cheapest check)
@@ -3156,7 +3159,7 @@ function executePowerScan(btn,status,results){
 
       scanned++;
 
-      // Gas MW calculation
+      // Gas MW calculation — prioritize unsubscribed (contractable now)
       var unsubDthd=0;
       if(pipeUnsub){
         var ptId=String(p.id||'').trim();
@@ -3168,8 +3171,16 @@ function executePowerScan(btn,status,results){
       if(pipeIOC){expiringMdq=pipeIOC.expiring_mdq||0;expiringCount=pipeIOC.expiring_count||0}
       var expiringMW=Math.round(expiringMdq/24*0.293);
 
-      var availMW=Math.round((p.available||p.design||0)/24*0.293);
-      var gasMW=Math.max(unsubMW,availMW);
+      // Use unsubscribed as gas MW if available, otherwise use operational available
+      // but cap operational at a reasonable single-point max (don't show pipeline design capacity)
+      var operAvail=p.available||0;
+      var operMW=Math.round(operAvail/24*0.293);
+      // If operational available > 10x unsub, it's probably pipeline capacity not point-level
+      // Use unsub as the reliable number; fall back to capped operational
+      var gasMW=unsubMW;
+      if(gasMW===0&&operMW>0){
+        gasMW=Math.min(operMW,2000);// Cap at 2000 MW for any single point without unsub data
+      }
 
       // Skip if gas alone can't possibly meet threshold (grid max is 500)
       if(gasMW+500<minMW)return;
@@ -3199,8 +3210,9 @@ function executePowerScan(btn,status,results){
         gasMW:gasMW,gridMW:gridMW,combinedMW:combinedMW,
         unsubDthd:unsubDthd,unsubMW:unsubMW,
         expiringMdq:expiringMdq,expiringMW:expiringMW,expiringCount:expiringCount,
-        availMW:availMW,
+        availMW:operMW,
         subName:subInfo,subDist:nearestSubDist,
+        dcName:nearestDCName,dcDist:nearestDCDist,
         design:p.design||0,available:p.available||0,
       });
     });
@@ -3249,7 +3261,7 @@ function executePowerScan(btn,status,results){
     h+='<div style="font-size:11px;color:#00E5FF">'+c.pipeline+'</div>';
     h+='<div style="font-size:10px;color:rgba(240,237,232,0.4)">'+c.county+', '+c.state+'</div>';
     h+='<div style="display:flex;gap:12px;margin-top:4px;font-size:11px">';
-    h+='<span style="color:'+gasCol+'">Gas: '+c.gasMW.toLocaleString()+' MW</span>';
+    h+='<span style="color:'+gasCol+'">Gas: '+c.gasMW.toLocaleString()+' MW'+(c.unsubMW>0?' (unsub)':' (avail)')+'</span>';
     h+='<span style="color:#4FC3F7">Grid: ~'+c.gridMW.toLocaleString()+' MW</span>';
     h+='</div>';
     if(c.unsubMW>0){
@@ -3260,6 +3272,9 @@ function executePowerScan(btn,status,results){
     }
     if(c.subName){
       h+='<div style="font-size:10px;color:rgba(240,237,232,0.3);margin-top:1px">Sub: '+c.subName+'</div>';
+    }
+    if(c.dcName){
+      h+='<div style="font-size:10px;color:#CE93D8;margin-top:1px">Near: '+c.dcName+' ('+c.dcDist.toFixed(0)+' mi)</div>';
     }
     h+='</div>';
   });
