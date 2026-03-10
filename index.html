@@ -2799,7 +2799,7 @@ document.getElementById('srch-status').textContent='Loaded '+subs.length+' subst
 // Load TX lines from HIFLD for the search area for voltage-specific distance
 var txLines=[];
 try{
-var txBounds=b.pad(0.2);
+var txBounds=bounds.pad(0.2);
 var txUrl=TXURL+'?where=VOLTAGE>=100&geometry='+txBounds.getWest()+','+txBounds.getSouth()+','+txBounds.getEast()+','+txBounds.getNorth()+'&geometryType=esriGeometryEnvelope&inSR=4326&outFields=VOLTAGE,SUB_1,SUB_2&returnGeometry=true&outSR=4326&f=json&resultRecordCount=2000';
 var txr=await fetch(txUrl);
 var txd=await txr.json();
