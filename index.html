@@ -2272,6 +2272,577 @@ body.innerHTML='<div style="text-align:center;padding:40px;color:#EF5350">API un
 });
 }
 
+// Site Intelligence Screening Engine
+// screenSite(lat, lng) — Site Intelligence Screening Engine
+// Queries all data layers and renders full screening assessment
+
+async function screenSite(lat, lng, triggerBtn) {
+  if(triggerBtn){triggerBtn.textContent='Screening...';triggerBtn.disabled=true;triggerBtn.style.opacity='0.5'}
+  
+  var panel=document.getElementById('pf-panel');
+  var shade=document.getElementById('pf-shade');
+  var body=document.getElementById('pf-body');
+  var barLabel=document.getElementById('pf-bar-label');
+  var barSub=document.getElementById('pf-bar-sub');
+  
+  barLabel.textContent='Site Intelligence';
+  barSub.textContent='Analyzing '+lat.toFixed(4)+', '+lng.toFixed(4)+'...';
+  body.innerHTML='<div class="pf-loading"><div class="spinner"></div><span>Running site intelligence screening...</span></div>';
+  panel.classList.add('open');
+  shade.classList.add('open');
+  map.closePopup();
+
+  // Create section containers that will be populated as data arrives
+  var h='';
+  h+='<div id="si-gas"></div>';
+  h+='<div id="si-grid"></div>';
+  h+='<div id="si-lmp"></div>';
+  h+='<div id="si-queue"></div>';
+  h+='<div id="si-planned"></div>';
+  h+='<div id="si-parcels"></div>';
+  h+='<div id="si-summary" style="display:none"></div>';
+  body.innerHTML=h;
+
+  // ===== GAS INTELLIGENCE (instant — data already loaded) =====
+  var gasResult = screenGas(lat, lng);
+  document.getElementById('si-gas').innerHTML = gasResult.html;
+
+  // ===== GRID / SUBSTATION (instant — data already loaded) =====
+  var gridResult = screenGrid(lat, lng);
+  document.getElementById('si-grid').innerHTML = gridResult.html;
+
+  // ===== LMP (instant if loaded, else fetch) =====
+  var lmpResult = await screenLMP(lat, lng);
+  document.getElementById('si-lmp').innerHTML = lmpResult.html;
+
+  // ===== QUEUE (instant if loaded) =====
+  var queueResult = screenQueue(lat, lng);
+  document.getElementById('si-queue').innerHTML = queueResult.html;
+
+  // ===== PLANNED TRANSMISSION (instant if loaded, else fetch) =====
+  var plannedResult = await screenPlannedTX(lat, lng);
+  document.getElementById('si-planned').innerHTML = plannedResult.html;
+
+  // ===== PARCELS (async Regrid API call) =====
+  document.getElementById('si-parcels').innerHTML = '<div class="pf-section"><div class="pf-section-title">PARCELS</div><div class="pf-loading" style="padding:20px 0"><div class="spinner"></div><span>Querying Regrid...</span></div></div>';
+  screenParcels(lat, lng).then(function(parcelResult){
+    document.getElementById('si-parcels').innerHTML = parcelResult.html;
+    // Build summary sentence after all data is in
+    buildSummary(lat, lng, gasResult, gridResult, lmpResult, queueResult, plannedResult, parcelResult);
+  });
+
+  // Update header
+  barSub.textContent = (gridResult.nearestSub ? gridResult.nearestSub.name + ' area' : lat.toFixed(3)+', '+lng.toFixed(3));
+  
+  if(triggerBtn){triggerBtn.textContent='\u26A1 Screen Site';triggerBtn.disabled=false;triggerBtn.style.opacity='1'}
+}
+
+// ===== GAS SECTION =====
+function screenGas(lat, lng) {
+  var result = {html:'', nearestPoint:null, pipeline:null, iocExpiring:0, iocMdq:0};
+  
+  // Find all gas points within 15 miles
+  var nearby = [];
+  var gasData = window.gasIxData;
+  if(!gasData){
+    // Try to get from the loaded layer
+    var pls = [];
+    gasIxLayer.eachLayer(function(l){});  // layer doesn't store raw data
+    result.html = '<div class="pf-section"><div class="pf-section-title">GAS INFRASTRUCTURE</div><div style="color:rgba(240,237,232,0.3);font-size:11px">Gas layer not loaded. Toggle Gas Interconnects on first.</div></div>';
+    return result;
+  }
+  
+  var pipelines = gasData.pipelines || gasData;
+  if(!Array.isArray(pipelines)) pipelines = [pipelines];
+  
+  pipelines.forEach(function(pl){
+    (pl.points||[]).forEach(function(p){
+      if(!p.lat||!p.lng) return;
+      var d = haversine(lat, lng, p.lat, p.lng);
+      if(d <= 15){
+        nearby.push({
+          dist: d, name: p.name, pipeline: pl.short||pl.name,
+          type: p.type, design: p.design||0, available: p.available||0,
+          utilization: p.utilization||0, state: p.state, county: p.county,
+          lat: p.lat, lng: p.lng
+        });
+      }
+    });
+  });
+  
+  nearby.sort(function(a,b){return a.dist - b.dist});
+  
+  // Get IOC data for nearby pipelines
+  var pipeIoc = {};
+  if(iocData && iocData.pipelines){
+    nearby.forEach(function(g){
+      if(pipeIoc[g.pipeline]) return;
+      var pd = getIocForPipeline(g.pipeline);
+      if(pd) pipeIoc[g.pipeline] = pd;
+    });
+  }
+  
+  var h = '<div class="pf-section">';
+  h += '<div class="pf-section-title">GAS INFRASTRUCTURE</div>';
+  
+  if(nearby.length === 0){
+    h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">No gas interconnects within 15 miles</div>';
+  } else {
+    // Show nearest point
+    var n = nearby[0];
+    result.nearestPoint = n;
+    result.pipeline = n.pipeline;
+    
+    var availMw = Math.round((n.available||0)/24*0.293);
+    var availCol = n.available > 100000 ? '#66BB6A' : n.available > 10000 ? '#FDD835' : '#EF5350';
+    
+    h += '<div class="pf-stat"><span class="pf-stat-label">Nearest Interconnect</span><span class="pf-stat-value">'+n.name+'</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Pipeline</span><span class="pf-stat-value" style="color:#00E5FF">'+n.pipeline+'</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+n.dist.toFixed(1)+' mi</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Type</span><span class="pf-stat-value">'+(n.type==='delivery'?'Delivery':n.type==='receipt'?'Receipt':'Interconnect')+'</span></div>';
+    if(n.design > 0){
+      h += '<div class="pf-stat"><span class="pf-stat-label">Design Capacity</span><span class="pf-stat-value">'+n.design.toLocaleString()+' Dth/d</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Available</span><span class="pf-stat-value" style="color:'+availCol+'">'+n.available.toLocaleString()+' Dth/d (~'+availMw+' MW CC)</span></div>';
+    }
+    
+    // IOC for this pipeline
+    var pd = pipeIoc[n.pipeline];
+    if(pd && pd.expiring_count > 0){
+      var expMw = Math.round(pd.expiring_mdq/24*0.293);
+      result.iocExpiring = pd.expiring_count;
+      result.iocMdq = pd.expiring_mdq;
+      h += '<hr style="border:none;border-top:1px solid rgba(240,237,232,0.08);margin:8px 0">';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Contracts Expiring 2026-27</span><span class="pf-stat-value" style="color:#FDD835">'+pd.expiring_count+'</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Expiring MDQ</span><span class="pf-stat-value" style="color:#FDD835">'+pd.expiring_mdq.toLocaleString()+' Dth/d</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">CC Generation Equiv</span><span class="pf-stat-value" style="color:#FDD835">~'+expMw.toLocaleString()+' MW</span></div>';
+      
+      // Top 3 expiring
+      var topExp = pd.contracts.filter(function(c){return c.status==='expiring_soon'}).sort(function(a,b){return(b.mdq||0)-(a.mdq||0)}).slice(0,3);
+      if(topExp.length){
+        h += '<div style="font-size:8px;color:rgba(240,237,232,0.35);margin-top:4px">Largest expiring:</div>';
+        topExp.forEach(function(c){
+          h += '<div style="font-size:9px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.5)">'+c.shipper.substring(0,30)+'</span><span>'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
+        });
+      }
+    }
+    
+    // Other nearby points
+    if(nearby.length > 1){
+      h += '<hr style="border:none;border-top:1px solid rgba(240,237,232,0.08);margin:8px 0">';
+      h += '<div style="font-size:9px;color:rgba(240,237,232,0.35)">'+nearby.length+' gas interconnects within 15 mi across '+Object.keys(pipeIoc).length+' pipelines</div>';
+    }
+  }
+  h += '</div>';
+  result.html = h;
+  return result;
+}
+
+// ===== GRID / SUBSTATION SECTION =====
+function screenGrid(lat, lng) {
+  var result = {html:'', nearestSub:null, pfHeadroom:null};
+  
+  // Find nearest substation from capacity screening data or HIFLD subs
+  var nearSubs = [];
+  
+  // Check if capacity screening data is loaded
+  if(capData){
+    capData.forEach(function(s){
+      if(!s.lat||!s.lng) return;
+      var d = haversine(lat, lng, s.lat, s.lng);
+      if(d <= 30){
+        nearSubs.push({dist:d, name:s.name||'', kv:s.kv||345, lat:s.lat, lng:s.lng, cap_mw:s.cap_mw});
+      }
+    });
+  }
+  
+  // Also check from subs global (HIFLD)
+  for(var k in subs){
+    var s = subs[k];
+    if(!s.lat||!s.lng) continue;
+    var d = haversine(lat, lng, s.lat, s.lng);
+    if(d <= 30 && (s.v||0) >= 345){
+      // Check if already in list
+      var exists = nearSubs.some(function(ns){return Math.abs(ns.lat-s.lat)<0.01 && Math.abs(ns.lng-s.lng)<0.01});
+      if(!exists){
+        nearSubs.push({dist:d, name:s.name||k, kv:s.v||345, lat:s.lat, lng:s.lng});
+      }
+    }
+  }
+  
+  nearSubs.sort(function(a,b){return a.dist - b.dist});
+  
+  var h = '<div class="pf-section">';
+  h += '<div class="pf-section-title">GRID INFRASTRUCTURE</div>';
+  
+  if(nearSubs.length === 0){
+    h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">No 345kV+ substations within 30 miles</div>';
+  } else {
+    var ns = nearSubs[0];
+    result.nearestSub = ns;
+    
+    h += '<div class="pf-stat"><span class="pf-stat-label">Nearest 345kV+ Sub</span><span class="pf-stat-value">'+ns.name+'</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+ns.dist.toFixed(1)+' mi</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+ns.kv+' kV</span></div>';
+    if(ns.cap_mw) h += '<div class="pf-stat"><span class="pf-stat-label">Capacity</span><span class="pf-stat-value">'+ns.cap_mw.toLocaleString()+' MW</span></div>';
+    
+    // Power flow — fire async, update when ready
+    h += '<div id="si-pf" style="margin-top:6px"><div class="pf-loading" style="padding:8px 0;justify-content:flex-start"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div><span>Running power flow...</span></div></div>';
+    
+    // Fire power flow async
+    fetch(SCREEN_API+'/screen?lat='+lat+'&lng='+lng).then(function(r){return r.json()}).then(function(d){
+      var pfEl = document.getElementById('si-pf');
+      if(!pfEl) return;
+      var headroom = d.headroom_mw;
+      if(headroom===undefined && d.screening) headroom = d.screening.safe_capacity_mw||0;
+      if(headroom===undefined || headroom===null) headroom = 0;
+      
+      result.pfHeadroom = headroom;
+      var hc = headroom>=500?'#66BB6A':headroom>=200?'#FDD835':'#EF5350';
+      var ph = '<div class="pf-stat"><span class="pf-stat-label">Injection Headroom</span><span class="pf-stat-value" style="color:'+hc+'">~'+headroom.toLocaleString()+' MW</span></div>';
+      
+      var binding = d.binding||{};
+      if(!binding.from_bus && d.screening && d.screening.steps){
+        var fc = d.screening.steps.find(function(s){return s.status!=='OK'});
+        if(fc && fc.overloads && fc.overloads[0]) binding = {from_bus:fc.overloads[0].from, to_bus:fc.overloads[0].to};
+      }
+      if(binding.from_bus){
+        ph += '<div style="font-size:9px;color:rgba(240,237,232,0.35)">Binding: '+binding.from_bus+' \u2192 '+binding.to_bus+'</div>';
+      }
+      ph += '<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:2px">DC power flow \u2022 Synthetic grid model</div>';
+      pfEl.innerHTML = ph;
+      
+      // Rebuild summary if exists
+      var sumEl = document.getElementById('si-summary');
+      if(sumEl) sumEl.setAttribute('data-pf-headroom', headroom);
+    }).catch(function(e){
+      var pfEl = document.getElementById('si-pf');
+      if(pfEl) pfEl.innerHTML = '<div style="font-size:10px;color:rgba(240,237,232,0.25)">Power flow unavailable</div>';
+    });
+    
+    if(nearSubs.length > 1){
+      h += '<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-top:4px">'+nearSubs.length+' substations 345kV+ within 30 mi</div>';
+    }
+  }
+  h += '</div>';
+  result.html = h;
+  return result;
+}
+
+// ===== LMP SECTION =====
+async function screenLMP(lat, lng) {
+  var result = {html:'', nearestNode:null, avg30d:null, zoneAvg:null};
+  
+  // Load LMP data if not already loaded
+  var allNodes = [];
+  try {
+    var results = await Promise.all([
+      fetch('data/ercot_lmp.json').then(function(r){return r.json()}).catch(function(){return{nodes:[]}}),
+      fetch('data/miso_lmp.json').then(function(r){return r.json()}).catch(function(){return{nodes:[]}})
+    ]);
+    allNodes = (results[0].nodes||[]).concat(results[1].nodes||[]);
+  } catch(e){}
+  
+  // Find nearest node
+  var nearest = null;
+  var nearDist = 999;
+  allNodes.forEach(function(n){
+    if(!n.lat||!n.lng||n.type==='zone') return;
+    var d = haversine(lat, lng, n.lat, n.lng);
+    if(d < nearDist){nearDist = d; nearest = n;}
+  });
+  
+  // Compute zone average
+  var zoneAvg = null;
+  if(nearest){
+    var zone = nearest.lz || nearest.zone || '';
+    if(zone){
+      var zoneNodes = allNodes.filter(function(n){return (n.lz||n.zone)===zone && n.avg_30d});
+      if(zoneNodes.length > 0){
+        zoneAvg = zoneNodes.reduce(function(s,n){return s+n.avg_30d},0) / zoneNodes.length;
+        result.zoneAvg = zoneAvg;
+      }
+    }
+  }
+  
+  var h = '<div class="pf-section">';
+  h += '<div class="pf-section-title">ENERGY PRICING (LMP)</div>';
+  
+  if(!nearest || nearDist > 50){
+    h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">No LMP nodes within 50 miles</div>';
+  } else {
+    result.nearestNode = nearest;
+    result.avg30d = nearest.avg_30d;
+    
+    var lmpCol = nearest.avg_30d < 30 ? '#66BB6A' : nearest.avg_30d < 50 ? '#FDD835' : '#EF5350';
+    var isMiso = nearest.owner || (nearest.node||'').indexOf('.')>0;
+    
+    h += '<div class="pf-stat"><span class="pf-stat-label">Nearest Node</span><span class="pf-stat-value">'+(nearest.sub||nearest.node)+''+(isMiso?' <span style="font-size:8px;background:rgba(196,133,76,0.2);color:#C4854C;padding:1px 4px;border-radius:2px">MISO</span>':'')+'</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+nearDist.toFixed(1)+' mi</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">30-Day Avg LMP</span><span class="pf-stat-value" style="color:'+lmpCol+'">$'+nearest.avg_30d.toFixed(2)+'/MWh</span></div>';
+    
+    if(zoneAvg !== null){
+      var zone = nearest.lz || nearest.zone || '';
+      var diff = nearest.avg_30d - zoneAvg;
+      var diffStr = diff >= 0 ? '+$'+diff.toFixed(2) : '-$'+Math.abs(diff).toFixed(2);
+      var diffCol = diff < 0 ? '#66BB6A' : diff > 5 ? '#EF5350' : '#FDD835';
+      h += '<div class="pf-stat"><span class="pf-stat-label">'+zone+' Zone Avg</span><span class="pf-stat-value">$'+zoneAvg.toFixed(2)+'/MWh</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">vs Zone</span><span class="pf-stat-value" style="color:'+diffCol+'">'+diffStr+'/MWh '+(diff<0?'(below avg)':'(above avg)')+'</span></div>';
+    }
+    
+    if(nearest.min_30d != null){
+      h += '<div class="pf-stat"><span class="pf-stat-label">30d Range</span><span class="pf-stat-value">$'+nearest.min_30d.toFixed(2)+' \u2013 $'+nearest.max_30d.toFixed(2)+'</span></div>';
+    }
+  }
+  h += '</div>';
+  result.html = h;
+  return result;
+}
+
+// ===== QUEUE SECTION =====
+function screenQueue(lat, lng) {
+  var result = {html:'', count:0, totalMW:0};
+  
+  // Queue data is by county/substation — we need to find nearby queue entries
+  // The queue is loaded as queueBySub and queueCongestion
+  // For spatial query, we'd need the actual queue.json with coordinates
+  // For now, use county-level queue data
+  
+  var h = '<div class="pf-section">';
+  h += '<div class="pf-section-title">INTERCONNECTION QUEUE</div>';
+  
+  // Try to get queue data from nearby substations
+  var queueEntries = [];
+  if(queueBySub){
+    for(var k in subs){
+      var s = subs[k];
+      if(!s.lat||!s.lng) continue;
+      var d = haversine(lat, lng, s.lat, s.lng);
+      if(d <= 25){
+        var subName = (s.name||k).toUpperCase();
+        var qSub = queueBySub[subName];
+        if(qSub){
+          queueEntries.push({sub:subName, dist:d, active:qSub.activeMW||0, count:qSub.activeCount||0, pending:qSub.pendingMW||0});
+        }
+      }
+    }
+  }
+  
+  if(queueEntries.length === 0){
+    h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">No queue data for nearby substations</div>';
+  } else {
+    var totalActive = 0, totalCount = 0;
+    queueEntries.forEach(function(q){totalActive += q.active; totalCount += q.count});
+    result.count = totalCount;
+    result.totalMW = totalActive;
+    
+    var qCol = totalActive > 2000 ? '#EF5350' : totalActive > 500 ? '#FDD835' : '#66BB6A';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Active Projects (25 mi)</span><span class="pf-stat-value" style="color:'+qCol+'">'+totalCount+'</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Total Queued MW</span><span class="pf-stat-value" style="color:'+qCol+'">'+totalActive.toLocaleString()+' MW</span></div>';
+    
+    // Show top substations
+    queueEntries.sort(function(a,b){return b.active - a.active});
+    queueEntries.slice(0,3).forEach(function(q){
+      h += '<div style="font-size:9px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.5)">'+q.sub.substring(0,25)+' ('+q.dist.toFixed(1)+'mi)</span><span>'+q.active.toLocaleString()+' MW / '+q.count+' projects</span></div>';
+    });
+  }
+  h += '</div>';
+  result.html = h;
+  return result;
+}
+
+// ===== PLANNED TRANSMISSION SECTION =====
+async function screenPlannedTX(lat, lng) {
+  var result = {html:'', count:0, totalInvestment:0};
+  
+  // Load planned TX if not loaded
+  if(!plannedData){
+    try {
+      var r = await fetch('data/planned_transmission.json');
+      plannedData = await r.json();
+    } catch(e){}
+  }
+  
+  var h = '<div class="pf-section">';
+  h += '<div class="pf-section-title">PLANNED TRANSMISSION</div>';
+  
+  if(!plannedData){
+    h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">Planned transmission data not available</div>';
+  } else {
+    var nearby = [];
+    plannedData.forEach(function(p){
+      if(!p.from_lat||!p.to_lat) return;
+      // Distance to midpoint
+      var midLat = (p.from_lat+p.to_lat)/2;
+      var midLng = (p.from_lng+p.to_lng)/2;
+      var d = haversine(lat, lng, midLat, midLng);
+      // Also check distance to endpoints
+      var d1 = haversine(lat, lng, p.from_lat, p.from_lng);
+      var d2 = haversine(lat, lng, p.to_lat, p.to_lng);
+      var minD = Math.min(d, d1, d2);
+      if(minD <= 15){
+        nearby.push({dist:minD, name:p.name||'', kv:p.kv||0, cost:p.cost||0, ftype:p.ftype||'', status:p.status||'', iso:p.iso||'', from:p.from_sub||'', to:p.to_sub||''});
+      }
+    });
+    
+    nearby.sort(function(a,b){return a.dist - b.dist});
+    result.count = nearby.length;
+    var totalCost = nearby.reduce(function(s,p){return s + (p.cost||0)}, 0);
+    result.totalInvestment = totalCost;
+    
+    if(nearby.length === 0){
+      h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">No planned transmission projects within 15 miles</div>';
+    } else {
+      var costStr = totalCost >= 1e9 ? '$'+(totalCost/1e9).toFixed(1)+'B' : totalCost >= 1e6 ? '$'+(totalCost/1e6).toFixed(0)+'M' : totalCost > 0 ? '$'+(totalCost/1e3).toFixed(0)+'K' : 'N/A';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Projects Within 15 mi</span><span class="pf-stat-value">'+nearby.length+'</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Total Investment</span><span class="pf-stat-value">'+costStr+'</span></div>';
+      
+      nearby.slice(0,4).forEach(function(p){
+        var badge = p.ftype==='Line New' ? 'color:#00E676' : p.ftype==='Line Upgrade' ? 'color:#FFB74D' : 'color:#78909C';
+        var pCost = p.cost >= 1e9 ? '$'+(p.cost/1e9).toFixed(1)+'B' : p.cost >= 1e6 ? '$'+(p.cost/1e6).toFixed(0)+'M' : '';
+        h += '<div style="font-size:9px;padding:3px 0;border-bottom:1px solid rgba(240,237,232,0.04)">';
+        h += '<div style="display:flex;justify-content:space-between"><span style="'+badge+'">'+p.name.substring(0,35)+'</span><span>'+p.dist.toFixed(1)+' mi</span></div>';
+        h += '<div style="color:rgba(240,237,232,0.4)">'+(p.kv?p.kv+'kV':'')+(p.ftype?' \u2022 '+p.ftype:'')+(pCost?' \u2022 '+pCost:'')+'</div>';
+        h += '</div>';
+      });
+    }
+  }
+  h += '</div>';
+  result.html = h;
+  return result;
+}
+
+// ===== PARCELS (Regrid API) =====
+async function screenParcels(lat, lng) {
+  var result = {html:'', count300ac:0, noFlood:0};
+  
+  var h = '<div class="pf-section">';
+  h += '<div class="pf-section-title">AVAILABLE LAND</div>';
+  
+  try {
+    // Query Regrid for parcels > 300 acres within ~5 miles
+    // Create a bounding box roughly 5 miles in each direction
+    var dLat = 5/69;  // ~5 miles in degrees lat
+    var dLng = 5/(69*Math.cos(lat*Math.PI/180));
+    var bbox = (lng-dLng)+','+(lat-dLat)+','+(lng+dLng)+','+(lat+dLat);
+    
+    var url = 'https://app.regrid.com/api/v2/parcels/query?token='+REGRID_TOKEN
+      +'&bbox='+bbox
+      +'&fields[ll_gisacre][gte]=300'
+      +'&limit=200';
+    
+    var r = await fetch(url);
+    var d = await r.json();
+    var parcels = d.parcels ? d.parcels.features : (d.features||[]);
+    
+    result.count300ac = parcels.length;
+    
+    // Check flood exposure for each parcel
+    var noFloodCount = 0;
+    parcels.forEach(function(f){
+      var p = f.properties.fields || f.properties || {};
+      var fema = p.fema_nri_risk_rating || '';
+      if(fema.indexOf('High') < 0 || fema.indexOf('Relatively') >= 0){
+        noFloodCount++;
+      }
+    });
+    result.noFlood = noFloodCount;
+    
+    if(parcels.length === 0){
+      h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">No parcels over 300 acres within ~5 miles</div>';
+    } else {
+      h += '<div class="pf-stat"><span class="pf-stat-label">Parcels 300+ acres (5 mi)</span><span class="pf-stat-value">'+parcels.length+'</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Low/No Flood Risk</span><span class="pf-stat-value" style="color:#66BB6A">'+noFloodCount+'</span></div>';
+      
+      // Show top 3 by acreage
+      var sorted = parcels.sort(function(a,b){
+        var aa = (a.properties.fields||a.properties||{}).ll_gisacre||0;
+        var ba = (b.properties.fields||b.properties||{}).ll_gisacre||0;
+        return ba - aa;
+      });
+      sorted.slice(0,3).forEach(function(f){
+        var p = f.properties.fields || f.properties || {};
+        var acres = parseFloat(p.ll_gisacre||0).toFixed(0);
+        var owner = p.owner || 'Unknown';
+        var fema = p.fema_nri_risk_rating || '';
+        var femaCol = fema.indexOf('High')>=0 && fema.indexOf('Relatively')<0 ? '#EF5350' : '#66BB6A';
+        h += '<div style="font-size:9px;padding:2px 0;display:flex;justify-content:space-between"><span style="color:rgba(240,237,232,0.5)">'+owner.substring(0,30)+' ('+acres+' ac)</span><span style="color:'+femaCol+'">'+(fema||'N/A')+'</span></div>';
+      });
+    }
+  } catch(e) {
+    h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">Regrid query failed: '+e.message+'</div>';
+  }
+  
+  h += '</div>';
+  result.html = h;
+  return result;
+}
+
+// ===== BUILD SUMMARY SENTENCE =====
+function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
+  var el = document.getElementById('si-summary');
+  if(!el) return;
+  
+  var parts = [];
+  
+  // Gas
+  if(gas.nearestPoint){
+    var g = gas.nearestPoint;
+    var s = 'Gas interconnect <b>'+g.name+'</b> on <b>'+g.pipeline+'</b>';
+    if(gas.iocMdq > 0){
+      var mw = Math.round(gas.iocMdq/24*0.293);
+      s += ' has <b style="color:#FDD835">'+gas.iocMdq.toLocaleString()+' Dth/d</b> of firm contracts expiring by 2027, equivalent to <b style="color:#FDD835">~'+mw.toLocaleString()+' MW</b> of combined-cycle capacity';
+    }
+    s += '.';
+    parts.push(s);
+  }
+  
+  // Grid
+  if(grid.nearestSub){
+    var s = 'Nearest 345kV+ substation is <b>'+grid.nearestSub.dist.toFixed(1)+' miles</b> at <b>'+grid.nearestSub.name+'</b>';
+    s += ' ('+grid.nearestSub.kv+' kV)';
+    s += '.';
+    parts.push(s);
+  }
+  
+  // Planned TX
+  if(planned.count > 0){
+    var costStr = planned.totalInvestment >= 1e9 ? '$'+(planned.totalInvestment/1e9).toFixed(1)+'B' : planned.totalInvestment >= 1e6 ? '$'+(planned.totalInvestment/1e6).toFixed(0)+'M' : '';
+    parts.push('<b>'+planned.count+'</b> planned transmission projects within 15 miles'+(costStr ? ' representing <b>'+costStr+'</b> in investment' : '')+'.');
+  }
+  
+  // LMP
+  if(lmp.nearestNode){
+    var s = 'LMP at nearest node averages <b>$'+lmp.avg30d.toFixed(2)+'/MWh</b> (30d)';
+    if(lmp.zoneAvg !== null){
+      var zone = lmp.nearestNode.lz || lmp.nearestNode.zone || '';
+      s += ', '+(lmp.avg30d < lmp.zoneAvg ? '<span style="color:#66BB6A">below</span>' : '<span style="color:#FDD835">above</span>')+' the '+zone+' average of $'+lmp.zoneAvg.toFixed(2)+'/MWh';
+    }
+    s += '.';
+    parts.push(s);
+  }
+  
+  // Queue
+  if(queue.count > 0){
+    parts.push('Queue competition: <b>'+queue.count+'</b> active projects totaling <b>'+queue.totalMW.toLocaleString()+' MW</b> within 25 miles.');
+  }
+  
+  // Parcels
+  if(parcels.count300ac > 0){
+    parts.push('<b>'+parcels.count300ac+'</b> parcels over 300 acres within 5 miles, <b>'+parcels.noFlood+'</b> with low flood risk.');
+  }
+  
+  if(parts.length > 0){
+    el.style.display = 'block';
+    el.innerHTML = '<div class="pf-section"><div class="pf-section-title">SITE ASSESSMENT</div>'
+      + '<div style="font-size:12px;line-height:1.8;color:#F0EDE8">'
+      + parts.join(' ')
+      + '</div>'
+      + '<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:8px">Corridor Intelligence \u2022 Pre-feasibility screening \u2022 Not a formal interconnection study</div>'
+      + '</div>';
+  }
+}
+
+
 // Gas Interconnects (FERC EBB data)
 var gasIxLayer=L.layerGroup();
 var gasIxLoaded=false;
@@ -2293,6 +2864,7 @@ fetch('data/ioc_contracts.json').then(function(r){return r.json()}).catch(functi
 ]).then(function(results){
 gasIxLoaded=true;
 iocData=results[1];
+window.gasIxData=results[0];
 renderGasIx(results[0]);
 });
 }else{gasIxLayer.addTo(map)}
@@ -2372,7 +2944,8 @@ h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:3px">Source
 }else{
 h+='<div style="color:rgba(240,237,232,0.3)">Capacity not specified by TSP</div>';
 }
-h+='<div style="text-align:center;margin-top:6px"><a href="#" onclick="event.preventDefault();showGasMethod()" style="color:#C4854C;font-size:9px;text-decoration:underline;cursor:pointer">Data Source & Methodology</a></div>';
+h+='<div style="text-align:center;margin-top:8px"><button onclick="event.preventDefault();screenSite('+p.lat+','+p.lng+',this)" style="background:#C4854C;color:#1B2B3A;border:none;padding:7px 16px;border-radius:5px;font-family:DM Sans,sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px">\u26A1 Screen Site</button></div>';
+h+='<div style="text-align:center;margin-top:4px"><a href="#" onclick="event.preventDefault();showGasMethod()" style="color:#C4854C;font-size:9px;text-decoration:underline;cursor:pointer">Data Source & Methodology</a></div>';
 h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:4px">Source: FERC EBB | Updated: '+pl.updated+'</div>';
 m.bindPopup(h,{maxWidth:320,maxHeight:400,autoPan:true});
 gasIxLayer.addLayer(m);
@@ -2541,7 +3114,7 @@ popup+='<div style="margin-top:4px;font-size:9px;color:rgba(240,237,232,0.4)">Li
 }
 popup+='<div style="display:flex;justify-content:space-between;margin-top:4px"><span>Existing Load</span><b>'+s.existing_load+' MW</b></div>';
 if(s.kv>=115&&s.lng>=-107&&s.lng<=-93&&s.lat>=25&&s.lat<=37){
-popup+='<div style="margin-top:8px;text-align:center"><button onclick="screenCapacity('+s.lat+','+s.lng+',this)" style="background:rgba(196,133,76,0.15);color:#C4854C;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(196,133,76,0.3);cursor:pointer;font-family:inherit;width:100%">&#x26A1; Full Screening Report</button></div>';
+popup+='<div style="margin-top:8px;text-align:center"><button onclick="screenSite('+s.lat+','+s.lng+',this)" style="background:rgba(196,133,76,0.15);color:#C4854C;padding:5px 12px;border-radius:5px;font-weight:600;font-size:10px;border:1px solid rgba(196,133,76,0.3);cursor:pointer;font-family:inherit;width:100%">&#x26A1; Full Screening Report</button></div>';
 }
 m.bindPopup(popup,{maxWidth:300});
 capLayer.addLayer(m);
