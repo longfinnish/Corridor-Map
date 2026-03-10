@@ -2406,6 +2406,25 @@ function screenGas(lat, lng) {
       h += '<div class="pf-stat"><span class="pf-stat-label">Available</span><span class="pf-stat-value" style="color:'+availCol+'">'+n.available.toLocaleString()+' Dth/d (~'+availMw+' MW CC)</span></div>';
     }
     
+    // Unsubscribed capacity (contractable capacity with no firm shipper)
+    var unsubVal = 0;
+    if(window.unsubData && window.unsubData.pipelines){
+      // Find matching pipeline in unsub data
+      for(var uk in window.unsubData.pipelines){
+        if(n.pipeline.toLowerCase().indexOf(uk.toLowerCase().substring(0,8))>=0 || uk.toLowerCase().indexOf(n.pipeline.toLowerCase().substring(0,8))>=0){
+          var pointUnsub = window.unsubData.pipelines[uk][String(n.id)];
+          if(pointUnsub !== undefined){
+            unsubVal = pointUnsub;
+            var unsubMw = Math.round(unsubVal/24*0.293);
+            var unsubCol = unsubVal > 100000 ? '#66BB6A' : unsubVal > 10000 ? '#FDD835' : unsubVal > 0 ? '#FF9800' : 'rgba(240,237,232,0.3)';
+            h += '<div class="pf-stat"><span class="pf-stat-label">Unsubscribed (Contractable)</span><span class="pf-stat-value" style="color:'+unsubCol+'">'+unsubVal.toLocaleString()+' Dth/d (~'+unsubMw+' MW CC)</span></div>';
+            result.unsubDthd = unsubVal;
+            break;
+          }
+        }
+      }
+    }
+    
     // IOC for this pipeline — try point-level first (by ID), then pipeline-level
     var pd = pipeIoc[n.pipeline];
     if(pd){
@@ -2912,12 +2931,16 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
   if(gas.nearestPoint){
     var g = gas.nearestPoint;
     var s = 'Gas interconnect <b>'+g.name+'</b> on <b>'+g.pipeline+'</b>';
+    if(gas.unsubDthd > 0){
+      var unsubMw = Math.round(gas.unsubDthd/24*0.293);
+      s += ' has <b style="color:#66BB6A">'+gas.unsubDthd.toLocaleString()+' Dth/d</b> of unsubscribed capacity (~<b style="color:#66BB6A">'+unsubMw.toLocaleString()+' MW</b> CC equivalent) available for contract';
+    }
     if(gas.iocMdq > 0){
       var mw = Math.round(gas.iocMdq/24*0.293);
       if(gas.iocPointLevel){
-        s += ' has <b style="color:#FDD835">'+gas.iocExpiring+'</b> contracts totaling <b style="color:#FDD835">'+gas.iocMdq.toLocaleString()+' Dth/d</b> expiring at this point by 2027 (~<b style="color:#FDD835">'+mw.toLocaleString()+' MW</b> CC equivalent)';
+        s += (gas.unsubDthd > 0 ? ', plus' : ' has')+' <b style="color:#FDD835">'+gas.iocExpiring+'</b> contracts totaling <b style="color:#FDD835">'+gas.iocMdq.toLocaleString()+' Dth/d</b> expiring at this point by 2027';
       } else {
-        s += '. Across the '+g.pipeline+' system, <b style="color:#FDD835">'+gas.iocExpiring+'</b> contracts totaling <b style="color:#FDD835">'+gas.iocMdq.toLocaleString()+' Dth/d</b> expire by 2027 (~<b style="color:#FDD835">'+mw.toLocaleString()+' MW</b> CC equivalent)';
+        s += '. Across the '+g.pipeline+' system, <b style="color:#FDD835">'+gas.iocExpiring+'</b> contracts totaling <b style="color:#FDD835">'+gas.iocMdq.toLocaleString()+' Dth/d</b> expire by 2027';
       }
     }
     s += '.';
@@ -2988,11 +3011,13 @@ if(on){
 if(!gasIxLoaded){
 Promise.all([
 fetch('data/gas_interconnects.json').then(function(r){return r.json()}),
-fetch('data/ioc_contracts.json').then(function(r){return r.json()}).catch(function(){return null})
+fetch('data/ioc_contracts.json').then(function(r){return r.json()}).catch(function(){return null}),
+fetch('data/unsub_capacity.json').then(function(r){return r.json()}).catch(function(){return null})
 ]).then(function(results){
 gasIxLoaded=true;
 iocData=results[1];
 window.gasIxData=results[0];
+window.unsubData=results[2];
 renderGasIx(results[0]);
 });
 }else{gasIxLayer.addTo(map)}
