@@ -2441,90 +2441,89 @@ function screenGas(lat, lng) {
 function screenGrid(lat, lng) {
   var result = {html:'', nearestSub:null, pfHeadroom:null};
   
-  // Find nearest substation from capacity screening data or HIFLD subs
-  var nearSubs = [];
-  
-  // Check if capacity screening data is loaded
-  if(capData){
-    capData.forEach(function(s){
-      if(!s.lat||!s.lng) return;
-      var d = haversine(lat, lng, s.lat, s.lng);
-      if(d <= 30){
-        nearSubs.push({dist:d, name:s.name||'', kv:s.kv||345, lat:s.lat, lng:s.lng, cap_mw:s.cap_mw});
-      }
-    });
-  }
-  
-  // Also check from subs global (HIFLD)
-  for(var k in subs){
-    var s = subs[k];
-    if(!s.lat||!s.lng) continue;
-    var d = haversine(lat, lng, s.lat, s.lng);
-    if(d <= 30 && (s.v||0) >= 345){
-      // Check if already in list
-      var exists = nearSubs.some(function(ns){return Math.abs(ns.lat-s.lat)<0.01 && Math.abs(ns.lng-s.lng)<0.01});
-      if(!exists){
-        nearSubs.push({dist:d, name:s.name||k, kv:s.v||345, lat:s.lat, lng:s.lng});
-      }
-    }
-  }
-  
-  nearSubs.sort(function(a,b){return a.dist - b.dist});
-  
   var h = '<div class="pf-section">';
   h += '<div class="pf-section-title">GRID INFRASTRUCTURE</div>';
-  
-  if(nearSubs.length === 0){
-    h += '<div style="color:rgba(240,237,232,0.3);font-size:11px">No 345kV+ substations within 30 miles</div>';
-  } else {
-    var ns = nearSubs[0];
-    result.nearestSub = ns;
-    
-    h += '<div class="pf-stat"><span class="pf-stat-label">Nearest 345kV+ Sub</span><span class="pf-stat-value">'+ns.name+'</span></div>';
-    h += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+ns.dist.toFixed(1)+' mi</span></div>';
-    h += '<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+ns.kv+' kV</span></div>';
-    if(ns.cap_mw) h += '<div class="pf-stat"><span class="pf-stat-label">Capacity</span><span class="pf-stat-value">'+ns.cap_mw.toLocaleString()+' MW</span></div>';
-    
-    // Power flow — fire async, update when ready
-    h += '<div id="si-pf" style="margin-top:6px"><div class="pf-loading" style="padding:8px 0;justify-content:flex-start"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div><span>Running power flow...</span></div></div>';
-    
-    // Fire power flow async
-    fetch(SCREEN_API+'/screen?lat='+lat+'&lng='+lng).then(function(r){return r.json()}).then(function(d){
-      var pfEl = document.getElementById('si-pf');
-      if(!pfEl) return;
-      var headroom = d.headroom_mw;
-      if(headroom===undefined && d.screening) headroom = d.screening.safe_capacity_mw||0;
-      if(headroom===undefined || headroom===null) headroom = 0;
-      
-      result.pfHeadroom = headroom;
-      var hc = headroom>=500?'#66BB6A':headroom>=200?'#FDD835':'#EF5350';
-      var ph = '<div class="pf-stat"><span class="pf-stat-label">Injection Headroom</span><span class="pf-stat-value" style="color:'+hc+'">~'+headroom.toLocaleString()+' MW</span></div>';
-      
-      var binding = d.binding||{};
-      if(!binding.from_bus && d.screening && d.screening.steps){
-        var fc = d.screening.steps.find(function(s){return s.status!=='OK'});
-        if(fc && fc.overloads && fc.overloads[0]) binding = {from_bus:fc.overloads[0].from, to_bus:fc.overloads[0].to};
-      }
-      if(binding.from_bus){
-        ph += '<div style="font-size:9px;color:rgba(240,237,232,0.35)">Binding: '+binding.from_bus+' \u2192 '+binding.to_bus+'</div>';
-      }
-      ph += '<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:2px">DC power flow \u2022 Synthetic grid model</div>';
-      pfEl.innerHTML = ph;
-      
-      // Rebuild summary if exists
-      var sumEl = document.getElementById('si-summary');
-      if(sumEl) sumEl.setAttribute('data-pf-headroom', headroom);
-    }).catch(function(e){
-      var pfEl = document.getElementById('si-pf');
-      if(pfEl) pfEl.innerHTML = '<div style="font-size:10px;color:rgba(240,237,232,0.25)">Power flow unavailable</div>';
-    });
-    
-    if(nearSubs.length > 1){
-      h += '<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-top:4px">'+nearSubs.length+' substations 345kV+ within 30 mi</div>';
-    }
-  }
+  h += '<div id="si-grid-inner"><div class="pf-loading" style="padding:12px 0"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div><span>Loading substations...</span></div></div>';
   h += '</div>';
   result.html = h;
+  
+  // Fetch capData if not loaded, then populate
+  var doGrid = function(data){
+    var nearSubs = [];
+    if(data){
+      data.forEach(function(s){
+        if(!s.lat||!s.lng) return;
+        var d = haversine(lat, lng, s.lat, s.lng);
+        if(d <= 30){
+          nearSubs.push({dist:d, name:s.name||'', kv:s.kv||345, lat:s.lat, lng:s.lng, cap_mw:s.cap_mw});
+        }
+      });
+    }
+    nearSubs.sort(function(a,b){return a.dist - b.dist});
+    
+    var el = document.getElementById('si-grid-inner');
+    if(!el) return;
+    
+    var gh = '';
+    if(nearSubs.length === 0){
+      gh = '<div style="color:rgba(240,237,232,0.3);font-size:11px">No 345kV+ substations within 30 miles</div>';
+    } else {
+      var ns = nearSubs[0];
+      result.nearestSub = ns;
+      
+      gh += '<div class="pf-stat"><span class="pf-stat-label">Nearest 345kV+ Sub</span><span class="pf-stat-value">'+ns.name+'</span></div>';
+      gh += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+ns.dist.toFixed(1)+' mi</span></div>';
+      gh += '<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+ns.kv+' kV</span></div>';
+      if(ns.cap_mw) gh += '<div class="pf-stat"><span class="pf-stat-label">Capacity</span><span class="pf-stat-value">'+ns.cap_mw.toLocaleString()+' MW</span></div>';
+      
+      gh += '<div id="si-pf" style="margin-top:6px"><div class="pf-loading" style="padding:8px 0;justify-content:flex-start"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div><span>Running power flow...</span></div></div>';
+      
+      // Fire power flow async
+      fetch(SCREEN_API+'/screen?lat='+lat+'&lng='+lng).then(function(r){return r.json()}).then(function(d){
+        var pfEl = document.getElementById('si-pf');
+        if(!pfEl) return;
+        var headroom = d.headroom_mw;
+        if(headroom===undefined && d.screening) headroom = d.screening.safe_capacity_mw||0;
+        if(headroom===undefined || headroom===null) headroom = 0;
+        
+        result.pfHeadroom = headroom;
+        var hc = headroom>=500?'#66BB6A':headroom>=200?'#FDD835':'#EF5350';
+        var ph = '<div class="pf-stat"><span class="pf-stat-label">Injection Headroom</span><span class="pf-stat-value" style="color:'+hc+'">~'+headroom.toLocaleString()+' MW</span></div>';
+        
+        var binding = d.binding||{};
+        if(!binding.from_bus && d.screening && d.screening.steps){
+          var fc = d.screening.steps.find(function(s){return s.status!=='OK'});
+          if(fc && fc.overloads && fc.overloads[0]) binding = {from_bus:fc.overloads[0].from, to_bus:fc.overloads[0].to};
+        }
+        if(binding.from_bus){
+          ph += '<div style="font-size:9px;color:rgba(240,237,232,0.35)">Binding: '+binding.from_bus+' \u2192 '+binding.to_bus+'</div>';
+        }
+        ph += '<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:2px">DC power flow \u2022 Synthetic grid model</div>';
+        pfEl.innerHTML = ph;
+      }).catch(function(e){
+        var pfEl = document.getElementById('si-pf');
+        if(pfEl) pfEl.innerHTML = '<div style="font-size:10px;color:rgba(240,237,232,0.25)">Power flow unavailable</div>';
+      });
+      
+      if(nearSubs.length > 1){
+        gh += '<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-top:4px">'+nearSubs.length+' substations 345kV+ within 30 mi</div>';
+      }
+    }
+    el.innerHTML = gh;
+  };
+  
+  if(capData){
+    doGrid(capData);
+  } else {
+    fetch('data/capacity_screening.json').then(function(r){return r.json()}).then(function(data){
+      capData = data;
+      doGrid(data);
+    }).catch(function(e){
+      var el = document.getElementById('si-grid-inner');
+      if(el) el.innerHTML = '<div style="color:rgba(240,237,232,0.3);font-size:11px">Substation data unavailable</div>';
+    });
+  }
+  
   return result;
 }
 
