@@ -1,0 +1,113 @@
+name: Quarterly IOC + Full Refresh Reminder
+
+on:
+  schedule:
+    - cron: '0 14 3 1,4,7,10 *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create quarterly refresh issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const quarter = ['Q1','Q1','Q1','Q2','Q2','Q2','Q3','Q3','Q3','Q4','Q4','Q4'][new Date().getMonth()];
+            const year = new Date().getFullYear();
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Quarterly Full Refresh — ${quarter} ${year}`,
+              body: `## Quarterly Full Refresh (IOC + Unsub + TPIT)
+
+            This is the big one. Download all files below, sort into folders, run the three commands.
+
+            ---
+
+            ## PART 1: IOC Contracts (22 files → \`refresh/ioc/\`)
+
+            ### Kinder Morgan (8 files — Excel export)
+
+            1. [Tennessee Gas Pipeline](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TGP)
+            2. [NGPL](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=NGPL)
+            3. [El Paso Natural Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=EPNG)
+            4. [Southern Natural Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=SNG)
+            5. [Colorado Interstate Gas](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=CIG)
+            6. [Midcontinent Express](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=MEP)
+            7. [KM Illinois](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMIL)
+            8. [KM Louisiana](https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMLP)
+
+            ### TC Energy eConnects (5 files — IC file download)
+
+            Portal: https://ebb.tceconnects.com/infopost/
+
+            9. ANR Pipeline (ANR) → Index of Customers → Download
+            10. Columbia Gas (TCO) → Index of Customers → Download
+            11. Columbia Gulf (CGT) → Index of Customers → Download
+            12. Northern Border (NBPL) → Index of Customers → Download
+            13. Crossroads (XRD) → Index of Customers → Download
+
+            ### Williams 1Line (1 file — XLS download)
+
+            14. [Transco IOC](https://www.1line.williams.com/Transco/info-postings/index-of-customers.html)
+
+            ### DT Midstream Trellis (1 file — CSV download)
+
+            15. [Midwestern Gas IOC](https://dtmidstream.trellisenergy.com/ptms/home/infopost/MGT) → Customer Index → CSV
+
+            ### Tallgrass Energy (3 files — txt download)
+
+            Portal: https://pipeline.tallgrassenergylp.com/
+
+            16. Rockies Express (REX) → Index of Customers → Download txt
+            17. Trailblazer → Index of Customers → Download txt
+            18. TIGT → Index of Customers → Download txt
+
+            ### Vector Pipeline (1 file — txt download)
+
+            19. [Vector IOC Download](https://www.vector-pipeline.com/Informational-Postings/Downloads/Index-of-Customers)
+
+            ### Northern Natural Gas (1 file — CSV download)
+
+            20. [NNG IOC](https://www.northernnaturalgas.com/infopostings/Pages/IndexOfCustomers.aspx)
+
+            ### Boardwalk Gasquest (2 files — TAB download)
+
+            Portal: https://www.gasquest.com/informational-posting
+
+            21. Gulf South Pipeline → Index of Customers → Download .TAB
+            22. Texas Gas Transmission → Index of Customers → Download .TAB
+
+            ---
+
+            ## PART 2: Unsub Capacity (19 files → \`refresh/unsub/\`)
+
+            Do the normal monthly unsub refresh (see monthly issue for full URL list).
+
+            ---
+
+            ## PART 3: ERCOT TPIT (1 file → \`refresh/tpit/\`)
+
+            23. [ERCOT TPIT](https://www.ercot.com/gridinfo/planning) → Download latest Transmission Project Information Tracking xlsx
+
+            ---
+
+            ## PART 4: Queue Refresh
+
+            24. Run queue refresh skill in Claude.ai conversation (uploads MISO CSV, pulls ERCOT+SPP via gridstatus)
+
+            ---
+
+            **After downloading:**
+            1. Sort files into \`refresh/ioc/\`, \`refresh/unsub/\`, \`refresh/tpit/\`
+            2. Open Claude Code in Corridor-Map directory
+            3. Run \`/refresh-ioc\`
+            4. Run \`/refresh-unsub\`
+            5. Run \`/refresh-tpit\`
+
+            *Current: 32 pipelines IOC (8,251 contracts) | 23 pipelines unsub | 873 planned TX projects*`
+            });
