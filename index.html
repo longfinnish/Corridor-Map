@@ -3036,8 +3036,8 @@ gasIxLayer.clearLayers();
 var pipelines=data.pipelines||[{name:data.pipeline,short:data.pipeline,updated:data.updated,points:data.points}];
 pipelines.forEach(function(pl){
 pl.points.forEach(function(p){
-var col=gasIxColor(p.type,p.utilization);
-var radius=p.design>500000?7:p.design>100000?6:p.design>10000?5:4;
+var col=gasIxColor(p.type,p.utilization||0);
+var radius=(p.design||0)>500000?7:(p.design||0)>100000?6:(p.design||0)>10000?5:4;
 var m=L.circleMarker([p.lat,p.lng],{radius:radius,fillColor:col,fillOpacity:0.85,color:'#fff',weight:1,pane:'markerPane'});
 var h='<b>'+p.name+'</b>';
 h+='<br><span style="color:#00E5FF">'+pl.name+'</span>';
@@ -3045,21 +3045,22 @@ h+='<br>Type: '+(p.type==='delivery'?'Delivery Point':(p.type==='receipt'?'Recei
 if(p.county)h+='<br>County: '+p.county+', '+p.state;
 else if(p.state)h+='<br>Region: '+p.state;
 if(p.connected)h+='<br>Connected to: '+p.connected;
-var accLabel=p.loc_accuracy==='hifld'?'<span style="color:#66BB6A;font-size:8px">\u2022 HIFLD geocoded</span>':p.loc_accuracy==='county'?'<span style="color:#FDD835;font-size:8px">\u2022 County centroid (approx)</span>':'<span style="color:#FF9800;font-size:8px">\u2022 Zone estimate (rough)</span>';
+var locQ=p.loc_accuracy||p.loc_quality||'';
+var accLabel=locQ==='hifld'||locQ==='rrc_snap'?'<span style="color:#66BB6A;font-size:8px">\u2022 HIFLD geocoded</span>':locQ==='county'?'<span style="color:#FDD835;font-size:8px">\u2022 County centroid (approx)</span>':'<span style="color:#FF9800;font-size:8px">\u2022 Zone estimate</span>';
 h+='<br>'+accLabel;
 h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
 h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">CAPACITY (FERC EBB)</div>';
 if(p.design>0){
 h+='<div style="display:flex;justify-content:space-between"><span>Design Capacity</span><b>'+p.design.toLocaleString()+' MMBtu/d</b></div>';
-h+='<div style="display:flex;justify-content:space-between"><span>Scheduled Today</span><b>'+p.scheduled.toLocaleString()+' MMBtu/d</b></div>';
-h+='<div style="display:flex;justify-content:space-between"><span>Available</span><b style="color:'+col+'">'+p.available.toLocaleString()+' MMBtu/d</b></div>';
-h+='<div style="display:flex;justify-content:space-between"><span>Utilization</span><b style="color:'+col+'">'+p.utilization+'%</b></div>';
+if(p.scheduled!=null)h+='<div style="display:flex;justify-content:space-between"><span>Scheduled Today</span><b>'+(p.scheduled||0).toLocaleString()+' MMBtu/d</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Available</span><b style="color:'+col+'">'+(p.available||0).toLocaleString()+' MMBtu/d</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Utilization</span><b style="color:'+col+'">'+(p.utilization||0)+'%</b></div>';
 if(p.avg_utilization_30d!=null){
 h+='<div style="display:flex;justify-content:space-between"><span>30-Day Avg Utilization</span><b>'+p.avg_utilization_30d+'%</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>30-Day Peak</span><b>'+p.peak_utilization_30d+'%</b></div>';
 h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:1px">Based on '+p.days_of_data+' days of data</div>';
 }
-var availMw=Math.round(p.available/24*0.293);
+var availMw=Math.round((p.available||0)/24*0.293);
 h+='<div style="display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid rgba(240,237,232,0.1)"><span>Avail. Generation Equiv</span><b style="color:'+col+'">~'+availMw.toLocaleString()+' MW</b></div>';
 h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:2px">Based on available capacity at ~7,000 BTU/kWh CC heat rate</div>';
 if(p.firm_contracted!=null){
