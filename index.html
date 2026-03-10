@@ -2863,13 +2863,16 @@ async function screenParcels(lat, lng) {
   
   try {
     // Query Regrid for parcels > 300 acres within ~5 miles
-    // Create a bounding box roughly 5 miles in each direction
+    // Create a GeoJSON polygon roughly 5 miles in each direction
     var dLat = 5/69;  // ~5 miles in degrees lat
     var dLng = 5/(69*Math.cos(lat*Math.PI/180));
-    var bbox = (lng-dLng)+','+(lat-dLat)+','+(lng+dLng)+','+(lat+dLat);
+    var poly = JSON.stringify({
+      "type":"Polygon",
+      "coordinates":[[[lng-dLng,lat-dLat],[lng+dLng,lat-dLat],[lng+dLng,lat+dLat],[lng-dLng,lat+dLat],[lng-dLng,lat-dLat]]]
+    });
     
     var url = 'https://app.regrid.com/api/v2/parcels/query?token='+REGRID_TOKEN
-      +'&bbox='+bbox
+      +'&geojson='+encodeURIComponent(poly)
       +'&fields[ll_gisacre][gte]=300'
       +'&limit=200';
     
