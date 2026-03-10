@@ -3117,6 +3117,16 @@ async function runPowerScan(){
         if(!nearDC)return;
       }
 
+      // Region filter first (cheapest check)
+      if(region!=='all'){
+        var st=p.state||'';
+        if(region==='ERCOT'&&ercotStates.indexOf(st)<0)return;
+        if(region==='SPP'&&sppStates.indexOf(st)<0)return;
+        if(region==='MISO'&&misoStates.indexOf(st)<0)return;
+      }
+
+      scanned++;
+
       // Gas MW calculation
       var unsubDthd=0;
       if(pipeUnsub){
@@ -3132,32 +3142,27 @@ async function runPowerScan(){
       var availMW=Math.round((p.available||p.design||0)/24*0.293);
       var gasMW=Math.max(unsubMW,availMW);
 
-      // Grid MW — find nearest substation
+      // Skip if gas alone can't possibly meet threshold (grid max is 500)
+      if(gasMW+500<minMW)return;
+
+      // Grid MW — find nearest substation (use rough lat/lng filter first)
       var nearestSub=null;var nearestSubDist=999;
+      var latR=15/69;var lngR=15/(69*Math.cos(p.lat*Math.PI/180));
       for(var si=0;si<subs.length;si++){
         var s=subs[si];
+        if(Math.abs(s.lat-p.lat)>latR||Math.abs(s.lng-p.lng)>lngR)continue;
         var sd=haversineMi(p.lat,p.lng,s.lat,s.lng);
         if(sd<nearestSubDist){nearestSubDist=sd;nearestSub=s}
       }
       var gridMW=0;var subInfo='';
       if(nearestSub&&nearestSubDist<15){
-        gridMW=nearestSub.safe_mw||100;// Synthetic safe injection MW until CEII
-        if(gridMW>1000)gridMW=Math.min(gridMW,500);// Cap synthetic estimates at 500 MW
+        gridMW=nearestSub.safe_mw||100;
+        if(gridMW>500)gridMW=500;
         subInfo=nearestSub.name+' ('+nearestSubDist.toFixed(1)+' mi, '+nearestSub.kv+' kV)';
       }
 
       var combinedMW=gasMW+gridMW;
       if(combinedMW<minMW)return;
-
-      // Region filter
-      if(region!=='all'){
-        var st=p.state||'';
-        if(region==='ERCOT'&&ercotStates.indexOf(st)<0){skippedRegion++;return}
-        if(region==='SPP'&&sppStates.indexOf(st)<0){skippedRegion++;return}
-        if(region==='MISO'&&misoStates.indexOf(st)<0){skippedRegion++;return}
-      }
-
-      scanned++;
 
       candidates.push({
         name:p.name,pipeline:pipeName,lat:p.lat,lng:p.lng,
