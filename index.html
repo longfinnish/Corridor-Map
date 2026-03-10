@@ -2412,8 +2412,9 @@ function screenGas(lat, lng) {
       result.iocExpiring = pd.expiring_count;
       result.iocMdq = pd.expiring_mdq;
       h += '<hr style="border:none;border-top:1px solid rgba(240,237,232,0.08);margin:8px 0">';
+      h += '<div style="font-size:8px;color:rgba(240,237,232,0.35);margin-bottom:4px">'+n.pipeline+' system-wide (not point-specific):</div>';
       h += '<div class="pf-stat"><span class="pf-stat-label">Contracts Expiring 2026-27</span><span class="pf-stat-value" style="color:#FDD835">'+pd.expiring_count+'</span></div>';
-      h += '<div class="pf-stat"><span class="pf-stat-label">Expiring MDQ</span><span class="pf-stat-value" style="color:#FDD835">'+pd.expiring_mdq.toLocaleString()+' Dth/d</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Expiring MDQ (pipeline-wide)</span><span class="pf-stat-value" style="color:#FDD835">'+pd.expiring_mdq.toLocaleString()+' Dth/d</span></div>';
       h += '<div class="pf-stat"><span class="pf-stat-label">CC Generation Equiv</span><span class="pf-stat-value" style="color:#FDD835">~'+expMw.toLocaleString()+' MW</span></div>';
       
       // Top 3 expiring
@@ -2450,23 +2451,38 @@ function screenGrid(lat, lng) {
   // Fetch capData if not loaded, then populate
   var doGrid = function(data){
     var nearSubs = [];
+    var nearAnySubs = [];
     if(data){
       data.forEach(function(s){
         if(!s.lat||!s.lng) return;
         var d = haversine(lat, lng, s.lat, s.lng);
-        if(d <= 30){
+        if(d <= 30 && (s.kv||0) >= 345){
           nearSubs.push({dist:d, name:s.name||'', kv:s.kv||345, lat:s.lat, lng:s.lng, cap_mw:s.cap_mw});
+        }
+        // Also track nearest sub of any voltage for context
+        if(d <= 15 && (s.kv||0) >= 115){
+          nearAnySubs.push({dist:d, name:s.name||'', kv:s.kv||0, lat:s.lat, lng:s.lng, cap_mw:s.cap_mw});
         }
       });
     }
     nearSubs.sort(function(a,b){return a.dist - b.dist});
+    nearAnySubs.sort(function(a,b){return a.dist - b.dist});
     
     var el = document.getElementById('si-grid-inner');
     if(!el) return;
     
     var gh = '';
     if(nearSubs.length === 0){
-      gh = '<div style="color:rgba(240,237,232,0.3);font-size:11px">No 345kV+ substations within 30 miles</div>';
+      if(nearAnySubs.length > 0){
+        var ns = nearAnySubs[0];
+        result.nearestSub = ns;
+        gh += '<div class="pf-stat"><span class="pf-stat-label">Nearest Substation</span><span class="pf-stat-value">'+ns.name+'</span></div>';
+        gh += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+ns.dist.toFixed(1)+' mi</span></div>';
+        gh += '<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+ns.kv+' kV</span></div>';
+        gh += '<div style="font-size:9px;color:#FDD835;margin-top:4px">No 345kV+ substations within 30 miles</div>';
+      } else {
+        gh = '<div style="color:rgba(240,237,232,0.3);font-size:11px">No substations within 30 miles</div>';
+      }
     } else {
       var ns = nearSubs[0];
       result.nearestSub = ns;
@@ -2789,7 +2805,7 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
     var s = 'Gas interconnect <b>'+g.name+'</b> on <b>'+g.pipeline+'</b>';
     if(gas.iocMdq > 0){
       var mw = Math.round(gas.iocMdq/24*0.293);
-      s += ' has <b style="color:#FDD835">'+gas.iocMdq.toLocaleString()+' Dth/d</b> of firm contracts expiring by 2027, equivalent to <b style="color:#FDD835">~'+mw.toLocaleString()+' MW</b> of combined-cycle capacity';
+      s += '. Across the '+g.pipeline+' system, <b style="color:#FDD835">'+gas.iocExpiring+'</b> contracts totaling <b style="color:#FDD835">'+gas.iocMdq.toLocaleString()+' Dth/d</b> expire by 2027 (~<b style="color:#FDD835">'+mw.toLocaleString()+' MW</b> CC equivalent)';
     }
     s += '.';
     parts.push(s);
