@@ -3065,21 +3065,28 @@ async function runPowerScan(){
     return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
   }
 
+  var ercotStates=['TX'];
+  var sppStates=['OK','KS','NE','AR','NM','SD','ND'];
+  var misoStates=['IA','MN','WI','IL','IN','MI','MO','MS','LA','KY','TN','OH'];
+
   // Scan all gas points
   var candidates=[];
   var pipelines=window.gasIxData.pipelines||[];
+  var iocRef=iocData||window.iocData||null;
+  var scanned=0;var skippedRegion=0;var skippedMW=0;var skippedHyper=0;
 
+  try{
   pipelines.forEach(function(pl){
     var pipeName=pl.short||pl.name;
     
     // Get IOC data for this pipeline
     var pipeIOC=null;
-    if(iocData&&iocData.pipelines){
-      pipeIOC=iocData.pipelines[pipeName];
+    if(iocRef&&iocRef.pipelines){
+      pipeIOC=iocRef.pipelines[pipeName];
       if(!pipeIOC){
-        for(var k in iocData.pipelines){
+        for(var k in iocRef.pipelines){
           if(k.toLowerCase().indexOf(pipeName.toLowerCase().substring(0,10))>=0||pipeName.toLowerCase().indexOf(k.toLowerCase().substring(0,10))>=0){
-            pipeIOC=iocData.pipelines[k];break;
+            pipeIOC=iocRef.pipelines[k];break;
           }
         }
       }
@@ -3143,15 +3150,13 @@ async function runPowerScan(){
 
       // Region filter
       if(region!=='all'){
-        // Simple state-based region check
-        var ercotStates=['TX'];
-        var sppStates=['OK','KS','NE','AR','NM','SD','ND'];
-        var misoStates=['IA','MN','WI','IL','IN','MI','MO','MS','LA','KY','TN','OH'];
         var st=p.state||'';
-        if(region==='ERCOT'&&ercotStates.indexOf(st)<0)return;
-        if(region==='SPP'&&sppStates.indexOf(st)<0)return;
-        if(region==='MISO'&&misoStates.indexOf(st)<0)return;
+        if(region==='ERCOT'&&ercotStates.indexOf(st)<0){skippedRegion++;return}
+        if(region==='SPP'&&sppStates.indexOf(st)<0){skippedRegion++;return}
+        if(region==='MISO'&&misoStates.indexOf(st)<0){skippedRegion++;return}
       }
+
+      scanned++;
 
       candidates.push({
         name:p.name,pipeline:pipeName,lat:p.lat,lng:p.lng,
@@ -3165,6 +3170,11 @@ async function runPowerScan(){
       });
     });
   });
+  }catch(scanErr){
+    status.textContent='ERROR: '+scanErr.message;
+    btn.disabled=false;btn.textContent='\u26A1 Scan for Power';
+    return;
+  }
 
   // Sort by combined MW descending
   candidates.sort(function(a,b){return b.combinedMW-a.combinedMW});
@@ -3182,7 +3192,7 @@ async function runPowerScan(){
   var top=deduped.slice(0,30);
 
   btn.disabled=false;btn.textContent='\u26A1 Scan for Power';
-  status.textContent='Found '+deduped.length+' sites meeting '+minMW+' MW minimum. Showing top '+top.length+'.';
+  status.textContent='Found '+deduped.length+' sites meeting '+minMW+' MW minimum. Showing top '+top.length+'. (Scanned '+scanned+' points)';
 
   if(top.length===0){
     results.innerHTML='<div style="color:rgba(240,237,232,0.3);font-size:12px;padding:8px 0">No sites found matching criteria. Try lowering the MW threshold or expanding the region.</div>';
