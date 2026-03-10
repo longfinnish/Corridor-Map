@@ -2282,17 +2282,29 @@ if(util<50)return '#FDD835';
 if(util<80)return '#FF9800';
 return '#EF5350';
 }
+var iocData=null;
 function togGasIx(){
 var on=document.getElementById('t-gasix').checked;
 if(on){
 if(!gasIxLoaded){
-fetch('data/gas_interconnects.json').then(function(r){return r.json()}).then(function(data){
+Promise.all([
+fetch('data/gas_interconnects.json').then(function(r){return r.json()}),
+fetch('data/ioc_contracts.json').then(function(r){return r.json()}).catch(function(){return null})
+]).then(function(results){
 gasIxLoaded=true;
-renderGasIx(data);
+iocData=results[1];
+renderGasIx(results[0]);
 });
 }else{gasIxLayer.addTo(map)}
 }else{map.removeLayer(gasIxLayer)}
 uLeg();
+}
+function getIocForPipeline(pipeName){
+if(!iocData||!iocData.pipelines)return null;
+var pd=iocData.pipelines[pipeName];
+if(pd)return pd;
+for(var k in iocData.pipelines){if(pipeName.indexOf(k)>=0||k.indexOf(pipeName)>=0)return iocData.pipelines[k]}
+return null;
 }
 function renderGasIx(data){
 gasIxLayer.clearLayers();
@@ -2337,6 +2349,25 @@ h+='<div style="display:flex;justify-content:space-between"><span>Expiring by 20
 }
 if(p.num_shippers)h+='<div style="display:flex;justify-content:space-between"><span>Active Shippers</span><b>'+p.num_shippers+'</b></div>';
 if(p.num_contracts)h+='<div style="display:flex;justify-content:space-between"><span>Contracts</span><b>'+p.num_contracts+'</b></div>';
+}
+var plIoc=getIocForPipeline(pl.short||pl.name);
+if(plIoc&&plIoc.expiring_count>0&&!(p.firm_contracted!=null)){
+h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
+h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">CONTRACT EXPIRATIONS (PIPELINE-LEVEL)</div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Contracts on Pipeline</span><b>'+plIoc.total_contracts+'</b></div>';
+h+='<div style="display:flex;justify-content:space-between"><span>Expiring 2026\u201327</span><b style="color:#FDD835">'+plIoc.expiring_count+'</b></div>';
+var expMdq=plIoc.expiring_mdq;
+h+='<div style="display:flex;justify-content:space-between"><span>Expiring MDQ</span><b style="color:#FDD835">'+expMdq.toLocaleString()+' Dth/d</b></div>';
+var expMw=Math.round(expMdq/24*0.293);
+h+='<div style="display:flex;justify-content:space-between"><span>CC Generation Equiv</span><b style="color:#FDD835">~'+expMw.toLocaleString()+' MW</b></div>';
+var topExp=plIoc.contracts.filter(function(c){return c.status==='expiring_soon'}).sort(function(a,b){return b.mdq-a.mdq}).slice(0,3);
+if(topExp.length>0){
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.4);margin-top:4px">Largest expiring:</div>';
+topExp.forEach(function(c){
+h+='<div style="font-size:9px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.6)">'+c.shipper.substring(0,28)+'</span><span>'+c.mdq.toLocaleString()+' \u2022 '+c.end+'</span></div>';
+});
+}
+h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:3px">Source: FERC IOC | Pipeline-level aggregate</div>';
 }
 }else{
 h+='<div style="color:rgba(240,237,232,0.3)">Capacity not specified by TSP</div>';
@@ -3143,3 +3174,4 @@ if(typeof refreshPipeline==='function')refreshPipeline();
 </script>
 </body>
 </html>
+
