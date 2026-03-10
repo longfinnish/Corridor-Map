@@ -2669,10 +2669,10 @@ document.getElementById('srch-status').textContent='';
 document.querySelectorAll('.srch-btn').forEach(function(b){b.classList.remove('active')});
 
 if(shape==='rectangle'){
-drawHandler=new L.Draw.Rectangle(map,{shapeOptions:{color:'#C4854C',weight:2,fillOpacity:0.1}});
+drawHandler=new L.Draw.Rectangle(map,{shapeOptions:{color:'#C4854C',weight:3,fillOpacity:0.25,dashArray:'8 4'}});
 document.getElementById('draw-rect-btn').classList.add('active');
 }else{
-drawHandler=new L.Draw.Circle(map,{shapeOptions:{color:'#C4854C',weight:2,fillOpacity:0.1}});
+drawHandler=new L.Draw.Circle(map,{shapeOptions:{color:'#C4854C',weight:3,fillOpacity:0.25,dashArray:'8 4'}});
 document.getElementById('draw-circ-btn').classList.add('active');
 }
 drawHandler.enable();
@@ -2842,6 +2842,7 @@ var txDistM=p.transmission_line_distance||999999;
 var txDistMi=txDistM*0.000621371;
 
 // Voltage-specific TX distance from our HIFLD data
+var lat=parseFloat(p.lat);var lon=parseFloat(p.lon);
 var nearTxByV={765:999,500:999,345:999,230:999,115:999};
 if(lat&&lon&&txLines.length>0){
 txLines.forEach(function(t){
@@ -2864,7 +2865,6 @@ fiberPts.forEach(function(f){var d=haversine(lat,lon,f.lat,f.lng);if(d<nearFiber
 var rough=p.roughness_rating||0;
 var fema=p.fema_nri_risk_rating||'';
 var zoneType=p.zoning_type||'';
-var lat=parseFloat(p.lat);var lon=parseFloat(p.lon);
 
 // Apply filters (acreage already filtered server-side by Regrid)
 if(effectiveTxDist>maxTxDist)return;
