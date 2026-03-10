@@ -2908,7 +2908,7 @@ async function screenParcels(lat, lng) {
         var owner = p.owner || 'Unknown';
         var fema = p.fema_nri_risk_rating || '';
         var femaCol = fema.indexOf('High')>=0 && fema.indexOf('Relatively')<0 ? '#EF5350' : '#66BB6A';
-        h += '<div style="font-size:9px;padding:2px 0;display:flex;justify-content:space-between"><span style="color:rgba(240,237,232,0.5)">'+owner.substring(0,30)+' ('+acres+' ac)</span><span style="color:'+femaCol+'">'+(fema||'N/A')+'</span></div>';
+        h += '<div style="font-size:11px;padding:2px 0;display:flex;justify-content:space-between"><span style="color:rgba(240,237,232,0.5)">'+owner.substring(0,30)+' ('+acres+' ac)</span><span style="color:'+femaCol+'">'+(fema||'N/A')+'</span></div>';
       });
     }
   } catch(e) {
