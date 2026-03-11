@@ -23,7 +23,7 @@ jobs:
               title: `Monthly Unsub Capacity Refresh — ${month}`,
               body: `## Monthly Unsubscribed Capacity Refresh
 
-            Download all 19 files below, drop into \`refresh/unsub/\` folder, run \`/refresh-unsub\` in Claude Code.
+            Download all files below, drop into \`refresh/unsub/\` folder, run \`/refresh-unsub\` in Claude Code.
 
             ---
 
@@ -56,28 +56,51 @@ jobs:
             13. Northern Border (NBPL) → Unsubscribed Capacity → Export to Excel
             14. Crossroads (XRD) → Unsubscribed Capacity → Export to Excel
 
+            ### Enbridge (1 file — CSV download)
+
+            15. [Texas Eastern](https://infopost.enbridge.com/infopost/PipeCapPosting.asp?Pipeline=TETLP&Cycle=0&PostingType=Un-Sub) → Export CSV
+
+            ### Northern Natural Gas (1 file — CSV download)
+
+            16. [NNG Unsub](https://www.northernnaturalgas.com/infopostings/Pages/UnsubscribedCapacity.aspx) → Download CSV
+
+            ### Boardwalk/Gasquest (2 files — CSV download)
+
+            Portal: https://www.gasquest.com/informational-posting
+
+            17. Gulf South Pipeline → Unsubscribed Capacity → Download CSV
+            18. Texas Gas Transmission → Unsubscribed Capacity → Download CSV
+
+            ### Southern Star (1 file — PDF export)
+
+            19. [Southern Star CSI](https://csi.southernstar.com/InfoPost/Main/InfoPost) → Unsubscribed Capacity → Export PDF
+
             ### DT Midstream Trellis (1 file — CSV download)
 
-            15. [Midwestern Gas](https://dtmidstream.trellisenergy.com/ptms/home/infopost/MGT) → Unsubscribed Capacity → CSV
+            20. [Midwestern Gas](https://dtmidstream.trellisenergy.com/ptms/home/infopost/MGT) → Unsubscribed Capacity → CSV
 
             ### Tallgrass Energy (3 files — txt download)
 
             Portal: https://pipeline.tallgrassenergylp.com/
 
-            16. Rockies Express (REX) → Point Capacity → Download txt
-            17. Trailblazer → Point Capacity → Download txt
-            18. TIGT → Point Capacity → Download txt
+            21. Rockies Express (REX) → Point Capacity → Download txt
+            22. Trailblazer → Point Capacity → Download txt
+            23. TIGT → Point Capacity → Download txt
 
             ### Vector Pipeline (1 file — txt download)
 
-            19. [Vector Unsub Download](https://www.vector-pipeline.com/Informational-Postings/Downloads/Unsubscribed-Capacity)
+            24. [Vector Unsub](https://www.vector-pipeline.com/Informational-Postings/Downloads/Unsubscribed-Capacity)
 
             ---
 
-            **After downloading all 19 files:**
+            **NOT AVAILABLE (skip):**
+            - Florida Gas — does not publish unsub data
+            - Transco — RTF Crystal Reports only, no structured data
+
+            **After downloading all 24 files:**
             1. Drop them all into \`C:\\Users\\Bing Bong\\Corridor-Map\\refresh\\unsub\\\`
             2. Open Claude Code in the Corridor-Map directory
             3. Run \`/refresh-unsub\`
 
-            *Current: 23 pipelines | ~3,500 unsub points*`
+            *Current: 28 pipelines | ~7,400 unsub points*`
             });
