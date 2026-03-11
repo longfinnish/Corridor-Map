@@ -222,24 +222,24 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 #pf-bar-close:hover{background:rgba(240,237,232,0.1);color:#F0EDE8;border-color:rgba(240,237,232,0.3)}
 #pf-body{flex:1;overflow-y:auto;padding:20px}
 .pf-section{margin-bottom:20px}
-.pf-section-title{font-size:11px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase;margin-bottom:8px}
+.pf-section-title{font-size:12px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase;margin-bottom:8px}
 .pf-hero{text-align:center;padding:16px 0;margin-bottom:16px;border-bottom:1px solid rgba(240,237,232,0.08)}
-.pf-hero-label{font-size:10px;color:rgba(240,237,232,0.4);margin-bottom:4px}
+.pf-hero-label{font-size:12px;color:rgba(240,237,232,0.4);margin-bottom:4px}
 .pf-hero-value{font-size:32px;font-weight:700}
-.pf-hero-sub{font-size:11px;color:rgba(240,237,232,0.4);margin-top:4px}
+.pf-hero-sub{font-size:12px;color:rgba(240,237,232,0.4);margin-top:4px}
 .pf-stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(240,237,232,0.04);font-size:13px}
 .pf-stat-label{color:rgba(240,237,232,0.5)}
 .pf-stat-value{font-weight:600;color:#F0EDE8}
-.pf-step{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:4px;border-radius:6px;font-size:11px;background:rgba(240,237,232,0.02)}
+.pf-step{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:4px;border-radius:6px;font-size:12px;background:rgba(240,237,232,0.02)}
 .pf-step-ok{border-left:3px solid #66BB6A}
 .pf-step-fail{border-left:3px solid #EF5350}
 .pf-step-mw{font-weight:700;width:60px;color:#F0EDE8}
 .pf-step-status{font-weight:600;width:20px}
-.pf-step-detail{flex:1;color:rgba(240,237,232,0.4);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pf-overload{padding:6px 10px;margin-bottom:3px;border-radius:4px;background:rgba(239,83,80,0.08);font-size:10px;display:flex;justify-content:space-between}
+.pf-step-detail{flex:1;color:rgba(240,237,232,0.4);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf-overload{padding:6px 10px;margin-bottom:3px;border-radius:4px;background:rgba(239,83,80,0.08);font-size:11px;display:flex;justify-content:space-between}
 .pf-overload-line{color:rgba(240,237,232,0.6)}
 .pf-overload-pct{color:#EF5350;font-weight:700}
-.pf-disclaimer{font-size:9px;color:rgba(240,237,232,0.2);text-align:center;padding:12px 0;border-top:1px solid rgba(240,237,232,0.05);margin-top:16px;line-height:1.5}
+.pf-disclaimer{font-size:10px;color:rgba(240,237,232,0.25);text-align:center;padding:12px 0;border-top:1px solid rgba(240,237,232,0.05);margin-top:16px;line-height:1.5}
 .pf-loading{display:flex;align-items:center;justify-content:center;padding:60px 0;gap:10px}
 .pf-loading .spinner{width:24px;height:24px;border:3px solid rgba(196,133,76,0.2);border-top-color:#C4854C;border-radius:50%;animation:ispin 0.8s linear infinite}
 .pf-loading span{color:rgba(240,237,232,0.4);font-size:13px}
@@ -1099,7 +1099,7 @@ rgPath=rgD.parcels.features[0].properties.path||'';
 }catch(re){}
 
 var h='<div style="text-align:center;padding:4px;min-width:280px">';
-if(ctyName)h+='<div style="font-size:10px;color:rgba(240,237,232,0.4);margin-bottom:2px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
+if(ctyName)h+='<div style="font-size:12px;color:rgba(240,237,232,0.4);margin-bottom:2px">'+ctyName+(stAbbr==='LA'?' Parish, ':' County, ')+stAbbr+'</div>';
 h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:12px;font-weight:500;color:rgba(240,237,232,0.6);margin-bottom:6px;cursor:pointer;padding:2px 6px;border-radius:3px;transition:background 0.2s" onmouseover="this.style.background=\'rgba(196,133,76,0.15)\'" onmouseout="this.style.background=\'none\'" title="Click to copy">'+coords+'</div>';
 
 // Regrid parcel data section
@@ -1110,9 +1110,9 @@ var acreStr=rgData.ll_gisacre?parseFloat(rgData.ll_gisacre).toFixed(1)+' acres':
 if(rgData.owner)h+='<div style="font-size:13px;font-weight:700;color:#F0EDE8;margin-bottom:1px">'+rgData.owner+'</div>';
 if(acreStr)h+='<div style="font-size:12px;font-weight:600;color:#C4854C;margin-bottom:3px">'+acreStr+'</div>';
 // Address line
-if(rgData.address)h+='<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:5px">'+rgData.address+'</div>';
+if(rgData.address)h+='<div style="font-size:12px;color:rgba(240,237,232,0.5);margin-bottom:5px">'+rgData.address+'</div>';
 // Metrics grid
-h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:10px;margin-bottom:5px">';
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;font-size:12px;margin-bottom:5px">';
 if(rgData.zoning){h+='<div><span style="color:rgba(240,237,232,0.4)">Zoning</span><br><span style="color:#F0EDE8;font-weight:500">'+rgData.zoning+(rgData.zoning_type?' ('+rgData.zoning_type+')':'')+'</span></div>'}
 if(rgData.usedesc){h+='<div><span style="color:rgba(240,237,232,0.4)">Use</span><br><span style="color:#F0EDE8;font-weight:500">'+rgData.usedesc+'</span></div>'}
 if(rgData.transmission_line_distance!=null){var txMi=(rgData.transmission_line_distance*0.000621371).toFixed(1);h+='<div><span style="color:rgba(240,237,232,0.4)">TX Line</span><br><span style="color:'+(txMi<=3?'#66BB6A':txMi<=10?'#FDD835':'#EF5350')+';font-weight:600">'+txMi+' mi</span></div>'}
@@ -1127,27 +1127,27 @@ if(rgData.yearbuilt){h+='<div><span style="color:rgba(240,237,232,0.4)">Year Bui
 if(rgData.saleprice&&parseFloat(rgData.saleprice)>0){h+='<div><span style="color:rgba(240,237,232,0.4)">Last Sale</span><br><span style="color:#F0EDE8;font-weight:500">$'+parseInt(rgData.saleprice).toLocaleString()+'</span></div>'}
 h+='</div>';
 // Mailing address
-if(rgData.mailadd){h+='<div style="font-size:9px;color:rgba(240,237,232,0.3);padding-top:3px;border-top:1px solid rgba(240,237,232,0.05)">Mail: '+rgData.mailadd+(rgData.mail_city?', '+rgData.mail_city:'')+(rgData.mail_state2?', '+rgData.mail_state2:'')+(rgData.mail_zip?' '+rgData.mail_zip:'')+'</div>'}
+if(rgData.mailadd){h+='<div style="font-size:12px;color:rgba(240,237,232,0.3);padding-top:3px;border-top:1px solid rgba(240,237,232,0.05)">Mail: '+rgData.mailadd+(rgData.mail_city?', '+rgData.mail_city:'')+(rgData.mail_state2?', '+rgData.mail_state2:'')+(rgData.mail_zip?' '+rgData.mail_zip:'')+'</div>'}
 h+='</div>';
 }
 // Nearby substations section
 if(subList&&subList.length){
 h+='<div style="text-align:left;margin:6px 0;padding-top:6px;border-top:1px solid rgba(240,237,232,0.1)">';
-h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:5px;text-align:center">NEAREST SUBSTATIONS <span style="color:rgba(240,237,232,0.25);font-weight:400">(25 mi)</span></div>';
+h+='<div style="font-size:12px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:5px;text-align:center">NEAREST SUBSTATIONS <span style="color:rgba(240,237,232,0.25);font-weight:400">(25 mi)</span></div>';
 subList.forEach(function(s,i){
 if(i>=5)return;
-h+='<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;font-size:10px;border-bottom:1px solid rgba(240,237,232,0.04)">';
+h+='<div style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(240,237,232,0.04)">';
 h+='<div style="width:8px;height:8px;border-radius:50%;background:'+s.col+';flex-shrink:0;margin-top:3px"></div>';
 h+='<div style="flex:1;min-width:0">';
 var nameStyle=s.isNamed?'font-weight:600;color:#F0EDE8':'font-weight:400;color:rgba(240,237,232,0.5);font-style:italic';
 h+='<div style="'+nameStyle+'">'+s.name;
 if(s.v>0)h+=' <span style="color:rgba(240,237,232,0.35);font-weight:400;font-style:normal">'+s.v+'kV</span>';
 h+='</div>';
-h+='<div style="color:rgba(240,237,232,0.4);font-size:9px">'+s.dist.toFixed(1)+' mi';
+h+='<div style="color:rgba(240,237,232,0.4);font-size:12px">'+s.dist.toFixed(1)+' mi';
 if(s.lines>0)h+=' &middot; '+s.lines+' line'+(s.lines>1?'s':'');
 if(s.estCapacity>0)h+=' &middot; ~'+s.estCapacity.toLocaleString()+' MW est.';
 h+='</div>';
-h+='<div style="font-size:9px">';
+h+='<div style="font-size:12px">';
 if(s.activeMW>0){
 h+='<span style="color:'+s.col+'">'+s.activeMW.toLocaleString()+' MW queued</span>';
 if(s.estCapacity>0)h+=' <span style="color:rgba(240,237,232,0.3)">('+s.utilization+'% util)</span>';
@@ -1171,7 +1171,7 @@ if(ctyName&&stAbbr){
 h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
 h+='</div>';
-h+='<div style="margin-top:5px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.12);color:#66BB6A;padding:5px 14px;border-radius:4px;text-decoration:none;font-weight:600;font-size:10px;border:1px solid rgba(102,187,106,0.25)">+ Save to Pipeline</a></div>';
+h+='<div style="margin-top:5px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.12);color:#66BB6A;padding:5px 14px;border-radius:4px;text-decoration:none;font-weight:600;font-size:12px;border:1px solid rgba(102,187,106,0.25)">+ Save to Pipeline</a></div>';
 h+='</div>';
 L.popup({maxWidth:340}).setLatLng(e.latlng).setContent(h).openOn(map);
 });
@@ -1202,7 +1202,7 @@ var parcelGroups={};
 var parcelLoading={};
 
 function parcelPopup(st,p){
-if(st==='TX'){var h='<b style="font-size:13px">'+(p.OWNER_NAME||'Unknown')+'</b><br>';if(p.LEGAL_AREA)h+='<b>Area:</b> '+p.LEGAL_AREA+' acres<br>';if(p.SITUS_ADDR)h+='<b>Address:</b> '+p.SITUS_ADDR+'<br>';if(p.MAIL_ADDR)h+='<b>Mail:</b> '+p.MAIL_ADDR+'<br>';if(p.LEGAL_DESC)h+='<br><i style="color:rgba(240,237,232,0.5);font-size:10px">'+p.LEGAL_DESC+'</i>';return h}
+if(st==='TX'){var h='<b style="font-size:13px">'+(p.OWNER_NAME||'Unknown')+'</b><br>';if(p.LEGAL_AREA)h+='<b>Area:</b> '+p.LEGAL_AREA+' acres<br>';if(p.SITUS_ADDR)h+='<b>Address:</b> '+p.SITUS_ADDR+'<br>';if(p.MAIL_ADDR)h+='<b>Mail:</b> '+p.MAIL_ADDR+'<br>';if(p.LEGAL_DESC)h+='<br><i style="color:rgba(240,237,232,0.5);font-size:12px">'+p.LEGAL_DESC+'</i>';return h}
 if(st==='WI'){var h='<b style="font-size:13px">'+(p.OWNERNME1||'Unknown')+'</b><br>';if(p.ESTFMKVALUE)h+='<b>Value:</b> $'+Number(p.ESTFMKVALUE).toLocaleString()+'<br>';if(p.ASSDACRES)h+='<b>Acres:</b> '+p.ASSDACRES+'<br>';if(p.SITEADRESS)h+='<b>Address:</b> '+p.SITEADRESS+'<br>';if(p.CONAME)h+='<b>County:</b> '+p.CONAME;return h}
 if(st==='MN'){var h='<b style="font-size:13px">'+(p.owner_name||'Unknown')+'</b><br>';if(p.acres_poly)h+='<b>Acres:</b> '+Number(p.acres_poly).toFixed(2)+'<br>';if(p.co_name)h+='<b>County:</b> '+p.co_name+'<br>';if(p.ctu_name)h+='<b>City/Twp:</b> '+p.ctu_name+'<br>';if(p.useclass1)h+='<b>Use:</b> '+p.useclass1;return h}
 if(st==='IN'){var h='<b style="font-size:13px">Parcel: '+(p.parcel_id||'?')+'</b><br>';if(p.prop_add)h+='<b>Address:</b> '+p.prop_add+'<br>';if(p.tax_county)h+='<b>County:</b> '+p.tax_county+'<br>';if(p.tax_township)h+='<b>Township:</b> '+p.tax_township;return h}
@@ -1237,7 +1237,7 @@ L.geoJSON(d,{
 style:function(){return{color:'#FFB74D',weight:1.5,opacity:0.85,fillColor:'#FFB74D',fillOpacity:0.08}},
 onEachFeature:function(f,ly){
 var baseHtml=parcelPopup(st,f.properties);
-ly.bindPopup(baseHtml+'<div id="ba-'+f.id+'" style="margin-top:6px;font-size:10px;color:rgba(240,237,232,0.4)">Click for buildability analysis...</div>',{maxWidth:360,maxHeight:500});
+ly.bindPopup(baseHtml+'<div id="ba-'+f.id+'" style="margin-top:6px;font-size:12px;color:rgba(240,237,232,0.4)">Click for buildability analysis...</div>',{maxWidth:360,maxHeight:500});
 ly.on('click',function(){analyzeBuildability(f,ly,st)});
 }
 }).addTo(parcelGroups[st]);
@@ -1255,7 +1255,7 @@ if(!feature.geometry||!feature.geometry.coordinates)return;
 var popup=layer.getPopup();
 if(!popup)return;
 var baseHtml=parcelPopup(st,feature.properties);
-popup.setContent(baseHtml+'<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0"><div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">BUILDABILITY ANALYSIS</div><div style="color:rgba(240,237,232,0.5);font-size:10px"><span class="ba-spin">&#9696;</span> Sampling elevation grid...</div>');
+popup.setContent(baseHtml+'<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0"><div style="font-size:12px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">BUILDABILITY ANALYSIS</div><div style="color:rgba(240,237,232,0.5);font-size:12px"><span class="ba-spin">&#9696;</span> Sampling elevation grid...</div>');
 
 // Get bounding box of parcel polygon
 var coords=feature.geometry.type==='MultiPolygon'?feature.geometry.coordinates[0][0]:feature.geometry.coordinates[0];
@@ -1282,7 +1282,7 @@ if(pointInPoly(pLng,pLat,coords))pts.push({lat:pLat,lng:pLng});
 }
 }
 if(pts.length<4){
-popup.setContent(baseHtml+'<div style="color:#FF9800;font-size:10px;margin-top:6px">Parcel too small to sample</div>');
+popup.setContent(baseHtml+'<div style="color:#FF9800;font-size:12px;margin-top:6px">Parcel too small to sample</div>');
 return;
 }
 
@@ -1308,7 +1308,7 @@ if(done>=batchSize)computeBuildability(feature,layer,st,baseHtml,elevations,grid
 
 function computeBuildability(feature,layer,st,baseHtml,elevations,gridN,latStep,lngStep,coords,popup){
 if(elevations.length<4){
-popup.setContent(baseHtml+'<div style="color:#FF9800;font-size:10px;margin-top:6px">Insufficient elevation data</div>');
+popup.setContent(baseHtml+'<div style="color:#FF9800;font-size:12px;margin-top:6px">Insufficient elevation data</div>');
 return;
 }
 
@@ -1364,7 +1364,7 @@ var gradeLabel=avgSlope<3?'Flat — Excellent':avgSlope<5?'Gentle — Good':avgS
 
 var h=baseHtml;
 h+='<hr style="border:none;border-top:1px solid rgba(240,237,232,0.15);margin:6px 0">';
-h+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">BUILDABILITY ANALYSIS</div>';
+h+='<div style="font-size:12px;font-weight:700;color:#C4854C;letter-spacing:1px;margin-bottom:4px">BUILDABILITY ANALYSIS</div>';
 if(totalAcres>0)h+='<div style="display:flex;justify-content:space-between"><span>Total Acreage</span><b>'+Math.round(totalAcres).toLocaleString()+' ac</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Avg Slope</span><b style="color:'+slopeCol+'">'+avgSlope.toFixed(1)+'%</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Max Slope</span><b>'+maxSlope.toFixed(1)+'%</b></div>';
@@ -1372,8 +1372,8 @@ h+='<div style="display:flex;justify-content:space-between"><span>Grade</span><b
 h+='<div style="display:flex;justify-content:space-between"><span>Acreage &lt;5% slope</span><b style="color:#66BB6A">'+under5Acres.toLocaleString()+' ac ('+under5Pct+'%)</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Avg Elevation</span><b>'+Math.round(avgElev).toLocaleString()+' ft</b></div>';
 h+='<div style="display:flex;justify-content:space-between"><span>Elevation Range</span><b>'+Math.round(elevRange)+' ft</b></div>';
-h+='<div style="font-size:8px;color:rgba(240,237,232,0.25);margin-top:4px">Based on '+elevations.length+' sample points from USGS 3DEP | Slope is local max between grid neighbors</div>';
-h+='<div style="font-size:8px;color:rgba(240,237,232,0.2)">Does not include flood zone or wetland deductions. Enable those layers separately for full screening.</div>';
+h+='<div style="font-size:11px;color:rgba(240,237,232,0.25);margin-top:4px">Based on '+elevations.length+' sample points from USGS 3DEP | Slope is local max between grid neighbors</div>';
+h+='<div style="font-size:11px;color:rgba(240,237,232,0.2)">Does not include flood zone or wetland deductions. Enable those layers separately for full screening.</div>';
 
 popup.setContent(h);
 popup.update();
@@ -2494,7 +2494,7 @@ function screenGas(lat, lng) {
         result.iocMdq = ptExpMdq;
         result.iocPointLevel = true;
         h += '<hr style="border:none;border-top:1px solid rgba(240,237,232,0.08);margin:8px 0">';
-        h += '<div style="font-size:10px;color:#66BB6A;margin-bottom:4px">Point-level contract data:</div>';
+        h += '<div style="font-size:12px;color:#66BB6A;margin-bottom:4px">Point-level contract data:</div>';
         h += '<div class="pf-stat"><span class="pf-stat-label">Contracts at This Point Expiring</span><span class="pf-stat-value" style="color:#FDD835">'+pointExpiring.length+'</span></div>';
         h += '<div class="pf-stat"><span class="pf-stat-label">Expiring MDQ</span><span class="pf-stat-value" style="color:#FDD835">'+ptExpMdq.toLocaleString()+' Dth/d</span></div>';
         h += '<div class="pf-stat"><span class="pf-stat-label">CC Generation Equiv</span><span class="pf-stat-value" style="color:#FDD835">~'+ptExpMw.toLocaleString()+' MW</span></div>';
@@ -2591,7 +2591,7 @@ function screenGrid(lat, lng) {
         gh += '<div class="pf-stat"><span class="pf-stat-label">Nearest Substation</span><span class="pf-stat-value">'+ns.name+'</span></div>';
         gh += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+ns.dist.toFixed(1)+' mi</span></div>';
         gh += '<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+ns.kv+' kV</span></div>';
-        gh += '<div style="font-size:9px;color:#FDD835;margin-top:4px">No 345kV+ substations within 30 miles</div>';
+        gh += '<div style="font-size:12px;color:#FDD835;margin-top:4px">No 345kV+ substations within 30 miles</div>';
       } else {
         gh = '<div style="color:rgba(240,237,232,0.3);font-size:11px">No substations within 30 miles</div>';
       }
@@ -2624,17 +2624,17 @@ function screenGrid(lat, lng) {
           if(fc && fc.overloads && fc.overloads[0]) binding = {from_bus:fc.overloads[0].from, to_bus:fc.overloads[0].to};
         }
         if(binding.from_bus){
-          ph += '<div style="font-size:9px;color:rgba(240,237,232,0.35)">Binding: '+binding.from_bus+' \u2192 '+binding.to_bus+'</div>';
+          ph += '<div style="font-size:12px;color:rgba(240,237,232,0.35)">Binding: '+binding.from_bus+' \u2192 '+binding.to_bus+'</div>';
         }
-        ph += '<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:2px">DC power flow \u2022 Synthetic grid model</div>';
+        ph += '<div style="font-size:11px;color:rgba(240,237,232,0.2);margin-top:2px">DC power flow \u2022 Synthetic grid model</div>';
         pfEl.innerHTML = ph;
       }).catch(function(e){
         var pfEl = document.getElementById('si-pf');
-        if(pfEl) pfEl.innerHTML = '<div style="font-size:10px;color:rgba(240,237,232,0.25)">Power flow unavailable</div>';
+        if(pfEl) pfEl.innerHTML = '<div style="font-size:12px;color:rgba(240,237,232,0.25)">Power flow unavailable</div>';
       });
       
       if(nearSubs.length > 1){
-        gh += '<div style="font-size:9px;color:rgba(240,237,232,0.35);margin-top:4px">'+nearSubs.length+' substations 345kV+ within 30 mi</div>';
+        gh += '<div style="font-size:12px;color:rgba(240,237,232,0.35);margin-top:4px">'+nearSubs.length+' substations 345kV+ within 30 mi</div>';
       }
     }
     el.innerHTML = gh;
@@ -2729,7 +2729,7 @@ async function screenLMP(lat, lng) {
     var lmpCol = nearest.avg_30d < 30 ? '#66BB6A' : nearest.avg_30d < 50 ? '#FDD835' : '#EF5350';
     var isMiso = nearest.owner || (nearest.node||'').indexOf('.')>0;
     
-    h += '<div class="pf-stat"><span class="pf-stat-label">Nearest Node</span><span class="pf-stat-value">'+(nearest.sub||nearest.node)+''+(isMiso?' <span style="font-size:8px;background:rgba(196,133,76,0.2);color:#C4854C;padding:1px 4px;border-radius:2px">MISO</span>':'')+'</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Nearest Node</span><span class="pf-stat-value">'+(nearest.sub||nearest.node)+''+(isMiso?' <span style="font-size:11px;background:rgba(196,133,76,0.2);color:#C4854C;padding:1px 4px;border-radius:2px">MISO</span>':'')+'</span></div>';
     h += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+nearDist.toFixed(1)+' mi</span></div>';
     h += '<div class="pf-stat"><span class="pf-stat-label">30-Day Avg LMP</span><span class="pf-stat-value" style="color:'+lmpCol+'">$'+nearest.avg_30d.toFixed(2)+'/MWh</span></div>';
     
@@ -2795,7 +2795,7 @@ function screenQueue(lat, lng) {
     // Show top substations
     queueEntries.sort(function(a,b){return b.active - a.active});
     queueEntries.slice(0,3).forEach(function(q){
-      h += '<div style="font-size:9px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.5)">'+q.sub.substring(0,25)+' ('+q.dist.toFixed(1)+'mi)</span><span>'+q.active.toLocaleString()+' MW / '+q.count+' projects</span></div>';
+      h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.5)">'+q.sub.substring(0,25)+' ('+q.dist.toFixed(1)+'mi)</span><span>'+q.active.toLocaleString()+' MW / '+q.count+' projects</span></div>';
     });
   }
   h += '</div>';
@@ -2852,7 +2852,7 @@ async function screenPlannedTX(lat, lng) {
       nearby.slice(0,4).forEach(function(p){
         var badge = p.ftype==='Line New' ? 'color:#00E676' : p.ftype==='Line Upgrade' ? 'color:#FFB74D' : 'color:#78909C';
         var pCost = p.cost >= 1e9 ? '$'+(p.cost/1e9).toFixed(1)+'B' : p.cost >= 1e6 ? '$'+(p.cost/1e6).toFixed(0)+'M' : '';
-        h += '<div style="font-size:9px;padding:3px 0;border-bottom:1px solid rgba(240,237,232,0.04)">';
+        h += '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid rgba(240,237,232,0.04)">';
         h += '<div style="display:flex;justify-content:space-between"><span style="'+badge+'">'+p.name.substring(0,35)+'</span><span>'+p.dist.toFixed(1)+' mi</span></div>';
         h += '<div style="color:rgba(240,237,232,0.4)">'+(p.kv?p.kv+'kV':'')+(p.ftype?' \u2022 '+p.ftype:'')+(pCost?' \u2022 '+pCost:'')+'</div>';
         h += '</div>';
@@ -3001,7 +3001,7 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
       + '<div style="font-size:12px;line-height:1.8;color:#F0EDE8">'
       + parts.join(' ')
       + '</div>'
-      + '<div style="font-size:10px;color:rgba(240,237,232,0.25);margin-top:8px">Corridor Intelligence \u2022 Pre-feasibility screening \u2022 Not a formal interconnection study</div>'
+      + '<div style="font-size:12px;color:rgba(240,237,232,0.25);margin-top:8px">Corridor Intelligence \u2022 Pre-feasibility screening \u2022 Not a formal interconnection study</div>'
       + '</div>';
   }
 }
