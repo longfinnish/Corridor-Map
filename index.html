@@ -2348,13 +2348,16 @@ async function screenSite(lat, lng, triggerBtn) {
 
   // Update header
   var headerText = '';
-  if(gridResult.nearestSub && gridResult.nearestSub.name && gridResult.nearestSub.name.trim()){
-    headerText = gridResult.nearestSub.name + ' area';
+  var subName = gridResult.nearestSub ? (gridResult.nearestSub.name||'').replace(/[;\n\r]/g,'').trim() : '';
+  if(subName && subName.length > 1){
+    headerText = subName + ' area';
   } else {
     headerText = lat.toFixed(3)+', '+lng.toFixed(3);
   }
-  if(window.scanContext&&window.scanContext.dcName&&window.scanContext.dcDist<999){
-    headerText += ' \u2022 ' + window.scanContext.dcDist + ' mi from ' + window.scanContext.dcName;
+  var sc = window.scanContext;
+  console.log('Header update — scanContext:', JSON.stringify(sc));
+  if(sc && sc.dcName && sc.dcDist < 999){
+    headerText += ' \u2022 ' + sc.dcDist + ' mi from ' + sc.dcName;
   }
   barSub.textContent = headerText;
   
@@ -2612,7 +2615,7 @@ function screenGrid(lat, lng) {
       var ns = nearSubs[0];
       result.nearestSub = ns;
       
-      gh += '<div class="pf-stat"><span class="pf-stat-label">Nearest 345kV+ Sub</span><span class="pf-stat-value">'+ns.name+'</span></div>';
+      gh += '<div class="pf-stat"><span class="pf-stat-label">Nearest 345kV+ Sub</span><span class="pf-stat-value">'+(ns.name||'').replace(/[;\n\r]/g,'').trim()||'Unnamed'+'</span></div>';
       gh += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+ns.dist.toFixed(1)+' mi</span></div>';
       gh += '<div class="pf-stat"><span class="pf-stat-label">Voltage</span><span class="pf-stat-value">'+ns.kv+' kV</span></div>';
       if(ns.cap_mw) gh += '<div class="pf-stat"><span class="pf-stat-label">Capacity</span><span class="pf-stat-value">'+ns.cap_mw.toLocaleString()+' MW</span></div>';
@@ -2975,7 +2978,7 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
   
   // Grid
   if(grid.nearestSub){
-    var s = 'Nearest 345kV+ substation is <b>'+grid.nearestSub.dist.toFixed(1)+' miles</b> at <b>'+grid.nearestSub.name+'</b>';
+    var s = 'Nearest 345kV+ substation is <b>'+grid.nearestSub.dist.toFixed(1)+' miles</b> at <b>'+((grid.nearestSub.name||'').replace(/[;\n\r]/g,'').trim()||'unnamed sub')+'</b>';
     s += ' ('+grid.nearestSub.kv+' kV)';
     s += '.';
     parts.push(s);
