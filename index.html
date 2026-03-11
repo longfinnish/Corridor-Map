@@ -2301,7 +2301,11 @@ async function screenSite(lat, lng, triggerBtn) {
   var barSub=document.getElementById('pf-bar-sub');
   
   barLabel.textContent='Site Intelligence';
-  barSub.textContent='Analyzing '+lat.toFixed(4)+', '+lng.toFixed(4)+'...';
+  var coordText=lat.toFixed(3)+', '+lng.toFixed(3);
+  if(window.scanContext&&window.scanContext.dcName&&window.scanContext.dcDist<999){
+    coordText+=' \u2022 '+window.scanContext.dcDist+' mi from '+window.scanContext.dcName;
+  }
+  barSub.textContent=coordText;
   body.innerHTML='<div class="pf-loading"><div class="spinner"></div><span>Running site intelligence screening...</span></div>';
   panel.classList.add('open');
   shade.classList.add('open');
@@ -2995,6 +2999,11 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
     parts.push('<b>'+parcels.count300ac+'</b> parcels over 300 acres within 5 miles, <b>'+parcels.noFlood+'</b> with low flood risk.');
   }
   
+  // Add hyperscaler context if from Power Scan
+  if(window.scanContext&&window.scanContext.dcName&&window.scanContext.dcDist<999){
+    parts.push('Nearest hyperscaler campus: <b style="color:#CE93D8">'+window.scanContext.dcName+'</b> ('+window.scanContext.dcDist+' mi).');
+  }
+
   if(parts.length > 0){
     el.style.display = 'block';
     el.innerHTML = '<div class="pf-section"><div class="pf-section-title">SITE ASSESSMENT</div>'
@@ -3255,7 +3264,7 @@ function executePowerScan(btn,status,results){
   var h='';
   top.forEach(function(c,idx){
     var gasCol=c.unsubMW>0?'#66BB6A':'#FDD835';
-    h+='<div onclick="flyToScan('+c.lat+','+c.lng+')" style="padding:10px 8px;border-bottom:1px solid rgba(240,237,232,0.06);cursor:pointer;transition:background 0.15s" onmouseover="this.style.background=\'rgba(196,133,76,0.1)\'" onmouseout="this.style.background=\'none\'">';
+    h+='<div onclick="flyToScan('+c.lat+','+c.lng+',\''+encodeURIComponent(c.dcName||'')+'\','+Math.round(c.dcDist||999)+')" style="padding:10px 8px;border-bottom:1px solid rgba(240,237,232,0.06);cursor:pointer;transition:background 0.15s" onmouseover="this.style.background=\'rgba(196,133,76,0.1)\'" onmouseout="this.style.background=\'none\'">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center">';
     h+='<span style="font-size:11px;font-weight:700;color:#C4854C">#'+(idx+1)+'</span>';
     h+='<span style="font-size:14px;font-weight:700;color:#F0EDE8">'+c.combinedMW.toLocaleString()+' MW</span>';
@@ -3284,12 +3293,11 @@ function executePowerScan(btn,status,results){
   results.innerHTML=h;
 }
 
-function flyToScan(lat,lng){
+function flyToScan(lat,lng,dcNameEnc,dcDist){
+  window.scanContext={dcName:dcNameEnc?decodeURIComponent(dcNameEnc):'',dcDist:dcDist||999};
   map.flyTo([lat,lng],12);
-  // Auto-enable gas layer if not on
   var gasToggle=document.getElementById('t-gasix');
   if(gasToggle&&!gasToggle.checked){gasToggle.checked=true;gasToggle.dispatchEvent(new Event('change'))}
-  // Auto-trigger screening after map settles
   setTimeout(function(){screenSite(lat,lng)},1500);
 }
 
