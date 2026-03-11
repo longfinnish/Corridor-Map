@@ -2303,7 +2303,7 @@ async function screenSite(lat, lng, triggerBtn) {
   barLabel.textContent='Site Intelligence';
   var coordText=lat.toFixed(3)+', '+lng.toFixed(3);
   if(window.scanContext&&window.scanContext.dcName&&window.scanContext.dcDist<999){
-    coordText+=' \u2022 '+window.scanContext.dcDist+' mi from '+window.scanContext.dcName;
+    coordText+=' \u2022 '+Math.round(window.scanContext.dcDist)+' mi from '+window.scanContext.dcName;
   }
   barSub.textContent=coordText;
   body.innerHTML='<div class="pf-loading"><div class="spinner"></div><span>Running site intelligence screening...</span></div>';
@@ -2357,7 +2357,7 @@ async function screenSite(lat, lng, triggerBtn) {
   var sc = window.scanContext;
   console.log('Header update — scanContext:', JSON.stringify(sc));
   if(sc && sc.dcName && sc.dcDist < 999){
-    headerText += ' \u2022 ' + sc.dcDist + ' mi from ' + sc.dcName;
+    headerText += ' \u2022 ' + Math.round(sc.dcDist) + ' mi from ' + sc.dcName;
   }
   barSub.textContent = headerText;
   
@@ -3013,7 +3013,7 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
   
   // Add hyperscaler context if from Power Scan
   if(window.scanContext&&window.scanContext.dcName&&window.scanContext.dcDist<999){
-    parts.push('Nearest hyperscaler campus: <b style="color:#CE93D8">'+window.scanContext.dcName+'</b> ('+window.scanContext.dcDist+' mi).');
+    parts.push('Nearest hyperscaler campus: <b style="color:#CE93D8">'+window.scanContext.dcName+'</b> ('+Math.round(window.scanContext.dcDist)+' mi).');
   }
 
   if(parts.length > 0){
@@ -3166,7 +3166,17 @@ function executePowerScan(btn,status,results){
           var dlat=dc.lat||0;var dlng=dc.lng||0;
           if(dlat&&dlng){
             var dd=haversineMi(p.lat,p.lng,dlat,dlng);
-            if(dd<nearestDCDist){nearestDCDist=dd;nearestDCName=(dc.name||dc.Facility_Name||'')+(dc.state?', '+dc.state:'')}
+            if(dd<nearestDCDist){
+              nearestDCDist=dd;
+              // Build a readable name: use address city if available, else facility name
+              var dcLabel=dc.name||'';
+              if(dc.address){
+                var addrParts=(dc.address||'').split(',');
+                if(addrParts.length>=2)dcLabel=addrParts.slice(-3,-1).join(',').trim();
+              }
+              if(!dcLabel)dcLabel='DC facility';
+              nearestDCName=dcLabel+(dc.state?', '+dc.state:'');
+            }
           }
         }
         if(nearestDCDist>maxDCDist)return;
