@@ -2355,7 +2355,6 @@ async function screenSite(lat, lng, triggerBtn) {
     headerText = lat.toFixed(3)+', '+lng.toFixed(3);
   }
   var sc = window.scanContext;
-  console.log('Header update — scanContext:', JSON.stringify(sc));
   if(sc && sc.dcName && sc.dcDist < 999){
     headerText += ' \u2022 ' + Math.round(sc.dcDist) + ' mi from ' + sc.dcName;
   }
@@ -3081,26 +3080,22 @@ function executePowerScan(btn,status,results){
   var iocRef=window.psIocData;
   var subData=window.psSubData||[];
 
-  console.log('PS: gasData=',!!gasData,'unsubData=',!!unsubData,'iocRef=',!!iocRef,'subData=',subData.length);
 
   if(!gasData||!gasData.pipelines){
     status.textContent='ERROR: gas data not loaded';
     btn.disabled=false;btn.textContent='\u26A1 Scan for Power';return;
   }
 
-  console.log('PS: pipelines=',gasData.pipelines.length);
 
   var subs=[];
   subData.forEach(function(s){if(s.lat&&s.lng)subs.push({lat:s.lat,lng:s.lng,name:s.name||'',kv:s.kv||0,safe_mw:s.safe_mw||0})});
 
-  console.log('PS: subs=',subs.length);
 
   var minMW=parseInt(document.getElementById('ps-minmw').value)||300;
   var region=document.getElementById('ps-region').value;
   var hyperscaler=document.getElementById('ps-hyper').value;
   var maxDCDist=parseInt(document.getElementById('ps-dcdist').value)||30;
 
-  console.log('PS: minMW=',minMW,'region=',region,'hyperscaler=',hyperscaler);
 
   // DC locations for hyperscaler filter
   var dcLocs=[];
@@ -3112,7 +3107,6 @@ function executePowerScan(btn,status,results){
       return co.indexOf(searchTerm)>=0;
     });
   }
-  console.log('PS: dcLocs=',dcLocs.length,'hyperscaler=',hyperscaler);
 
   status.textContent='Scanning '+gasData.pipelines.length+' pipelines, '+subs.length+' substations...';
 
@@ -3153,7 +3147,6 @@ function executePowerScan(btn,status,results){
   pipelines.forEach(function(pl){
     var pipeName=pl.short||pl.name;
     loopCount++;
-    if(loopCount<=2)console.log('PS loop: pipe=',pipeName,'points=',pl.points.length);
     
     // Get IOC data for this pipeline
     var pipeIOC=null;
@@ -3284,7 +3277,6 @@ function executePowerScan(btn,status,results){
     return;
   }
 
-  console.log('PS: loop done, candidates=',candidates.length,'scanned=',scanned);
 
   // Sort by combined MW descending
   candidates.sort(function(a,b){return b.combinedMW-a.combinedMW});
@@ -3347,7 +3339,6 @@ function flyToScan(idx){
   var c=window.psScanResults[idx];
   if(!c)return;
   window.scanContext={dcName:c.dcName||'',dcDist:c.dcDist||999,gasMW:c.gasMW,gridMW:c.gridMW,combinedMW:c.combinedMW,pipeline:c.pipeline,pointName:c.name};
-  console.log('flyToScan context:',window.scanContext);
   map.flyTo([c.lat,c.lng],12);
   var gasToggle=document.getElementById('t-gasix');
   if(gasToggle&&!gasToggle.checked){gasToggle.checked=true;gasToggle.dispatchEvent(new Event('change'))}
@@ -3480,14 +3471,14 @@ m.innerHTML='<div style="background:#1B2B3A;border:1px solid rgba(196,133,76,0.3
 +'<div style="font-size:13px;line-height:1.7">'
 +'<p style="margin:0 0 12px"><b>What this shows:</b> Physical gas pipeline receipt and delivery points \u2014 the actual meter stations where gas enters or exits an interstate pipeline. Each dot represents a real interconnection point with its FERC-reported capacity.</p>'
 +'<p style="margin:0 0 12px"><b>Data sources:</b> FERC Electronic Bulletin Board (EBB) postings, HIFLD National Gas Receipt/Delivery Points (DOE/DHS), FERC Index of Customers (IOC) filings, and pipeline unsubscribed capacity reports. Operationally available capacity is refreshed daily via automated pipelines. IOC and unsubscribed data is refreshed quarterly.</p>'
-+'<p style="margin:0 0 8px"><b>Current coverage (36 pipelines, 6,600+ points):</b></p>'
++'<p style="margin:0 0 8px"><b>Current coverage (36 pipelines, 6,600+ map points):</b></p>'
 +'<div style="font-size:11px;line-height:1.5;margin:0 0 12px;padding-left:8px;columns:2;column-gap:12px">'
 +'ANR \u2022 Colorado Interstate \u2022 Columbia Gas \u2022 Columbia Gulf \u2022 El Paso \u2022 Enable Gas \u2022 Enable MRT \u2022 Florida Gas \u2022 Golden Pass \u2022 Guardian \u2022 Gulf South \u2022 KM Interstate \u2022 Midcontinent Express \u2022 Midwestern Gas \u2022 NGPL \u2022 Northern Border \u2022 Northern Natural Gas \u2022 Ozark Gas \u2022 Panhandle Eastern \u2022 Rover \u2022 Sabine \u2022 Sea Robin \u2022 Southern Natural \u2022 Southern Star \u2022 Tennessee Gas \u2022 Texas Eastern \u2022 Texas Gas \u2022 Tiger \u2022 Trailblazer \u2022 Transco \u2022 Transwestern \u2022 Trunkline \u2022 Vector \u2022 Viking Gas</div>'
 +'<p style="margin:0 0 12px"><b>Three layers of gas intelligence:</b></p>'
 +'<div style="font-size:12px;line-height:1.8;margin:0 0 12px">'
 +'<b>1. Operationally Available Capacity</b> (daily, 18 pipelines) \u2014 Real-time snapshot of how much gas can flow at each point today. Includes design capacity, scheduled volumes, and available headroom.<br>'
-+'<b>2. Index of Customers / IOC</b> (quarterly, 32 pipelines, 8,200+ contracts) \u2014 Every firm transportation contract on the pipeline: shipper name, MDQ, rate schedule, and expiration date. Contracts expiring by 2027 represent capacity that may become available for new shippers.<br>'
-+'<b>3. Unsubscribed Capacity</b> (quarterly, 23 pipelines, 3,500+ points) \u2014 Structural capacity with no firm contract. This gas is immediately contractable without waiting for existing contracts to expire. The strongest signal for new service availability.</div>'
++'<b>2. Index of Customers / IOC</b> (quarterly, 33 pipelines, 8,300+ contracts) \u2014 Every firm transportation contract on the pipeline: shipper name, MDQ, rate schedule, and expiration date. Contracts expiring by 2027 represent capacity that may become available for new shippers.<br>'
++'<b>3. Unsubscribed Capacity</b> (monthly, 30 pipelines, 9,100+ points) \u2014 Capacity with no firm contract. This gas is immediately contractable without waiting for existing contracts to expire. The strongest signal for new service availability.</div>'
 +'<p style="margin:0 0 12px"><b>Key fields:</b></p>'
 +'<div style="font-size:12px;line-height:1.8;margin:0 0 12px">'
 +'<b>Design Capacity</b> \u2014 Maximum physical capacity of the meter station as built.<br>'
