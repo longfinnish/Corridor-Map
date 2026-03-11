@@ -360,7 +360,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div id="panel-search" class="panel-content">
 <div style="padding:12px 16px">
 <div style="font-size:10px;font-weight:700;color:#C4854C;letter-spacing:1.5px;margin-bottom:8px">POWER SCAN</div>
-<div style="font-size:10px;color:rgba(240,237,232,0.5);margin-bottom:10px">Find the best sites by combined gas + grid power potential.</div>
+<div style="font-size:11px;color:rgba(240,237,232,0.5);margin-bottom:10px">Find the best sites by combined gas + grid power potential. Draw a rectangle or circle below to limit the scan area.</div>
 <div class="sf"><label>Min Combined MW</label><select id="ps-minmw"><option value="100">100 MW</option><option value="300" selected>300 MW</option><option value="500">500 MW</option><option value="1000">1,000 MW</option></select></div>
 <div class="sf"><label>Region</label><select id="ps-region"><option value="all">All (ERCOT/MISO/SPP)</option><option value="ERCOT">ERCOT (Texas)</option><option value="MISO">MISO</option><option value="SPP">SPP</option></select></div>
 <div class="sf"><label>Near Hyperscaler</label><select id="ps-hyper"><option value="">Any location</option><option value="Google">Google campuses</option><option value="AWS">AWS campuses</option><option value="Meta">Meta campuses</option><option value="Microsoft">Microsoft campuses</option></select></div>
@@ -2391,7 +2391,8 @@ function screenGas(lat, lng) {
           dist: d, name: p.name, pipeline: pl.short||pl.name,
           type: p.type, design: p.design||0, available: p.available||0,
           utilization: p.utilization||0, state: p.state, county: p.county,
-          lat: p.lat, lng: p.lng, id: p.id||''
+          lat: p.lat, lng: p.lng, id: p.id||'',
+          loc_quality: p.loc_quality||p.loc_accuracy||''
         });
       }
     });
@@ -2426,6 +2427,10 @@ function screenGas(lat, lng) {
     h += '<div class="pf-stat"><span class="pf-stat-label">Nearest Interconnect</span><span class="pf-stat-value">'+n.name+'</span></div>';
     h += '<div class="pf-stat"><span class="pf-stat-label">Pipeline</span><span class="pf-stat-value" style="color:#00E5FF">'+n.pipeline+'</span></div>';
     h += '<div class="pf-stat"><span class="pf-stat-label">Distance</span><span class="pf-stat-value">'+n.dist.toFixed(1)+' mi</span></div>';
+    var locQ = n.loc_quality || n.loc_accuracy || '';
+    if(locQ === 'unmatched'){
+      h += '<div style="font-size:11px;color:#FF9800;padding:4px 0">⚠ Location is approximate — not geocoded to exact facility</div>';
+    }
     h += '<div class="pf-stat"><span class="pf-stat-label">Type</span><span class="pf-stat-value">'+(n.type==='delivery'?'Delivery':n.type==='receipt'?'Receipt':'Interconnect')+'</span></div>';
     if(n.design > 0){
       h += '<div class="pf-stat"><span class="pf-stat-label">Design Capacity</span><span class="pf-stat-value">'+n.design.toLocaleString()+' Dth/d</span></div>';
@@ -3118,6 +3123,22 @@ function executePowerScan(btn,status,results){
     return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
   }
 
+  // Check if a shape is drawn on the map — use it as geographic filter
+  var drawnBounds=null;
+  var drawnLayer=null;
+  searchDrawLayer.eachLayer(function(l){drawnLayer=l});
+  if(drawnLayer){
+    if(drawnLayer.getBounds){
+      drawnBounds=drawnLayer.getBounds();
+    } else if(drawnLayer.getLatLng&&drawnLayer.getRadius){
+      var c=drawnLayer.getLatLng();var r=drawnLayer.getRadius()/111320;// rough degrees
+      drawnBounds=L.latLngBounds([c.lat-r,c.lng-r],[c.lat+r,c.lng+r]);
+    }
+    if(drawnBounds){
+      status.textContent='Scanning within drawn area...';
+    }
+  }
+
   var ercotStates=['TX'];
   var sppStates=['OK','KS','NE','AR','NM','SD','ND'];
   var misoStates=['IA','MN','WI','IL','IN','MI','MO','MS','LA','KY','TN','OH'];
@@ -3157,6 +3178,9 @@ function executePowerScan(btn,status,results){
 
     pl.points.forEach(function(p){
       if(!p.lat||!p.lng)return;
+
+      // If a shape is drawn, only include points inside it
+      if(drawnBounds&&!drawnBounds.contains([p.lat,p.lng]))return;
 
       // Hyperscaler proximity filter
       var nearestDCName='';var nearestDCDist=999;
