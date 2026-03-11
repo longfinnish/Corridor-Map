@@ -2347,7 +2347,16 @@ async function screenSite(lat, lng, triggerBtn) {
   buildSummary(lat, lng, gasResult, gridResult, lmpResult, queueResult, plannedResult, {count300ac:0, noFlood:0});
 
   // Update header
-  barSub.textContent = (gridResult.nearestSub ? gridResult.nearestSub.name + ' area' : lat.toFixed(3)+', '+lng.toFixed(3));
+  var headerText = '';
+  if(gridResult.nearestSub && gridResult.nearestSub.name && gridResult.nearestSub.name.trim()){
+    headerText = gridResult.nearestSub.name + ' area';
+  } else {
+    headerText = lat.toFixed(3)+', '+lng.toFixed(3);
+  }
+  if(window.scanContext&&window.scanContext.dcName&&window.scanContext.dcDist<999){
+    headerText += ' \u2022 ' + window.scanContext.dcDist + ' mi from ' + window.scanContext.dcName;
+  }
+  barSub.textContent = headerText;
   
   if(triggerBtn){triggerBtn.textContent='\u26A1 Screen Site';triggerBtn.disabled=false;triggerBtn.style.opacity='1'}
 }
