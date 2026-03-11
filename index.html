@@ -3100,9 +3100,11 @@ function executePowerScan(btn,status,results){
   // DC locations for hyperscaler filter
   var dcLocs=[];
   if(hyperscaler&&window.psDCData){
+    var hyperMap={'Google':'google','AWS':'amazon','Meta':'meta','Microsoft':'microsoft'};
+    var searchTerm=(hyperMap[hyperscaler]||hyperscaler).toLowerCase();
     dcLocs=window.psDCData.filter(function(d){
-      var co=(d.Company_Name||d.company||'').toLowerCase();
-      return co.indexOf(hyperscaler.toLowerCase())>=0;
+      var co=(d.company||d.Company_Name||'').toLowerCase();
+      return co.indexOf(searchTerm)>=0;
     });
   }
   console.log('PS: dcLocs=',dcLocs.length,'hyperscaler=',hyperscaler);
