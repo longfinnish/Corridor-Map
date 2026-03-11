@@ -3156,6 +3156,9 @@ function executePowerScan(btn,status,results){
         if(region==='SPP'&&sppStates.indexOf(st)<0)return;
         if(region==='MISO'&&misoStates.indexOf(st)<0)return;
       }
+      // Skip non-physical points (bogus states, offshore, non-geographic)
+      var validStates=['TX','LA','OK','AR','MO','KS','IA','NE','MN','WI','IL','IN','MI','OH','MS','AL','KY','TN','SD','ND','WY','CO','NM','AZ','PA','NY','NJ','CT','MA','NH','VA','NC','SC','GA','FL','WV','MD'];
+      if(validStates.indexOf(p.state||'')<0)return;
 
       scanned++;
 
@@ -3166,20 +3169,20 @@ function executePowerScan(btn,status,results){
         if(ptId&&pipeUnsub[ptId]!==undefined)unsubDthd=pipeUnsub[ptId];
       }
       var unsubMW=Math.round(unsubDthd/24*0.293);
+      // Cap any single point at 5,000 MW — above this is likely a storage/aggregate point
+      if(unsubMW>5000)unsubMW=5000;
 
       var expiringMdq=0;var expiringCount=0;
       if(pipeIOC){expiringMdq=pipeIOC.expiring_mdq||0;expiringCount=pipeIOC.expiring_count||0}
       var expiringMW=Math.round(expiringMdq/24*0.293);
 
       // Use unsubscribed as gas MW if available, otherwise use operational available
-      // but cap operational at a reasonable single-point max (don't show pipeline design capacity)
       var operAvail=p.available||0;
       var operMW=Math.round(operAvail/24*0.293);
-      // If operational available > 10x unsub, it's probably pipeline capacity not point-level
-      // Use unsub as the reliable number; fall back to capped operational
+      if(operMW>5000)operMW=5000;// Same cap
       var gasMW=unsubMW;
       if(gasMW===0&&operMW>0){
-        gasMW=Math.min(operMW,2000);// Cap at 2000 MW for any single point without unsub data
+        gasMW=Math.min(operMW,2000);// Cap fallback tighter since it's less reliable
       }
 
       // Skip if gas alone can't possibly meet threshold (grid max is 500)
@@ -3283,8 +3286,11 @@ function executePowerScan(btn,status,results){
 
 function flyToScan(lat,lng){
   map.flyTo([lat,lng],12);
-  // Auto-trigger screening
-  setTimeout(function(){screenSite(lat,lng)},500);
+  // Auto-enable gas layer if not on
+  var gasToggle=document.getElementById('t-gasix');
+  if(gasToggle&&!gasToggle.checked){gasToggle.checked=true;gasToggle.dispatchEvent(new Event('change'))}
+  // Auto-trigger screening after map settles
+  setTimeout(function(){screenSite(lat,lng)},1500);
 }
 
 
