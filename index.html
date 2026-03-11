@@ -3270,10 +3270,12 @@ function executePowerScan(btn,status,results){
     return;
   }
 
+  window.psScanResults=top;
+
   var h='';
   top.forEach(function(c,idx){
     var gasCol=c.unsubMW>0?'#66BB6A':'#FDD835';
-    h+='<div onclick="flyToScan('+c.lat+','+c.lng+',\''+encodeURIComponent(c.dcName||'')+'\','+Math.round(c.dcDist||999)+')" style="padding:10px 8px;border-bottom:1px solid rgba(240,237,232,0.06);cursor:pointer;transition:background 0.15s" onmouseover="this.style.background=\'rgba(196,133,76,0.1)\'" onmouseout="this.style.background=\'none\'">';
+    h+='<div onclick="flyToScan('+idx+')" style="padding:10px 8px;border-bottom:1px solid rgba(240,237,232,0.06);cursor:pointer;transition:background 0.15s" onmouseover="this.style.background=\'rgba(196,133,76,0.1)\'" onmouseout="this.style.background=\'none\'">';
     h+='<div style="display:flex;justify-content:space-between;align-items:center">';
     h+='<span style="font-size:11px;font-weight:700;color:#C4854C">#'+(idx+1)+'</span>';
     h+='<span style="font-size:14px;font-weight:700;color:#F0EDE8">'+c.combinedMW.toLocaleString()+' MW</span>';
@@ -3302,12 +3304,15 @@ function executePowerScan(btn,status,results){
   results.innerHTML=h;
 }
 
-function flyToScan(lat,lng,dcNameEnc,dcDist){
-  window.scanContext={dcName:dcNameEnc?decodeURIComponent(dcNameEnc):'',dcDist:dcDist||999};
-  map.flyTo([lat,lng],12);
+function flyToScan(idx){
+  var c=window.psScanResults[idx];
+  if(!c)return;
+  window.scanContext={dcName:c.dcName||'',dcDist:c.dcDist||999,gasMW:c.gasMW,gridMW:c.gridMW,combinedMW:c.combinedMW,pipeline:c.pipeline,pointName:c.name};
+  console.log('flyToScan context:',window.scanContext);
+  map.flyTo([c.lat,c.lng],12);
   var gasToggle=document.getElementById('t-gasix');
   if(gasToggle&&!gasToggle.checked){gasToggle.checked=true;gasToggle.dispatchEvent(new Event('change'))}
-  setTimeout(function(){screenSite(lat,lng)},1500);
+  setTimeout(function(){screenSite(c.lat,c.lng)},1500);
 }
 
 
