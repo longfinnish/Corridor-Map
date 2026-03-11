@@ -2514,7 +2514,7 @@ function screenGas(lat, lng) {
         
         pointExpiring.sort(function(a,b){return(b.mdq||0)-(a.mdq||0)});
         pointExpiring.slice(0,3).forEach(function(c){
-          h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:2px 0"><span style="color:rgba(240,237,232,0.5)">'+c.shipper.substring(0,30)+'</span><span>'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
+          h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:2px 0"><span style="color:rgba(240,237,232,0.7)">'+c.shipper.substring(0,30)+'</span><span style="color:rgba(240,237,232,0.6)">'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
         });
       } else if(pd.expiring_count > 0){
         // Fall back to pipeline-level
@@ -2532,7 +2532,7 @@ function screenGas(lat, lng) {
         if(topExp.length){
           h += '<div style="font-size:11px;color:rgba(240,237,232,0.35);margin-top:4px">Largest expiring:</div>';
           topExp.forEach(function(c){
-            h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:2px 0"><span style="color:rgba(240,237,232,0.5)">'+c.shipper.substring(0,30)+'</span><span>'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
+            h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:2px 0"><span style="color:rgba(240,237,232,0.7)">'+c.shipper.substring(0,30)+'</span><span style="color:rgba(240,237,232,0.6)">'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
           });
         }
       }
@@ -3405,12 +3405,12 @@ var expMw=Math.round(expMdq/24*0.293);
 h+='<div style="display:flex;justify-content:space-between"><span>CC Generation Equiv</span><b style="color:#FDD835">~'+expMw.toLocaleString()+' MW</b></div>';
 var topExp=plIoc.contracts.filter(function(c){return c.status==='expiring_soon'}).sort(function(a,b){return b.mdq-a.mdq}).slice(0,3);
 if(topExp.length>0){
-h+='<div style="font-size:8px;color:rgba(240,237,232,0.4);margin-top:4px">Largest expiring:</div>';
+h+='<div style="font-size:11px;color:rgba(240,237,232,0.5);margin-top:4px">Largest expiring:</div>';
 topExp.forEach(function(c){
-h+='<div style="font-size:9px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.6)">'+c.shipper.substring(0,28)+'</span><span>'+c.mdq.toLocaleString()+' \u2022 '+c.end+'</span></div>';
+h+='<div style="font-size:12px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.7)">'+c.shipper.substring(0,28)+'</span><span style="color:rgba(240,237,232,0.6)">'+c.mdq.toLocaleString()+' \u2022 '+c.end+'</span></div>';
 });
 }
-h+='<div style="font-size:8px;color:rgba(240,237,232,0.2);margin-top:3px">Source: FERC IOC | Pipeline-level aggregate</div>';
+h+='<div style="font-size:11px;color:rgba(240,237,232,0.25);margin-top:3px">Source: FERC IOC | Pipeline-level aggregate</div>';
 }
 }else{
 h+='<div style="color:rgba(240,237,232,0.3)">Capacity not specified by TSP</div>';
