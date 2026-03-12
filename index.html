@@ -2795,122 +2795,53 @@ async function screenLMP(lat, lng) {
 function screenQueue(lat, lng, gasPoint) {
   var result = {html:'', count:0, totalMW:0};
   
-  // Queue data is by county/substation — we need to find nearby queue entries
-  // The queue is loaded as queueBySub and queueCongestion
-  // For spatial query, we'd need the actual queue.json with coordinates
-  // For now, use county-level queue data
-  
   var h = '<div class="pf-section">';
   h += '<div class="pf-section-title">INTERCONNECTION QUEUE</div>';
   
-  // Try to get queue data from nearby substations
-  var queueEntries = [];
-  if(queueBySub){
-    for(var k in subs){
-      var s = subs[k];
-      if(!s.lat||!s.lng) continue;
-      var d = haversine(lat, lng, s.lat, s.lng);
-      if(d <= 25){
-        var subName = (s.name||k).toUpperCase();
-        var qSub = queueBySub[subName];
-        if(qSub){
-          queueEntries.push({sub:subName, dist:d, active:qSub.activeMW||0, count:qSub.activeCount||0, pending:qSub.pendingMW||0});
-        }
+  // Get county from gas point (most reliable source)
+  var nearCounty = (gasPoint && gasPoint.county) ? gasPoint.county : '';
+  var nearState = (gasPoint && gasPoint.state) ? gasPoint.state : '';
+  
+  var countyQueue = null;
+  if(nearCounty && nearState && queueCongestion){
+    // Try exact key
+    var cKey = nearState+'|'+nearCounty;
+    countyQueue = queueCongestion[cKey];
+    // Case-insensitive fallback
+    if(!countyQueue){
+      var cKeyLower = cKey.toLowerCase();
+      for(var qk in queueCongestion){
+        if(qk.toLowerCase() === cKeyLower){countyQueue=queueCongestion[qk];break}
       }
     }
   }
   
-  if(queueEntries.length === 0){
-    // Fallback: use county-level queue data via reverse geocode from gas point
-    var countyQueue = null;
-    // Use the gas point's county directly if available
-    var nearCounty = '';
-    var nearState = '';
-    if(gasPoint && gasPoint.county && gasPoint.state){
-      nearCounty = gasPoint.county;
-      nearState = gasPoint.state;
-    } else {
-      // Fallback: try to find county from gas data
-      var gasData = window.gasIxData;
-      if(!gasData) gasData = window.psGasData;
-      if(gasData){
-        var pipelines = gasData.pipelines || gasData;
-        if(!Array.isArray(pipelines)) pipelines = [pipelines];
-        var nearDist = 999;
-        pipelines.forEach(function(pl){
-          (pl.points||[]).forEach(function(p){
-            if(!p.lat||!p.lng||!p.county||!p.state) return;
-            var d = haversine(lat, lng, p.lat, p.lng);
-            if(d < nearDist){nearDist=d;nearCounty=p.county;nearState=p.state}
-          });
-        });
-      }
+  if(countyQueue && countyQueue.projects > 0){
+    var qCol = countyQueue.total_mw > 2000 ? '#EF5350' : countyQueue.total_mw > 500 ? '#FDD835' : '#66BB6A';
+    result.count = countyQueue.projects;
+    result.totalMW = countyQueue.total_mw;
+    h += '<div class="pf-stat"><span class="pf-stat-label">Queue Projects ('+nearCounty+' County)</span><span class="pf-stat-value" style="color:'+qCol+'">'+countyQueue.projects+'</span></div>';
+    h += '<div class="pf-stat"><span class="pf-stat-label">Total Queued MW</span><span class="pf-stat-value" style="color:'+qCol+'">'+Math.round(countyQueue.total_mw).toLocaleString()+' MW</span></div>';
+    if(countyQueue.active > 0){
+      h += '<div class="pf-stat"><span class="pf-stat-label">Active</span><span class="pf-stat-value">'+countyQueue.active+'</span></div>';
     }
-    if(nearCounty && nearState && queueCongestion){
-      var cKey = nearState+'|'+nearCounty;
-      countyQueue = queueCongestion[cKey];
-      if(!countyQueue){
-        for(var qk in queueCongestion){
-          if(qk.toLowerCase() === cKey.toLowerCase()){countyQueue=queueCongestion[qk];break}
-        }
-      }
+    if(countyQueue.withdrawn > 0){
+      h += '<div class="pf-stat"><span class="pf-stat-label">Withdrawn</span><span class="pf-stat-value" style="color:rgba(240,237,232,0.4)">'+countyQueue.withdrawn+'</span></div>';
     }
-    // Also try from the gas section's nearest point (already computed)
-    if(!countyQueue && queueCongestion){
-      // Try getting county from the screening panel's gas result
-      var siGas = document.querySelector('#pf-body .pf-section');
-      // Simpler: scan capacity_screening subs for county
-      if(capData){
-        var nsd = 999; var nsCounty = ''; var nsState = '';
-        capData.forEach(function(s){
-          if(!s.lat||!s.lng) return;
-          var d = haversine(lat, lng, s.lat, s.lng);
-          if(d < nsd && s.state){nsd=d; nsState=s.state; if(s.county) nsCounty=s.county}
-        });
-        if(nsState && nsCounty){
-          for(var qk in queueCongestion){
-            if(qk.toLowerCase() === (nsState+'|'+nsCounty).toLowerCase()){countyQueue=queueCongestion[qk];break}
-          }
-        }
-      }
+    var mix = [];
+    if(countyQueue.solar_mw > 0) mix.push('Solar: '+Math.round(countyQueue.solar_mw).toLocaleString()+' MW');
+    if(countyQueue.wind_mw > 0) mix.push('Wind: '+Math.round(countyQueue.wind_mw).toLocaleString()+' MW');
+    if(countyQueue.battery_mw > 0) mix.push('Battery: '+Math.round(countyQueue.battery_mw).toLocaleString()+' MW');
+    if(countyQueue.gas_mw > 0) mix.push('Gas: '+Math.round(countyQueue.gas_mw).toLocaleString()+' MW');
+    if(countyQueue.other_mw > 0) mix.push('Other: '+Math.round(countyQueue.other_mw).toLocaleString()+' MW');
+    if(mix.length > 0){
+      h += '<div style="font-size:11px;margin-top:6px;color:rgba(240,237,232,0.5)">'+mix.join(' &middot; ')+'</div>';
     }
-    if(countyQueue && countyQueue.projects > 0){
-      var qCol = countyQueue.total_mw > 2000 ? '#EF5350' : countyQueue.total_mw > 500 ? '#FDD835' : '#66BB6A';
-      result.count = countyQueue.projects;
-      result.totalMW = countyQueue.total_mw;
-      h += '<div class="pf-stat"><span class="pf-stat-label">County Queue Projects</span><span class="pf-stat-value" style="color:'+qCol+'">'+countyQueue.projects+'</span></div>';
-      h += '<div class="pf-stat"><span class="pf-stat-label">Total Queued MW</span><span class="pf-stat-value" style="color:'+qCol+'">'+Math.round(countyQueue.total_mw).toLocaleString()+' MW</span></div>';
-      if(countyQueue.solar_mw > 0 || countyQueue.wind_mw > 0 || countyQueue.battery_mw > 0 || countyQueue.gas_mw > 0){
-        h += '<div style="font-size:11px;margin-top:4px;color:rgba(240,237,232,0.5)">';
-        var mix = [];
-        if(countyQueue.solar_mw > 0) mix.push('Solar: '+Math.round(countyQueue.solar_mw).toLocaleString()+' MW');
-        if(countyQueue.wind_mw > 0) mix.push('Wind: '+Math.round(countyQueue.wind_mw).toLocaleString()+' MW');
-        if(countyQueue.battery_mw > 0) mix.push('Battery: '+Math.round(countyQueue.battery_mw).toLocaleString()+' MW');
-        if(countyQueue.gas_mw > 0) mix.push('Gas: '+Math.round(countyQueue.gas_mw).toLocaleString()+' MW');
-        if(countyQueue.other_mw > 0) mix.push('Other: '+Math.round(countyQueue.other_mw).toLocaleString()+' MW');
-        h += mix.join(' &middot; ');
-        h += '</div>';
-      }
-      h += '<div style="font-size:10px;color:rgba(240,237,232,0.25);margin-top:4px">County-level queue data</div>';
-    } else {
-      h += '<div style="color:rgba(240,237,232,0.3);font-size:13px">No queue data for nearby substations</div>';
-    }
+    h += '<div style="font-size:10px;color:rgba(240,237,232,0.2);margin-top:4px">County-level data &middot; Substation mapping pending CEII</div>';
   } else {
-    var totalActive = 0, totalCount = 0;
-    queueEntries.forEach(function(q){totalActive += q.active; totalCount += q.count});
-    result.count = totalCount;
-    result.totalMW = totalActive;
-    
-    var qCol = totalActive > 2000 ? '#EF5350' : totalActive > 500 ? '#FDD835' : '#66BB6A';
-    h += '<div class="pf-stat"><span class="pf-stat-label">Active Projects (25 mi)</span><span class="pf-stat-value" style="color:'+qCol+'">'+totalCount+'</span></div>';
-    h += '<div class="pf-stat"><span class="pf-stat-label">Total Queued MW</span><span class="pf-stat-value" style="color:'+qCol+'">'+totalActive.toLocaleString()+' MW</span></div>';
-    
-    // Show top substations
-    queueEntries.sort(function(a,b){return b.active - a.active});
-    queueEntries.slice(0,3).forEach(function(q){
-      h += '<div style="font-size:12px;display:flex;justify-content:space-between;padding:1px 0"><span style="color:rgba(240,237,232,0.5)">'+q.sub.substring(0,25)+' ('+q.dist.toFixed(1)+'mi)</span><span>'+q.active.toLocaleString()+' MW / '+q.count+' projects</span></div>';
-    });
+    h += '<div style="color:rgba(240,237,232,0.3);font-size:13px">No queue data for '+(nearCounty ? nearCounty+' County' : 'this area')+'</div>';
   }
+  
   h += '</div>';
   result.html = h;
   return result;
