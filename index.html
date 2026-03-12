@@ -2401,11 +2401,18 @@ function screenGas(lat, lng) {
   
   // If Power Scan targeted a specific point, promote it to #1
   if(window.scanTargetPoint && nearby.length > 0){
+    var found = false;
     for(var ti=0; ti<nearby.length; ti++){
-      if(nearby[ti].name === window.scanTargetPoint){
-        var target = nearby.splice(ti, 1)[0];
-        target.dist = 0;
-        nearby.unshift(target);
+      // Exact or partial match
+      if(nearby[ti].name === window.scanTargetPoint || 
+         nearby[ti].name.indexOf(window.scanTargetPoint.substring(0,15)) >= 0 ||
+         window.scanTargetPoint.indexOf(nearby[ti].name.substring(0,15)) >= 0){
+        if(ti > 0){
+          var target = nearby.splice(ti, 1)[0];
+          target.dist = 0;
+          nearby.unshift(target);
+        }
+        found = true;
         break;
       }
     }
