@@ -1,9 +1,10 @@
 name: Gas & LMP Refresh
 
 on:
-  schedule:
-    - cron: '0 12 * * *'  # Noon UTC = 6am CT daily
-  workflow_dispatch:  # Manual trigger
+  # PAUSED: Daily refresh disabled to prevent overwriting expanded manual data
+  # Re-enable after scripts are updated to merge instead of overwrite
+  # Original: cron: '0 12 * * *'
+  workflow_dispatch:  # Manual trigger only
 
 permissions:
   contents: write
@@ -45,4 +46,3 @@ jobs:
         with:
           commit_message: "Daily refresh ${{ github.event.schedule && '(auto)' || '(manual)' }}"
           file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ercot_lmp.json data/miso_lmp.json data/ioc_contracts.json'
-
