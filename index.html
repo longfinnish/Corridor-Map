@@ -2469,6 +2469,7 @@ function screenGas(lat, lng) {
             var unsubMw = Math.round(unsubVal/24*0.293);
             var unsubCol = unsubVal > 100000 ? '#66BB6A' : unsubVal > 10000 ? '#FDD835' : unsubVal > 0 ? '#FF9800' : 'rgba(240,237,232,0.3)';
             h += '<div class="pf-stat"><span class="pf-stat-label">Unsubscribed (Contractable)</span><span class="pf-stat-value" style="color:'+unsubCol+'">'+unsubVal.toLocaleString()+' Dth/d (~'+unsubMw+' MW CC)</span></div>';
+            h += '<div style="font-size:10px;color:rgba(240,237,232,0.25);margin-top:1px">Point-level data &middot; Pipeline capacity at this meter. Actual generation potential subject to lateral connection and operator approval.</div>';
             result.unsubDthd = unsubVal;
             break;
           }
