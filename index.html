@@ -3254,9 +3254,12 @@ function executePowerScan(btn,status,results){
       if(gasMW===0&&operMW>0){
         gasMW=Math.min(operMW,2000);// Cap fallback tighter since it's less reliable
       }
+      // For Power Scan ranking, cap displayed gas at 500 MW (realistic single NGCC plant)
+      // Full pipeline capacity shown in screening panel with context
+      var gasMWDisplay=Math.min(gasMW,500);
 
       // Skip if gas alone can't possibly meet threshold (grid max is 500)
-      if(gasMW+500<minMW)return;
+      if(gasMWDisplay+500<minMW)return;
 
       // Grid MW — find nearest substation (use rough lat/lng filter first)
       var nearestSub=null;var nearestSubDist=999;
@@ -3274,14 +3277,15 @@ function executePowerScan(btn,status,results){
         subInfo=nearestSub.name+' ('+nearestSubDist.toFixed(1)+' mi, '+nearestSub.kv+' kV)';
       }
 
-      var combinedMW=gasMW+gridMW;
+      var combinedMW=gasMWDisplay+gridMW;
       if(combinedMW<minMW)return;
 
       candidates.push({
         name:p.name,pipeline:pipeName,lat:p.lat,lng:p.lng,
         state:p.state||'',county:p.county||'',
-        gasMW:gasMW,gridMW:gridMW,combinedMW:combinedMW,
+        gasMW:gasMWDisplay,gridMW:gridMW,combinedMW:combinedMW,
         unsubDthd:unsubDthd,unsubMW:unsubMW,
+        gasMWFull:gasMW,// Full pipeline capacity for screening panel
         expiringMdq:expiringMdq,expiringMW:expiringMW,expiringCount:expiringCount,
         availMW:operMW,
         subName:subInfo,subDist:nearestSubDist,
