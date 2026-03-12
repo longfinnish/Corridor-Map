@@ -2804,20 +2804,15 @@ function screenQueue(lat, lng, gasPoint) {
   var nearState = (gasPoint && gasPoint.state) ? gasPoint.state : '';
   
   var countyQueue = null;
-  var debugMsg = '';
   if(nearCounty && nearState && queueCongestion){
     var cKey = nearState+'|'+nearCounty;
     countyQueue = queueCongestion[cKey];
-    debugMsg = 'key='+cKey+', direct='+(countyQueue?'HIT':'MISS')+', totalKeys='+Object.keys(queueCongestion).length;
     if(!countyQueue){
       var cKeyLower = cKey.toLowerCase();
       for(var qk in queueCongestion){
-        if(qk.toLowerCase() === cKeyLower){countyQueue=queueCongestion[qk];debugMsg+=', fuzzy=HIT('+qk+')';break}
+        if(qk.toLowerCase() === cKeyLower){countyQueue=queueCongestion[qk];break}
       }
-      if(!countyQueue) debugMsg+=', fuzzy=MISS';
     }
-  } else {
-    debugMsg = 'county='+nearCounty+', state='+nearState+', qcLoaded='+(queueCongestion?Object.keys(queueCongestion).length:'NULL');
   }
   
   if(countyQueue && countyQueue.projects > 0){
@@ -2844,7 +2839,6 @@ function screenQueue(lat, lng, gasPoint) {
     h += '<div style="font-size:10px;color:rgba(240,237,232,0.2);margin-top:4px">County-level data &middot; Substation mapping pending CEII</div>';
   } else {
     h += '<div style="color:rgba(240,237,232,0.3);font-size:13px">No queue data for '+(nearCounty ? nearCounty+' County' : 'this area')+'</div>';
-    h += '<div style="color:rgba(240,237,232,0.15);font-size:9px;margin-top:2px">dbg: '+debugMsg+'</div>';
   }
   
   h += '</div>';
