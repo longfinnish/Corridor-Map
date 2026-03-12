@@ -2335,7 +2335,7 @@ async function screenSite(lat, lng, triggerBtn) {
   document.getElementById('si-lmp').innerHTML = lmpResult.html;
 
   // ===== QUEUE (instant if loaded) =====
-  var queueResult = screenQueue(lat, lng);
+  var queueResult = screenQueue(lat, lng, gasResult.nearestPoint);
   document.getElementById('si-queue').innerHTML = queueResult.html;
 
   // ===== PLANNED TRANSMISSION (instant if loaded, else fetch) =====
@@ -2792,7 +2792,7 @@ async function screenLMP(lat, lng) {
 }
 
 // ===== QUEUE SECTION =====
-function screenQueue(lat, lng) {
+function screenQueue(lat, lng, gasPoint) {
   var result = {html:'', count:0, totalMW:0};
   
   // Queue data is by county/substation — we need to find nearby queue entries
@@ -2823,31 +2823,35 @@ function screenQueue(lat, lng) {
   if(queueEntries.length === 0){
     // Fallback: use county-level queue data via reverse geocode from gas point
     var countyQueue = null;
-    // Try to find county from nearest gas point data
-    var gasData = window.gasIxData;
-    // If gas layer not loaded yet, try psGasData (loaded by Power Scan)
-    if(!gasData) gasData = window.psGasData;
-    if(gasData && queueCongestion){
-      var pipelines = gasData.pipelines || gasData;
-      if(!Array.isArray(pipelines)) pipelines = [pipelines];
-      var nearCounty = '';
-      var nearState = '';
-      var nearDist = 999;
-      pipelines.forEach(function(pl){
-        (pl.points||[]).forEach(function(p){
-          if(!p.lat||!p.lng||!p.county||!p.state) return;
-          var d = haversine(lat, lng, p.lat, p.lng);
-          if(d < nearDist){nearDist=d;nearCounty=p.county;nearState=p.state}
+    // Use the gas point's county directly if available
+    var nearCounty = '';
+    var nearState = '';
+    if(gasPoint && gasPoint.county && gasPoint.state){
+      nearCounty = gasPoint.county;
+      nearState = gasPoint.state;
+    } else {
+      // Fallback: try to find county from gas data
+      var gasData = window.gasIxData;
+      if(!gasData) gasData = window.psGasData;
+      if(gasData){
+        var pipelines = gasData.pipelines || gasData;
+        if(!Array.isArray(pipelines)) pipelines = [pipelines];
+        var nearDist = 999;
+        pipelines.forEach(function(pl){
+          (pl.points||[]).forEach(function(p){
+            if(!p.lat||!p.lng||!p.county||!p.state) return;
+            var d = haversine(lat, lng, p.lat, p.lng);
+            if(d < nearDist){nearDist=d;nearCounty=p.county;nearState=p.state}
+          });
         });
-      });
-      if(nearCounty && nearState){
-        var cKey = nearState+'|'+nearCounty;
-        countyQueue = queueCongestion[cKey];
-        // Try uppercase/titlecase variants
-        if(!countyQueue){
-          for(var qk in queueCongestion){
-            if(qk.toLowerCase() === cKey.toLowerCase()){countyQueue=queueCongestion[qk];break}
-          }
+      }
+    }
+    if(nearCounty && nearState && queueCongestion){
+      var cKey = nearState+'|'+nearCounty;
+      countyQueue = queueCongestion[cKey];
+      if(!countyQueue){
+        for(var qk in queueCongestion){
+          if(qk.toLowerCase() === cKey.toLowerCase()){countyQueue=queueCongestion[qk];break}
         }
       }
     }
