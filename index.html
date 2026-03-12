@@ -2399,6 +2399,19 @@ function screenGas(lat, lng) {
   
   nearby.sort(function(a,b){return a.dist - b.dist});
   
+  // If Power Scan targeted a specific point, promote it to #1
+  if(window.scanTargetPoint && nearby.length > 0){
+    for(var ti=0; ti<nearby.length; ti++){
+      if(nearby[ti].name === window.scanTargetPoint){
+        var target = nearby.splice(ti, 1)[0];
+        target.dist = 0;
+        nearby.unshift(target);
+        break;
+      }
+    }
+    window.scanTargetPoint = null;
+  }
+  
   // Get IOC data for nearby pipelines
   var pipeIoc = {};
   if(iocData && iocData.pipelines){
@@ -3339,13 +3352,11 @@ function flyToScan(idx){
   var c=window.psScanResults[idx];
   if(!c)return;
   window.scanContext={dcName:c.dcName||'',dcDist:c.dcDist||999,gasMW:c.gasMW,gridMW:c.gridMW,combinedMW:c.combinedMW,pipeline:c.pipeline,pointName:c.name};
+  window.scanTargetPoint=c.name;// Force screening to use this exact gas point
   map.flyTo([c.lat,c.lng],12);
-  // Pre-load capData if not cached
   if(!capData){fetch('data/capacity_screening.json').then(function(r){return r.json()}).then(function(d){capData=d}).catch(function(){})}
-  // Auto-enable gas layer if not on
   var gasToggle=document.getElementById('t-gasix');
   if(gasToggle&&!gasToggle.checked){gasToggle.checked=true;gasToggle.dispatchEvent(new Event('change'))}
-  // Longer delay to let gas data + capData load
   setTimeout(function(){screenSite(c.lat,c.lng)},3000);
 }
 
