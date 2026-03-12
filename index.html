@@ -2334,7 +2334,8 @@ async function screenSite(lat, lng, triggerBtn) {
   var lmpResult = await screenLMP(lat, lng);
   document.getElementById('si-lmp').innerHTML = lmpResult.html;
 
-  // ===== QUEUE (instant if loaded) =====
+  // ===== QUEUE (load data first, then screen) =====
+  await loadQueueCongestion();
   var queueResult = screenQueue(lat, lng, gasResult.nearestPoint);
   document.getElementById('si-queue').innerHTML = queueResult.html;
 
