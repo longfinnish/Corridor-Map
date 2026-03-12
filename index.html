@@ -2825,6 +2825,8 @@ function screenQueue(lat, lng) {
     var countyQueue = null;
     // Try to find county from nearest gas point data
     var gasData = window.gasIxData;
+    // If gas layer not loaded yet, try psGasData (loaded by Power Scan)
+    if(!gasData) gasData = window.psGasData;
     if(gasData && queueCongestion){
       var pipelines = gasData.pipelines || gasData;
       if(!Array.isArray(pipelines)) pipelines = [pipelines];
@@ -2849,21 +2851,21 @@ function screenQueue(lat, lng) {
         }
       }
     }
-    // Also try from capacity_screening substations to get county
-    if(!countyQueue && capData && queueCongestion){
-      var nearSubForCounty = null; var nscd = 999;
-      capData.forEach(function(s){
-        if(!s.lat||!s.lng) return;
-        var d = haversine(lat, lng, s.lat, s.lng);
-        if(d < nscd){nscd=d;nearSubForCounty=s}
-      });
-      if(nearSubForCounty && nearSubForCounty.state){
-        // Try common state+county patterns
-        var st = nearSubForCounty.state;
-        for(var qk in queueCongestion){
-          if(qk.startsWith(st+'|')){
-            // rough proximity: check if this county's queue is likely nearby
-            // We can't do precise matching without county coords, so just use the gas point county
+    // Also try from the gas section's nearest point (already computed)
+    if(!countyQueue && queueCongestion){
+      // Try getting county from the screening panel's gas result
+      var siGas = document.querySelector('#pf-body .pf-section');
+      // Simpler: scan capacity_screening subs for county
+      if(capData){
+        var nsd = 999; var nsCounty = ''; var nsState = '';
+        capData.forEach(function(s){
+          if(!s.lat||!s.lng) return;
+          var d = haversine(lat, lng, s.lat, s.lng);
+          if(d < nsd && s.state){nsd=d; nsState=s.state; if(s.county) nsCounty=s.county}
+        });
+        if(nsState && nsCounty){
+          for(var qk in queueCongestion){
+            if(qk.toLowerCase() === (nsState+'|'+nsCounty).toLowerCase()){countyQueue=queueCongestion[qk];break}
           }
         }
       }
