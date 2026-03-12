@@ -3340,9 +3340,13 @@ function flyToScan(idx){
   if(!c)return;
   window.scanContext={dcName:c.dcName||'',dcDist:c.dcDist||999,gasMW:c.gasMW,gridMW:c.gridMW,combinedMW:c.combinedMW,pipeline:c.pipeline,pointName:c.name};
   map.flyTo([c.lat,c.lng],12);
+  // Pre-load capData if not cached
+  if(!capData){fetch('data/capacity_screening.json').then(function(r){return r.json()}).then(function(d){capData=d}).catch(function(){})}
+  // Auto-enable gas layer if not on
   var gasToggle=document.getElementById('t-gasix');
   if(gasToggle&&!gasToggle.checked){gasToggle.checked=true;gasToggle.dispatchEvent(new Event('change'))}
-  setTimeout(function(){screenSite(c.lat,c.lng)},1500);
+  // Longer delay to let gas data + capData load
+  setTimeout(function(){screenSite(c.lat,c.lng)},3000);
 }
 
 
