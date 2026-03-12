@@ -2962,7 +2962,7 @@ async function screenPlannedTX(lat, lng) {
         var badge = p.ftype==='Line New' ? 'color:#00E676' : p.ftype==='Line Upgrade' ? 'color:#FFB74D' : 'color:#78909C';
         var pCost = p.cost >= 1e9 ? '$'+(p.cost/1e9).toFixed(1)+'B' : p.cost >= 1e6 ? '$'+(p.cost/1e6).toFixed(0)+'M' : '';
         h += '<div style="font-size:12px;padding:3px 0;border-bottom:1px solid rgba(240,237,232,0.04)">';
-        h += '<div style="display:flex;justify-content:space-between"><span style="'+badge+'">'+p.name.substring(0,35)+'</span><span>'+p.dist.toFixed(1)+' mi</span></div>';
+        h += '<div style="display:flex;justify-content:space-between"><span style="'+badge+'">'+p.name.substring(0,35)+'</span><span style="color:rgba(240,237,232,0.5)">'+p.dist.toFixed(1)+' mi</span></div>';
         h += '<div style="color:rgba(240,237,232,0.4)">'+(p.kv?p.kv+'kV':'')+(p.ftype?' \u2022 '+p.ftype:'')+(pCost?' \u2022 '+pCost:'')+'</div>';
         h += '</div>';
       });
