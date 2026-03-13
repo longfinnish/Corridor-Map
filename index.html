@@ -2686,7 +2686,7 @@ function screenGrid(lat, lng) {
   };
   
   if(capData){
-    doGrid(capData);
+    setTimeout(function(){ doGrid(capData); }, 0);
   } else {
     fetch('data/capacity_screening.json').then(function(r){return r.json()}).then(function(data){
       capData = data;
