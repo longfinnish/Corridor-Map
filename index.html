@@ -2813,7 +2813,7 @@ async function screenQueue(lat, lng, gasPoint) {
       var fccR = await fetch('https://geo.fcc.gov/api/census/area?lat='+lat+'&lon='+lng+'&format=json');
       var fccD = await fccR.json();
       if(fccD.results && fccD.results.length > 0){
-        nearCounty = fccD.results[0].county_name || '';
+        nearCounty = (fccD.results[0].county_name || '').replace(/ County$/i, '');
         nearState = fccD.results[0].state_code || '';
       }
     } catch(e){}
