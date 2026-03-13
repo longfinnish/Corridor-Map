@@ -2339,7 +2339,7 @@ async function screenSite(lat, lng, triggerBtn) {
 
   // ===== QUEUE (load data first, then screen) =====
   await loadQueueCongestion();
-  var queueResult = screenQueue(lat, lng, gasResult.nearestPoint);
+  var queueResult = await screenQueue(lat, lng, gasResult.nearestPoint);
   document.getElementById('si-queue').innerHTML = queueResult.html;
 
   // ===== PLANNED TRANSMISSION (instant if loaded, else fetch) =====
@@ -2797,7 +2797,7 @@ async function screenLMP(lat, lng) {
 }
 
 // ===== QUEUE SECTION =====
-function screenQueue(lat, lng, gasPoint) {
+async function screenQueue(lat, lng, gasPoint) {
   var result = {html:'', count:0, totalMW:0};
   
   var h = '<div class="pf-section">';
@@ -2806,6 +2806,18 @@ function screenQueue(lat, lng, gasPoint) {
   // Get county from gas point (most reliable source)
   var nearCounty = (gasPoint && gasPoint.county) ? gasPoint.county : '';
   var nearState = (gasPoint && gasPoint.state) ? gasPoint.state : '';
+  
+  // Fallback: if gas point has no county, reverse geocode from click coords
+  if(!nearCounty && lat && lng){
+    try {
+      var fccR = await fetch('https://geo.fcc.gov/api/census/area?lat='+lat+'&lon='+lng+'&format=json');
+      var fccD = await fccR.json();
+      if(fccD.results && fccD.results.length > 0){
+        nearCounty = fccD.results[0].county_name || '';
+        nearState = fccD.results[0].state_code || '';
+      }
+    } catch(e){}
+  }
   
   var countyQueue = null;
   if(nearCounty && nearState && queueCongestion){
@@ -2879,7 +2891,7 @@ async function screenPlannedTX(lat, lng) {
       var d1 = haversine(lat, lng, p.from_lat, p.from_lng);
       var d2 = haversine(lat, lng, p.to_lat, p.to_lng);
       var minD = Math.min(d, d1, d2);
-      if(minD <= 15){
+      if(minD <= 20){
         nearby.push({dist:minD, name:p.name||'', kv:p.kv||0, cost:p.cost||0, ftype:p.ftype||'', status:p.status||'', iso:p.iso||'', from:p.from_sub||'', to:p.to_sub||''});
       }
     });
@@ -2890,10 +2902,10 @@ async function screenPlannedTX(lat, lng) {
     result.totalInvestment = totalCost;
     
     if(nearby.length === 0){
-      h += '<div style="color:rgba(240,237,232,0.3);font-size:13px">No planned transmission projects within 15 miles</div>';
+      h += '<div style="color:rgba(240,237,232,0.3);font-size:13px">No planned transmission projects within 20 miles</div>';
     } else {
       var costStr = totalCost >= 1e9 ? '$'+(totalCost/1e9).toFixed(1)+'B' : totalCost >= 1e6 ? '$'+(totalCost/1e6).toFixed(0)+'M' : totalCost > 0 ? '$'+(totalCost/1e3).toFixed(0)+'K' : 'N/A';
-      h += '<div class="pf-stat"><span class="pf-stat-label">Projects Within 15 mi</span><span class="pf-stat-value">'+nearby.length+'</span></div>';
+      h += '<div class="pf-stat"><span class="pf-stat-label">Projects Within 20 mi</span><span class="pf-stat-value">'+nearby.length+'</span></div>';
       h += '<div class="pf-stat"><span class="pf-stat-label">Total Investment</span><span class="pf-stat-value">'+costStr+'</span></div>';
       
       nearby.slice(0,4).forEach(function(p){
@@ -3018,7 +3030,7 @@ function buildSummary(lat, lng, gas, grid, lmp, queue, planned, parcels) {
   // Planned TX
   if(planned.count > 0){
     var costStr = planned.totalInvestment >= 1e9 ? '$'+(planned.totalInvestment/1e9).toFixed(1)+'B' : planned.totalInvestment >= 1e6 ? '$'+(planned.totalInvestment/1e6).toFixed(0)+'M' : '';
-    parts.push('<b>'+planned.count+'</b> planned transmission projects within 15 miles'+(costStr ? ' representing <b>'+costStr+'</b> in investment' : '')+'.');
+    parts.push('<b>'+planned.count+'</b> planned transmission projects within 20 miles'+(costStr ? ' representing <b>'+costStr+'</b> in investment' : '')+'.');
   }
   
   // LMP
