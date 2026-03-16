@@ -6,7 +6,8 @@ Runs daily via GitHub Actions to build 30-day rolling averages.
 Platforms:
   - Kinder Morgan pipeline2 (El Paso, Tennessee Gas, NGPL, MEP, Southern Natural)
   - Williams 1line (Transco)
-  - Enbridge rtba (Texas Eastern)
+  - Enbridge rtba (Texas Eastern, Algonquin, Maritimes NE, East Tennessee)
+  - Enbridge IOC CSV (Texas Eastern, Algonquin, East Tennessee, Maritimes NE)
 """
 
 import requests
@@ -144,7 +145,16 @@ ENBRIDGE_PIPELINES = [
     {'bu': 'TE', 'name': 'Texas Eastern Transmission, LP', 'short': 'Texas Eastern'},
     {'bu': 'AG', 'name': 'Algonquin Gas Transmission, LLC', 'short': 'Algonquin'},
     {'bu': 'MN', 'name': 'Maritimes & Northeast Pipeline, LLC', 'short': 'Maritimes NE'},
+    {'bu': 'ET', 'name': 'East Tennessee Natural Gas, LLC', 'short': 'East Tennessee'},
 ]
+
+# Enbridge bu codes map to different IOC CSV filename codes
+ENBRIDGE_IOC_CODES = {
+    'TE': 'TE',  # Texas Eastern
+    'AG': 'AG',  # Algonquin
+    'ET': 'ET',  # East Tennessee
+    'MN': 'MN',  # Maritimes NE
+}
 
 def fetch_enbridge_capacity(bu_code):
     """Fetch OAC CSV from Enbridge rtba portal."""
@@ -168,6 +178,79 @@ def fetch_enbridge_capacity(bu_code):
     if 'text/plain' in r2.headers.get('Content-Type', ''):
         return list(csv.DictReader(io.StringIO(r2.text)))
     return []
+
+
+def fetch_enbridge_ioc(bu_code):
+    """Fetch Index of Customers CSV from Enbridge Downloads endpoint.
+
+    CSV format uses row types: H=header, D=contract detail, P=point detail.
+    We parse D rows for shipper, rate schedule, dates, and MDQ.
+    Returns pipeline-level IOC stats dict.
+    """
+    ioc_code = ENBRIDGE_IOC_CODES.get(bu_code, bu_code)
+    url = f'https://infopost.enbridge.com/Downloads/IOC/{ioc_code}_IOC.csv'
+
+    try:
+        r = requests.get(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }, timeout=30)
+        if r.status_code != 200:
+            print(f"    IOC CSV returned {r.status_code} for {bu_code}")
+            return {}
+    except Exception as e:
+        print(f"    IOC CSV fetch error for {bu_code}: {e}")
+        return {}
+
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+
+    reader = csv.reader(io.StringIO(r.text))
+    for row in reader:
+        if not row or row[0].strip() != 'D':
+            continue
+
+        # D row fields (0-indexed): 0=type, 1=shipper, 2=DUNS, 3=affiliate,
+        # 4=rate_schedule, 5=k_id, 6=k_beg_date, 7=k_end_date, 8=amendment,
+        # 9=nego_rate, 10=MDQ, 11=storage_qty, 12=footnote
+        if len(row) < 11:
+            continue
+
+        shipper = row[1].strip()
+        rate_schedule = row[4].strip()
+        k_end_str = row[7].strip()
+        mdq_str = row[10].strip() if len(row) > 10 else '0'
+
+        try:
+            mdq = int(mdq_str.replace(',', ''))
+        except (ValueError, AttributeError):
+            mdq = 0
+
+        if mdq == 0 or not shipper:
+            continue
+
+        num_contracts += 1
+        shippers.add(shipper)
+
+        if 'FT' in rate_schedule.upper():
+            firm_mdq += mdq
+
+        if k_end_str:
+            try:
+                ed = datetime.strptime(k_end_str.strip()[:10], '%m/%d/%Y')
+                if ed <= cutoff:
+                    expiring_2yr += mdq
+            except (ValueError, IndexError):
+                pass
+
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
 
 
 # ============================================================
@@ -564,23 +647,24 @@ def fetch_all_capacity():
         print(f"Fetching Enbridge {pl['short']}...")
         try:
             caps = fetch_enbridge_capacity(pl['bu'])
-            
+            ioc = fetch_enbridge_ioc(pl['bu'])
+
             points = []
             for c in caps:
                 if 'Segment' in c.get('Loc_Purp_Desc', ''):
                     continue
-                
+
                 dc = parse_int_safe(c.get('Total_Design_Capacity'))
                 sched = parse_int_safe(c.get('Total_Scheduled_Quantity'))
                 avail = parse_int_safe(c.get('Operationally_Available_Capacity'))
-                
+
                 if dc == 0:
                     continue
-                
+
                 flow = c.get('Flow_Ind_Desc', '')
                 ptype = 'delivery' if 'Delivery' in flow else ('receipt' if 'Receipt' in flow else 'other')
-                
-                points.append({
+
+                pt = {
                     'id': c.get('Loc', ''),
                     'name': c.get('Loc_Name', '').strip()[:50],
                     'type': ptype,
@@ -592,15 +676,24 @@ def fetch_all_capacity():
                     'available': avail,
                     'utilization': round(sched / dc * 100) if dc > 0 else 0,
                     'connected': '',
-                })
-            
+                }
+
+                # Apply pipeline-level IOC stats to all points (same pattern as ET)
+                if ioc:
+                    pt['firm_contracted'] = ioc.get('firm_mdq', 0)
+                    pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
+                    pt['num_shippers'] = ioc.get('num_shippers', 0)
+                    pt['num_contracts'] = ioc.get('num_contracts', 0)
+
+                points.append(pt)
+
             pipelines.append({
                 'name': pl['name'],
                 'short': pl['short'],
                 'updated': TODAY,
                 'points': points,
             })
-            print(f"  {pl['short']}: {len(points)} points")
+            print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts")
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
@@ -792,6 +885,7 @@ PIPELINE_HIFLD_MAP = {
     'Colorado Interstate Gas Company, LLC': ['COLORADO INTERSTATE GAS COMPANY'],
     'Algonquin Gas Transmission, LLC': ['ALGONQUIN GAS TRANSMISSION'],
     'Maritimes & Northeast Pipeline, LLC': ['MARITIMES AND NORTHEAST PIPELINE'],
+    'East Tennessee Natural Gas, LLC': ['EAST TENNESSEE NATURAL GAS'],
     'Panhandle Eastern Pipe Line Company': ['PANHANDLE EASTERN PIPE LINE COMPANY'],
     'Trunkline Gas Company, LLC': ['TRUNKLINE LNG COMPANY', 'TRUNKLINE GAS COMPANY'],
     'Rover Pipeline LLC': ['ROVER PIPELINE'],
@@ -830,6 +924,14 @@ ZONE_COORDS = {
         'SE': {'lat': 41.0, 'lng': -73.5, 'state': 'CT'},
         'NE': {'lat': 42.0, 'lng': -72.0, 'state': 'MA'},
         'AG': {'lat': 41.5, 'lng': -73.0, 'state': 'CT/NY'},
+    },
+    # East Tennessee zones
+    'East Tennessee': {
+        '100': {'lat': 37.0, 'lng': -81.0, 'state': 'VA'},
+        '200': {'lat': 36.0, 'lng': -83.0, 'state': 'TN'},
+        '300': {'lat': 35.5, 'lng': -84.5, 'state': 'TN'},
+        '400': {'lat': 34.5, 'lng': -84.0, 'state': 'GA'},
+        'ET': {'lat': 36.0, 'lng': -83.0, 'state': 'TN'},
     },
 }
 
