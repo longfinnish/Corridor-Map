@@ -8,6 +8,7 @@ Platforms:
   - Williams 1line (Transco)
   - Enbridge rtba (Texas Eastern, Algonquin, Maritimes NE, East Tennessee)
   - Enbridge IOC CSV (Texas Eastern, Algonquin, East Tennessee, Maritimes NE)
+  - Energy Transfer CSV (CenterPoint/EGT) — OAC via direct CSV download
   - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora) — IOC only
 """
 
@@ -355,6 +356,54 @@ def fetch_et_ioc(base_domain, asset):
         'num_contracts': num_contracts,
         'num_shippers': len(shippers),
     }
+
+
+# ============================================================
+# CENTERPOINT / EGT (Energy Transfer CSV downloads, no auth)
+# Different CSV format from ET messenger HTML tables
+# ============================================================
+
+EGT_PIPELINES = [
+    {'asset': 'EGT', 'name': 'CenterPoint Energy Gas Transmission Company', 'short': 'CenterPoint EGT'},
+]
+
+
+def fetch_egt_capacity(asset):
+    """Fetch OAC + measuring point data from Energy Transfer CSV downloads.
+
+    OAC CSV columns: FLOW MONTH, FLOW DAY, LOCATION, LOCATION NAME, POOLING AREA,
+    LOC PURPOSE, LOC LABEL, ALL QTYS AVAILABLE, DESIGN CAPACITY, OPERATIONAL CAPACITY,
+    SCHED QTY, AVAILABLE CAPACITY, FLOW DIR, IT INCLUDED
+    Values are zero-padded integers (e.g. '000052000').
+
+    Measuring points CSV provides STATE and COUNTY per location.
+    """
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+
+    # Fetch OAC capacity CSV (follows redirect)
+    oac_url = f'https://pipelines.energytransfer.com/ipost/downloads/oper-avail-cap?asset={asset}'
+    r = s.get(oac_url, timeout=30, allow_redirects=True)
+    if r.status_code != 200:
+        return [], {}
+
+    oac_rows = list(csv.DictReader(io.StringIO(r.text)))
+
+    # Fetch measuring points CSV for state/county
+    mp_url = f'https://pipelines.energytransfer.com/ipost/downloads/measuring-point?asset={asset}'
+    r2 = s.get(mp_url, timeout=30, allow_redirects=True)
+    loc_map = {}
+    if r2.status_code == 200 and len(r2.text) > 100:
+        for row in csv.DictReader(io.StringIO(r2.text)):
+            loc_id = row.get('LOCATION', '').strip()
+            if loc_id:
+                loc_map[loc_id] = {
+                    'state': row.get('STATE', '').strip(),
+                    'county': row.get('COUNTY', '').strip(),
+                    'operator': row.get('LOCATION OPERATOR', '').strip(),
+                }
+
+    return oac_rows, loc_map
 
 
 # ============================================================
@@ -897,6 +946,57 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
     
+    # CenterPoint / EGT (Energy Transfer CSV downloads)
+    for pl in EGT_PIPELINES:
+        print(f"Fetching EGT {pl['short']}...")
+        try:
+            oac_rows, loc_map = fetch_egt_capacity(pl['asset'])
+
+            points = []
+            for c in oac_rows:
+                loc_id = c.get('LOCATION', '').strip()
+                if not loc_id:
+                    continue
+
+                purp = c.get('LOC PURPOSE', '').strip()
+                if 'Segment' in purp:
+                    continue
+
+                dc = parse_int_safe(c.get('DESIGN CAPACITY'))
+                sched = parse_int_safe(c.get('SCHED QTY'))
+                avail = parse_int_safe(c.get('AVAILABLE CAPACITY'))
+
+                if dc == 0:
+                    continue
+
+                flow = c.get('FLOW DIR', '').strip()
+                ptype = 'delivery' if 'Delivery' in flow else ('receipt' if 'Receipt' in flow else 'other')
+                loc_info = loc_map.get(loc_id, {})
+
+                points.append({
+                    'id': loc_id,
+                    'name': c.get('LOCATION NAME', '').strip()[:50],
+                    'type': ptype,
+                    'county': loc_info.get('county', '').replace(' County', '').strip(),
+                    'state': loc_info.get('state', '').strip(),
+                    'design': dc,
+                    'scheduled': sched,
+                    'available': avail,
+                    'utilization': round(sched / dc * 100) if dc > 0 else 0,
+                    'connected': loc_info.get('operator', '').strip()[:50],
+                })
+
+            pipelines.append({
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': points,
+            })
+            print(f"  {pl['short']}: {len(points)} points (from {len(oac_rows)} rows, {len(loc_map)} locations)")
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+
     # TC Energy (eConnects)
     for pl in TC_PIPELINES:
         print(f"Fetching TC {pl['short']}...")
@@ -1059,6 +1159,7 @@ PIPELINE_HIFLD_MAP = {
     'Columbia Gas Transmission, LLC': ['COLUMBIA GAS TRANSMISSION'],
     'Columbia Gulf Transmission, LLC': ['COLUMBIA GULF TRANSMISSION'],
     'Northern Border Pipeline Company': ['NORTHERN BORDER PIPELINE COMPANY'],
+    'CenterPoint Energy Gas Transmission Company': ['CENTERPOINT ENERGY', 'ENABLE GAS TRANSMISSION'],
     'Great Lakes Gas Transmission Limited Partnership': ['GREAT LAKES GAS TRANS LTD'],
     'Gas Transmission Northwest LLC': ['GAS TRANSMISSION NORTHWEST'],
     'Tuscarora Gas Transmission Company': ['TUSCARORA GAS TRANSMISSION COMPANY'],
