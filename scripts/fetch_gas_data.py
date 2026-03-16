@@ -8,6 +8,7 @@ Platforms:
   - Williams 1line (Transco)
   - Enbridge rtba (Texas Eastern, Algonquin, Maritimes NE, East Tennessee)
   - Enbridge IOC CSV (Texas Eastern, Algonquin, East Tennessee, Maritimes NE)
+  - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora) — IOC only
 """
 
 import requests
@@ -394,6 +395,148 @@ def fetch_tc_capacity(asset_id, report_name):
                 }
     
     return oac_rows, loc_map
+
+
+# ============================================================
+# TC PLUS (tcplus.com — JSON API, no auth)
+# Covers: Great Lakes, GTN, Tuscarora
+# IOC: POST /{pipeline}/IndexOfCustomers/Generate → JSON
+# Unsub: POST /{pipeline}/Export/Generate → CSV (needs session fix)
+# ============================================================
+
+TCPLUS_PIPELINES = [
+    {'path': 'Great%20Lakes', 'name': 'Great Lakes Gas Transmission Limited Partnership', 'short': 'Great Lakes'},
+    {'path': 'GTN', 'name': 'Gas Transmission Northwest LLC', 'short': 'GTN'},
+    {'path': 'Tuscarora', 'name': 'Tuscarora Gas Transmission Company', 'short': 'Tuscarora'},
+]
+
+
+def fetch_tcplus_ioc(pipeline_path):
+    """Fetch Index of Customers from TC Plus platform. Returns JSON with contract details."""
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    s.headers['X-Requested-With'] = 'XMLHttpRequest'
+
+    url = f'https://tcplus.com/{pipeline_path}/IndexOfCustomers/Generate'
+    r = s.post(url, timeout=30)
+
+    if r.status_code != 200:
+        return {}
+
+    try:
+        data = r.json()
+    except:
+        return {}
+
+    contracts = data.get('data', {}).get('ShipperGroup', [])
+
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+
+    for c in contracts:
+        shipper = c.get('ShipperName', '').strip()
+        rate = c.get('RateScheduleName', '')
+        mdq_str = c.get('Mdq', '0')
+        exp_date_str = c.get('ContractEndDate', '')
+
+        if not shipper:
+            continue
+
+        try:
+            mdq = int(str(mdq_str).replace(',', ''))
+        except:
+            mdq = 0
+
+        if mdq == 0:
+            continue
+
+        num_contracts += 1
+        shippers.add(shipper)
+
+        # FT, FTS, FTS-1 etc. are firm transportation
+        if 'FT' in rate.upper():
+            firm_mdq += mdq
+
+        if exp_date_str:
+            try:
+                ed = datetime.strptime(exp_date_str.strip()[:10], '%m/%d/%Y')
+                if ed <= cutoff:
+                    expiring_2yr += mdq
+            except:
+                pass
+
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
+
+
+# TODO: fetch_tcplus_unsub has a session/context bug — the Export/Generate
+# endpoint returns empty or HTML instead of CSV. Needs investigation into
+# whether a specific cookie or prior page visit sets the correct context.
+# Uncomment and fix when ready.
+#
+# def fetch_tcplus_unsub(pipeline_path):
+#     """Fetch Unsubscribed Capacity CSV from TC Plus Export endpoint."""
+#     s = requests.Session()
+#     s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+#
+#     # First visit the unsub page to set session context for this pipeline
+#     s.get(f'https://tcplus.com/{pipeline_path}/UnsubscribedCapacity', timeout=15)
+#     time.sleep(1)
+#
+#     # Then export
+#     url = f'https://tcplus.com/{pipeline_path}/Export/Generate'
+#     form_data = {
+#         'serviceTypeName': 'Ganesha.InfoPost.Service.UnsubscribedCapacity.UnsubscribedCapacityService, Ganesha.InfoPost.Service',
+#         'filterTypeName': 'System.Int32',
+#         'templateType': '7',
+#         'exportType': '1',
+#         'filter': '6',
+#         'customExtension': '',
+#     }
+#
+#     r = s.post(url, data=form_data, timeout=30)
+#
+#     if r.status_code != 200 or 'csv' not in r.headers.get('Content-Type', '').lower():
+#         return []
+#
+#     # Parse CSV — skip header rows (first 5 lines are metadata)
+#     lines = r.text.strip().split('\n')
+#     data_lines = []
+#     header_found = False
+#
+#     for line in lines:
+#         if 'Location Name' in line:
+#             header_found = True
+#             continue
+#         if header_found and line.strip():
+#             reader = csv.reader(io.StringIO(line))
+#             for row in reader:
+#                 if len(row) >= 5:
+#                     loc_name = row[0].strip().strip('"')
+#                     loc_id = row[1].strip().strip('"')
+#                     purp = row[2].strip().strip('"')
+#                     unsub_str = row[4].strip().strip('"').replace(',', '')
+#
+#                     try:
+#                         unsub = int(unsub_str)
+#                     except:
+#                         unsub = 0
+#
+#                     data_lines.append({
+#                         'Loc': loc_id,
+#                         'Loc_Name': loc_name,
+#                         'Loc_Purp_Desc': purp,
+#                         'Unsubscribed_Capacity': unsub,
+#                     })
+#
+#     return data_lines
 
 
 # ============================================================
@@ -807,7 +950,30 @@ def fetch_all_capacity():
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
-    
+
+    # TC Plus (IOC only — no capacity fetch yet, unsub endpoint has session bug)
+    for pl in TCPLUS_PIPELINES:
+        print(f"Fetching TC Plus {pl['short']}...")
+        try:
+            ioc = fetch_tcplus_ioc(pl['path'])
+
+            # TC Plus pipelines: IOC-only for now (no OAC endpoint discovered)
+            # Create a single pipeline-level entry so IOC data is tracked
+            if ioc and ioc.get('num_contracts', 0) > 0:
+                pipelines.append({
+                    'name': pl['name'],
+                    'short': pl['short'],
+                    'updated': TODAY,
+                    'points': [],
+                    'ioc_totals': ioc,
+                })
+                print(f"  {pl['short']}: {ioc.get('num_contracts', 0)} IOC contracts, {ioc.get('num_shippers', 0)} shippers, {ioc.get('firm_mdq', 0):,} firm MDQ")
+            else:
+                print(f"  {pl['short']}: no IOC data returned")
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+
     return pipelines
 
 
@@ -893,6 +1059,9 @@ PIPELINE_HIFLD_MAP = {
     'Columbia Gas Transmission, LLC': ['COLUMBIA GAS TRANSMISSION'],
     'Columbia Gulf Transmission, LLC': ['COLUMBIA GULF TRANSMISSION'],
     'Northern Border Pipeline Company': ['NORTHERN BORDER PIPELINE COMPANY'],
+    'Great Lakes Gas Transmission Limited Partnership': ['GREAT LAKES GAS TRANS LTD'],
+    'Gas Transmission Northwest LLC': ['GAS TRANSMISSION NORTHWEST'],
+    'Tuscarora Gas Transmission Company': ['TUSCARORA GAS TRANSMISSION COMPANY'],
 }
 
 ZONE_COORDS = {
