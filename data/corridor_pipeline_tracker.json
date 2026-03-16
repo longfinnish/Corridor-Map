@@ -1,0 +1,1417 @@
+{
+  "_meta": {
+    "description": "Corridor Gas Pipeline Data Tracker \u2014 operational scoreboard",
+    "version": "1.0.0",
+    "created": "2026-03-20",
+    "last_audit": "2026-03-20",
+    "reference": "corridor_data_target_state.md",
+    "note": "This file is the single source of truth for gas pipeline data completeness and freshness. GitHub Action reads staleness_rules to create issues when data is overdue."
+  },
+  "gas_pipelines": [
+    {
+      "pipeline_name": "Panhandle Eastern",
+      "hifld_company": "PANHANDLE EASTERN PIPE LINE COMPANY, LP",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 98,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://peplmessenger.energytransfer.com/ipost/index-of-customers/index?asset=PEPL&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "et_ipost",
+        "url": "https://peplmessenger.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=PEPL",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "Trunkline",
+      "hifld_company": "TRUNKLINE GAS COMPANY, LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 144,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://tgcmessenger.energytransfer.com/ipost/index-of-customers/index?asset=TGC&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "et_ipost",
+        "url": "https://tgcmessenger.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=TGC",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "Florida Gas Transmission",
+      "hifld_company": "FLORIDA GAS TRANSMISSION COMPANY, LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 227,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://fgttransfer.energytransfer.com/ipost/index-of-customers/index?asset=FGT&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "system_wide_only",
+        "access_method": "not_available",
+        "platform": "et_ipost",
+        "url": "https://fgttransfer.energytransfer.com/ipost/capacity/unsubscribed?asset=FGT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "PDF notice only, no point-level data"
+      }
+    },
+    {
+      "pipeline_name": "Transwestern",
+      "hifld_company": "TRANSWESTERN PIPELINE COMPANY, LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 21,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://twtransfer.energytransfer.com/ipost/index-of-customers/index?asset=TW&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "et_ipost",
+        "url": "https://twtransfer.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=TW",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "Tiger",
+      "hifld_company": "ETC TIGER PIPELINE, LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/index?asset=TGR&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=TGR&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      }
+    },
+    {
+      "pipeline_name": "Sea Robin",
+      "hifld_company": "SEA ROBIN PIPELINE COMPANY, LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 8,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://spcmessenger.energytransfer.com/ipost/index-of-customers/index?asset=SPC&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://spcmessenger.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=SPC&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      }
+    },
+    {
+      "pipeline_name": "Rover",
+      "hifld_company": "ROVER PIPELINE LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/index?asset=ROVER&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=ROVER&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      }
+    },
+    {
+      "pipeline_name": "Enable MRT",
+      "hifld_company": "ENABLE MISSISSIPPI RIVER TRANSMISSION, LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 31,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/index?asset=MRT&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=MRT&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      }
+    },
+    {
+      "pipeline_name": "Texas Eastern",
+      "hifld_company": "TEXAS EASTERN TRANSMISSION, LP",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 204,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/TE_IOC.csv",
+        "last_refreshed": "2026-03-20",
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "not_published",
+        "access_method": "not_available",
+        "platform": "enbridge",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Enbridge doesn't publish point-level unsub for Texas Eastern"
+      }
+    },
+    {
+      "pipeline_name": "Algonquin",
+      "hifld_company": "ALGONQUIN GAS TRANSMISSION, LLC",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 94,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/AG_IOC.csv",
+        "last_refreshed": "2026-03-20",
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "enbridge",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Maritimes NE",
+      "hifld_company": "MARITIMES & NORTHEAST PIPELINE, L.L.C.",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 23,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "enbridge",
+        "url": "https://infopost.enbridge.com/infopost/MNHome.asp?Pipe=MN",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "enbridge",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Southern Star",
+      "hifld_company": "SOUTHERN STAR CENTRAL GAS PIPELINE, INC.",
+      "operator": "Southern Star",
+      "regulation": "interstate",
+      "hifld_points": 644,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "csi",
+        "url": "https://csi.southernstar.com/infoPosting/api/Posting/GetPostingDocument?p=247841&b=70",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "blocked",
+        "platform": "csi",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "CSI portal blocked from cloud"
+      }
+    },
+    {
+      "pipeline_name": "Tennessee Gas Pipeline (TGP)",
+      "hifld_company": "TENNESSEE GAS PIPELINE COMPANY, L.L.C.",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 555,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TGP",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=TGP",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "NGPL",
+      "hifld_company": "NATURAL GAS PIPELINE COMPANY OF AMERICA LLC",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 390,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=NGPL",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=NGPL",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "El Paso Natural Gas",
+      "hifld_company": "EL PASO NATURAL GAS COMPANY, L.L.C.",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 71,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=EPNG",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=EPNG",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "Southern Natural Gas (SNG)",
+      "hifld_company": "SOUTHERN NATURAL GAS COMPANY LLC",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 463,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=SNG",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=SNG",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "Colorado Interstate Gas (CIG)",
+      "hifld_company": "COLORADO INTERSTATE GAS COMPANY LLC (KINDER MORGAN)",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 149,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=CIG",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=CIG",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "Midcontinent Express (MEP)",
+      "hifld_company": "MIDCONTINENT EXPRESS PIPELINE LLC",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 18,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=MEP",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "kinder_morgan",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=MEP",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      }
+    },
+    {
+      "pipeline_name": "ANR Pipeline",
+      "hifld_company": "ANR PIPELINE COMPANY",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 166,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Columbia Gas Transmission",
+      "hifld_company": "COLUMBIA GAS TRANSMISSION, LLC",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 38,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Columbia Gulf Transmission",
+      "hifld_company": "COLUMBIA GULF TRANSMISSION, LLC",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 71,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Northern Border Pipeline",
+      "hifld_company": "NORTHERN BORDER PIPELINE COMPANY",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 89,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Northern Natural Gas (NNG)",
+      "hifld_company": "NORTHERN NATURAL GAS COMPANY",
+      "operator": "Berkshire Hathaway Energy",
+      "regulation": "interstate",
+      "hifld_points": 1053,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "nng_portal",
+        "url": "https://www.northernnaturalgas.com/infopostings/Pages/IndexOfCustomers.aspx",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "nng_portal",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "NNG portal exists but unsub not yet located"
+      }
+    },
+    {
+      "pipeline_name": "Transco",
+      "hifld_company": "TRANSCONTINENTAL GAS PIPE LINE COMPANY, LLC",
+      "operator": "Williams",
+      "regulation": "interstate",
+      "hifld_points": 125,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "williams",
+        "url": "https://1line.williams.com/Transco/index.html",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "williams",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Gulf South",
+      "hifld_company": "GULF SOUTH PIPELINE COMPANY, LP",
+      "operator": "Boardwalk Pipeline Partners",
+      "regulation": "interstate",
+      "hifld_points": 836,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "gasquest",
+        "url": "https://www.gasquest.com/informational-posting",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "gasquest",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Texas Gas Transmission",
+      "hifld_company": "TEXAS GAS TRANSMISSION, LLC",
+      "operator": "Boardwalk Pipeline Partners",
+      "regulation": "interstate",
+      "hifld_points": 222,
+      "ioc": {
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "gasquest",
+        "url": "https://www.gasquest.com/informational-posting",
+        "last_refreshed": null,
+        "refresh_frequency_days": 90
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "gasquest",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Ozark Gas Transmission",
+      "hifld_company": "OZARK GAS TRANSMISSION, L.L.C.",
+      "operator": "Black Bear Transmission",
+      "regulation": "interstate",
+      "hifld_points": 9,
+      "ioc": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "No known EBB portal"
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Trailblazer",
+      "hifld_company": "TRAILBLAZER PIPELINE COMPANY LLC",
+      "operator": "Tallgrass Energy",
+      "regulation": "interstate",
+      "hifld_points": 22,
+      "ioc": {
+        "status": "not_captured",
+        "access_method": "blocked",
+        "platform": "tallgrass",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Tallgrass portal blocked from cloud"
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "blocked",
+        "platform": "tallgrass",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Enable Gas Transmission",
+      "hifld_company": "ENABLE GAS TRANSMISSION, LLC",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "et_ipost",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "ET iPost returns empty for Enable Gas Transmission"
+      },
+      "unsub": {
+        "status": "not_captured",
+        "access_method": "unknown",
+        "platform": "et_ipost",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "CenterPoint Energy Gas Transmission (EGT)",
+      "hifld_company": "CENTERPOINT ENERGY GAS TRANSMISSION COMPANY",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 1169,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_only",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/base/popup-report/137?asset=EGT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "IOC in popup report \u2014 needs JS rendering or manual export. OAC is priority."
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "direct_csv",
+        "platform": "et_enable_csv",
+        "url": "https://pipelines.energytransfer.com/ipost/downloads/oper-avail-cap?asset=EGT",
+        "redirect_url": "https://pipelines.energytransfer.com//enableinfopost/postedDocs/locations/delcap.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "notes": "Redirects to static CSV. 1,681 points with design/operational/scheduled/available capacity + flow direction. Confirmed 2026-03-20."
+      },
+      "notes": "OAC CSV cracked 2026-03-20. 1,681 locations. IOC needs browser approach."
+    },
+    {
+      "pipeline_name": "KM Interstate Gas (KMIGT)",
+      "hifld_company": "KM INTERSTATE GAS COMPANY",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 455,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=KMIGT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=KMIGT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Agent confirmed: same KM portal as TGP/NGPL/EPNG."
+    },
+    {
+      "pipeline_name": "Northwest Pipeline",
+      "hifld_company": "NORTHWEST PIPELINE LLC",
+      "operator": "Williams",
+      "regulation": "interstate",
+      "hifld_points": 370,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "direct_csv",
+        "platform": "williams",
+        "url": "http://www.northwest.williams.com/NWP_Portal/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "williams",
+        "url": "http://www.northwest.williams.com/NWP_Portal/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Agent confirmed: Williams portal, IOC may have direct CSV."
+    },
+    {
+      "pipeline_name": "East Tennessee Natural Gas",
+      "hifld_company": "EAST TENNESSEE NATURAL GAS, LLC",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 142,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/ET_IOC.csv",
+        "last_refreshed": "2026-03-20",
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "enbridge",
+        "url": "https://infopost.enbridge.com/infopost/ETHome.asp?Pipe=ET",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Agent confirmed: same Enbridge InfoPost as Texas Eastern/Algonquin."
+    },
+    {
+      "pipeline_name": "Enable Mississippi Gas Transmission",
+      "hifld_company": "ENABLE MISSISSIPPI GAS TRANSMISSION",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 46,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/MRT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/MRT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Agent confirmed: ET iPost. May overlap with existing Enable MRT entry \u2014 verify."
+    },
+    {
+      "pipeline_name": "Great Lakes Gas Transmission",
+      "hifld_company": "GREAT LAKES GAS TRANS LTD",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 60,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/Great%20Lakes/IndexOfCustomers/Generate",
+        "last_refreshed": "2026-03-20",
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/Great%20Lakes/Export/Generate",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Export endpoint returns Great Lakes data regardless of pipeline path. Session-based \u2014 needs fix."
+      },
+      "notes": "TC Plus platform \u2014 different from TC eConnects (login required). Agent says no login needed."
+    },
+    {
+      "pipeline_name": "Mojave Pipeline",
+      "hifld_company": "MOJAVE PIPELINE COMPANY",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 54,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=MOJAVE",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=MOJAVE",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Same KM portal."
+    },
+    {
+      "pipeline_name": "Carolina Gas Transmission",
+      "hifld_company": "CAROLINA GAS TRANSMISSION",
+      "operator": "Berkshire Hathaway Energy",
+      "regulation": "interstate",
+      "hifld_points": 48,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "bhe_gts",
+        "url": "https://ebb.bhegts.com/CA/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "bhe_gts",
+        "url": "https://ebb.bhegts.com/CA/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "BHE GT&S portal \u2014 same as Dominion/EGTS."
+    },
+    {
+      "pipeline_name": "TransColorado",
+      "hifld_company": "TRANSCOLORADO GAS TRANS COMPANY, LLC",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 26,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=TRANSCOLORADO",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=TRANSCOLORADO",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Same KM portal."
+    },
+    {
+      "pipeline_name": "Wyoming Interstate",
+      "hifld_company": "WYOMING INTERSTATE COMPANY",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 26,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/PortalUI/DefaultKM.aspx?TSP=WIC",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/PortalUI/DefaultKM.aspx?TSP=WIC",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Same KM portal."
+    },
+    {
+      "pipeline_name": "South Georgia Natural Gas",
+      "hifld_company": "SOUTH GEORGIA NATURAL GAS COMPANY",
+      "operator": "Kinder Morgan",
+      "regulation": "interstate",
+      "hifld_points": 69,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=SGNG",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "kinder_morgan",
+        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=SGNG",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Gas Transmission Northwest (GTN)",
+      "hifld_company": "GAS TRANSMISSION NORTHWEST LLC",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 50,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/GTN/IndexOfCustomers/Generate",
+        "last_refreshed": "2026-03-20",
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/GTN/Export/Generate",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Export endpoint session bug \u2014 returns Great Lakes data"
+      }
+    },
+    {
+      "pipeline_name": "National Fuel Gas Supply",
+      "hifld_company": "NATIONAL FUEL GAS SUPPLY CORPORATION",
+      "operator": "National Fuel Gas",
+      "regulation": "interstate",
+      "hifld_points": 47,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "custom",
+        "url": "https://informationalpostings.natfuel.com/supply/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "custom",
+        "url": "https://informationalpostings.natfuel.com/supply/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Iroquois Gas Transmission",
+      "hifld_company": "IROQUOIS GAS TRANSMISSION SYSTEM, LP",
+      "operator": "TC Energy / Berkshire Hathaway JV",
+      "regulation": "interstate",
+      "hifld_points": 46,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/Iroquois",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/Iroquois",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Vector Pipeline",
+      "hifld_company": "VECTOR PIPELINE LP",
+      "operator": "Enbridge / DT Midstream JV",
+      "regulation": "interstate",
+      "hifld_points": 17,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "custom",
+        "url": "https://www.vector-pipeline.com/Informational-Postings",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "custom",
+        "url": "https://www.vector-pipeline.com/Informational-Postings",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Tuscarora Gas Transmission",
+      "hifld_company": "TUSCARORA GAS TRANSMISSION COMPANY",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 16,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/Tuscarora/IndexOfCustomers/Generate",
+        "last_refreshed": "2026-03-20",
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_export",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/Tuscarora/Export/Generate",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Export endpoint session bug \u2014 returns Great Lakes data"
+      }
+    },
+    {
+      "pipeline_name": "Viking Gas Transmission",
+      "hifld_company": "VIKING GAS TRANSMISSION",
+      "operator": "DT Midstream",
+      "regulation": "interstate",
+      "hifld_points": 124,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "browser_automation",
+        "platform": "dt_midstream_trellis",
+        "url": "https://dtmidstream.trellisenergy.com/ptms/public/infopost/viewInfoPostingReportTable.do?reportType=16&globalTSP=9",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "No login required. Data visible in browser. API needs JS session state \u2014 server returns 400/500 from curl. Needs Puppeteer/Playwright."
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "browser_automation",
+        "platform": "dt_midstream_trellis",
+        "url": "https://dtmidstream.trellisenergy.com/ptms/public/infopost/viewInfoPostingReportTable.do?reportType=3&globalTSP=9",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "F12 confirmed 2026-03-20: getPublicPipelineSummary.do returns 60+ locations with live capacity data + pipeline geometry. globalTSP=9. No auth but needs JS session."
+    },
+    {
+      "pipeline_name": "Midwestern Gas Transmission",
+      "hifld_company": "MIDWESTERN GAS TRANSMISSION",
+      "operator": "DT Midstream",
+      "regulation": "interstate",
+      "hifld_points": 103,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "dt_midstream_trellis",
+        "url": "https://dtmidstream.trellisenergy.com/ptms/home/infopost/MGT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Same Trellis platform as Viking. No login required. Needs Puppeteer."
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "dt_midstream_trellis",
+        "url": "https://dtmidstream.trellisenergy.com/ptms/home/infopost/MGT",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Same Trellis platform as Viking."
+      },
+      "notes": "Acquired from ONEOK by DT Midstream Dec 31, 2024."
+    },
+    {
+      "pipeline_name": "Guardian Pipeline",
+      "hifld_company": "GUARDIAN PIPELINE, L.L.C",
+      "operator": "DT Midstream",
+      "regulation": "interstate",
+      "hifld_points": 32,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "dt_midstream_trellis",
+        "url": "https://dtmidstream.trellisenergy.com/ptms/home/infopost/GPL",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Same Trellis platform as Viking. No login required. Needs Puppeteer."
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "dt_midstream_trellis",
+        "url": "https://dtmidstream.trellisenergy.com/ptms/home/infopost/GPL",
+        "last_refreshed": null,
+        "refresh_frequency_days": null,
+        "notes": "Same Trellis platform as Viking."
+      },
+      "notes": "Acquired from ONEOK by DT Midstream Dec 31, 2024."
+    },
+    {
+      "pipeline_name": "Gulfstream Natural Gas",
+      "hifld_company": "GULFSTREAM NATURAL GAS SYSTEM L.L.C",
+      "operator": "Williams / Enbridge JV",
+      "regulation": "interstate",
+      "hifld_points": 18,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "williams",
+        "url": "http://www.1line.gulfstreamgas.com/GulfStream/index.html",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "williams",
+        "url": "http://www.1line.gulfstreamgas.com/GulfStream/index.html",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "WBI Energy Transmission",
+      "hifld_company": "WBI ENERGY TRANSMISSION, INCORPORATED",
+      "operator": "MDU Resources",
+      "regulation": "interstate",
+      "hifld_points": 265,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://transmission.wbienergy.com/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://transmission.wbienergy.com/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Portal found but access method unclear. May use Quorum/1Line platform."
+    },
+    {
+      "pipeline_name": "Questar/MountainWest Pipeline",
+      "hifld_company": "QUESTAR PIPELINE COMPANY",
+      "operator": "Williams",
+      "regulation": "interstate",
+      "hifld_points": 77,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://www.mwpipe.com/index.php",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://www.mwpipe.com/index.php",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
+    },
+    {
+      "pipeline_name": "Dominion/Eastern Gas Transmission (EGTS)",
+      "hifld_company": "DOMINION TRANSMISSION INCORPORATED",
+      "operator": "Berkshire Hathaway Energy",
+      "regulation": "interstate",
+      "hifld_points": 75,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "bhe_gts",
+        "url": "https://ebb.bhegts.com/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "bhe_gts",
+        "url": "https://ebb.bhegts.com/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Renamed EGTS after BHE acquisition. Also covers Carolina Gas Transmission and Cove Point."
+    },
+    {
+      "pipeline_name": "Kern River Gas Transmission",
+      "hifld_company": "KERN RIVER GAS TRANSMISSION COMPANY",
+      "operator": "Berkshire Hathaway Energy",
+      "regulation": "interstate",
+      "hifld_points": 69,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://services.kernrivergas.com/portal/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://services.kernrivergas.com/portal/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "American Midstream (Midla)",
+      "hifld_company": "AMERICAN MIDSTREAM (MIDLA), LLC",
+      "operator": "Third Coast Midstream",
+      "regulation": "interstate",
+      "hifld_points": 46,
+      "ioc": {
+        "status": "unknown",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "unknown",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Acquired by Third Coast Midstream. No portal found yet."
+    },
+    {
+      "pipeline_name": "Kinetica Partners",
+      "hifld_company": "KINETICA PARTNERS LLC",
+      "operator": "Eckard Midstream",
+      "regulation": "interstate",
+      "hifld_points": 42,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://www.gasnom.com/ip/kinetica/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://www.gasnom.com/ip/kinetica/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    },
+    {
+      "pipeline_name": "Granite State Gas Transmission",
+      "hifld_company": "GRANITE STATE GAS TRANSMISSION, INCORPORATED",
+      "operator": "Unitil",
+      "regulation": "interstate",
+      "hifld_points": 38,
+      "ioc": {
+        "status": "unknown",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "unknown",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Small New England system. May not be in MISO/ERCOT/SPP footprint."
+    },
+    {
+      "pipeline_name": "American Midstream (AlaTenn)",
+      "hifld_company": "AMERICAN MIDSTREAM (ALATENN), LLC",
+      "operator": "Third Coast Midstream",
+      "regulation": "interstate",
+      "hifld_points": 30,
+      "ioc": {
+        "status": "unknown",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "unknown",
+        "access_method": "unknown",
+        "platform": "unknown",
+        "url": null,
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "notes": "Acquired by Third Coast Midstream. No portal found yet."
+    },
+    {
+      "pipeline_name": "Sabine Pipeline",
+      "hifld_company": "SABINE PIPELINE LLC",
+      "operator": "ONEOK / EnLink Midstream",
+      "regulation": "interstate",
+      "hifld_points": 27,
+      "ioc": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://sabinepipeline.enlink.com/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "unknown",
+        "platform": "custom",
+        "url": "https://sabinepipeline.enlink.com/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      }
+    }
+  ],
+  "staleness_rules": {
+    "daily_auto": {
+      "max_age_days": 2,
+      "alert": "github_issue"
+    },
+    "quarterly_manual": {
+      "max_age_days": 100,
+      "alert": "github_issue"
+    },
+    "not_captured": {
+      "alert": "none"
+    }
+  },
+  "_summary": {
+    "total_pipelines": 58,
+    "total_hifld_points_covered": 9358,
+    "ioc_captured": 26,
+    "ioc_exists_not_captured": 26,
+    "ioc_unknown": 3,
+    "unsub_captured": 13,
+    "login_required_portals": 8,
+    "platforms": {
+      "et_ipost": 11,
+      "kinder_morgan": 11,
+      "enbridge": 4,
+      "tc_energy": 4,
+      "tc_plus": 4,
+      "williams": 3,
+      "gasquest": 2,
+      "dt_midstream_trellis": 3,
+      "bhe_gts": 2,
+      "other": 14
+    }
+  }
+}

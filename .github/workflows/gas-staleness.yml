@@ -1,0 +1,30 @@
+name: Gas Staleness Check
+
+on:
+  schedule:
+    - cron: '0 14 * * 1'  # 2pm UTC Monday = 8am CT
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Check gas data staleness
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/check_gas_staleness.py
