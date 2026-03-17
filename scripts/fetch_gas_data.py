@@ -633,6 +633,68 @@ def fetch_egt_ioc(asset):
     }
 
 
+def fetch_egt_unsub(asset):
+    """Fetch Unsubscribed Capacity from EGT popup report.
+
+    First fetches the unsub listing page to find the most recent report ID,
+    then downloads the popup report and parses the fixed-width PRE block.
+
+    Columns: Loc, Location Name, Loc Purp, Loc/QTI, Zone, Unsubscribed Capacity
+    """
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+
+    # Find the most recent report ID
+    listing_url = f'https://pipelines.energytransfer.com/ipost/capacity/enbl-unsubscribed?asset={asset}'
+    r = s.get(listing_url, timeout=30)
+    if r.status_code != 200:
+        return []
+
+    report_ids = re.findall(r'popup-report/(\d+)\?asset=' + asset, r.text)
+    if not report_ids:
+        print(f"    No unsub report IDs found for {asset}")
+        return []
+
+    report_id = report_ids[0]  # Most recent is first
+
+    # Download the popup report
+    dl_url = f'https://pipelines.energytransfer.com/ipost/base/popup-report/{report_id}?asset={asset}&title=Unsubscribed'
+    r2 = s.get(dl_url, timeout=30)
+    if r2.status_code != 200:
+        return []
+
+    # Extract PRE block
+    pre_match = re.search(r'<pre[^>]*>([\s\S]*?)</pre>', r2.text, re.I)
+    if not pre_match:
+        return []
+
+    results = []
+    for line in pre_match.group(1).split('\n'):
+        # Data rows: spaces, loc ID (digits), name, purpose, QTI, zone, unsub capacity
+        m = re.match(r'^\s+(\d+)\s+(.{25})\s+(\S.*?\S)\s{2,}(\S+)\s+(\S+)\s+([\d,]+)', line)
+        if not m:
+            continue
+
+        loc_id = m.group(1).strip()
+        loc_name = m.group(2).strip()
+        purp = m.group(3).strip()
+        unsub_str = m.group(6).replace(',', '')
+
+        try:
+            unsub = int(unsub_str)
+        except ValueError:
+            unsub = 0
+
+        results.append({
+            'Loc': loc_id,
+            'Loc_Name': loc_name,
+            'Loc_Purp_Desc': purp,
+            'Unsubscribed_Capacity': unsub,
+        })
+
+    return results
+
+
 # ============================================================
 # TC ENERGY (eConnects ReportViewer CSV)
 # ============================================================
@@ -1216,6 +1278,7 @@ def fetch_all_capacity():
         try:
             oac_rows, loc_map = fetch_egt_capacity(pl['asset'])
             ioc = fetch_egt_ioc(pl['asset'])
+            unsub = fetch_egt_unsub(pl['asset'])
 
             points = []
             for c in oac_rows:
@@ -1259,13 +1322,21 @@ def fetch_all_capacity():
 
                 points.append(pt)
 
-            pipelines.append({
+            pl_data = {
                 'name': pl['name'],
                 'short': pl['short'],
                 'updated': TODAY,
                 'points': points,
-            })
-            print(f"  {pl['short']}: {len(points)} points (from {len(oac_rows)} rows, {len(loc_map)} locations), {ioc.get('num_contracts', 0)} IOC contracts")
+            }
+
+            if unsub:
+                pl_data['unsub_points'] = unsub
+                total_unsub = sum(u.get('Unsubscribed_Capacity', 0) for u in unsub)
+                print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts, {len(unsub)} unsub locations, {total_unsub:,} total unsub")
+            else:
+                print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts")
+
+            pipelines.append(pl_data)
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)

@@ -697,16 +697,13 @@
         "refresh_frequency_days": 1
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "direct_csv",
-        "platform": "et_enable_csv",
-        "url": "https://pipelines.energytransfer.com/ipost/downloads/oper-avail-cap?asset=EGT",
-        "redirect_url": "https://pipelines.energytransfer.com//enableinfopost/postedDocs/locations/delcap.csv",
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/capacity/enbl-unsubscribed?asset=EGT",
         "last_refreshed": null,
-        "refresh_frequency_days": 1,
-        "notes": "Redirects to static CSV. 1,681 points with design/operational/scheduled/available capacity + flow direction. Confirmed 2026-03-20."
-      },
-      "notes": "OAC CSV cracked 2026-03-20. 1,681 locations. IOC needs browser approach."
+        "refresh_frequency_days": 1
+      }
     },
     {
       "pipeline_name": "KM Interstate Gas (KMIGT)",
