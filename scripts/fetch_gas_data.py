@@ -12,6 +12,7 @@ Platforms:
   - Energy Transfer CSV (CenterPoint/EGT) — OAC via direct CSV download
   - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora, North Baja) — IOC + Unsub
   - WBI Energy Transmission (ASP.NET ViewState POST) — IOC + OAC + Unsub
+  - ONEOK API (OkTex Pipeline) — IOC + OAC + Unsub via REST JSON
 """
 
 import requests
@@ -22,6 +23,7 @@ import os
 import io
 import sys
 import time
+import base64
 import openpyxl
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -855,6 +857,133 @@ def fetch_wbi_unsub():
 
 
 # ============================================================
+# ONEOK (REST JSON API, no auth)
+# ============================================================
+
+ONEOK_API = 'https://services.oneok.com/webip/v1/api'
+
+ONEOK_PIPELINES = [
+    {'code': 'OKT', 'name': 'OkTex Pipeline Company, L.L.C.', 'short': 'ONEOK OkTex'},
+]
+
+
+def oneok_quarter_date():
+    """Return current quarter start as MM/DD/YYYY."""
+    m = datetime.now().month
+    q = ((m - 1) // 3) * 3 + 1
+    return f'{q:02d}/01/{datetime.now().year}'
+
+
+def fetch_oneok_ioc(pipeline):
+    """Fetch IOC via base64-encoded tab-delimited FERC H/D/P format.
+
+    D row fields (tab-delimited, 0-indexed):
+    0=D, 1=Shipper Name, 2=Shipper ID, 3=Affiliation, 4=Rate Schedule,
+    5=Contract Number, 6=Effective Date, 7=Expiration Date,
+    8=blank, 9=Negotiated Rate, 10=Transport MDQ
+    """
+    url = f'{ONEOK_API}/IndexOfCustomersBytes?quarterDate={oneok_quarter_date()}&pipeline={pipeline}'
+    r = requests.get(url, timeout=30)
+    if r.status_code != 200:
+        return {}
+
+    raw = r.json()
+    text = base64.b64decode(raw).decode('utf-8')
+
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+
+    for line in text.strip().split('\n'):
+        parts = line.split('\t')
+        if not parts or parts[0].strip() != 'D':
+            continue
+        if len(parts) < 11:
+            continue
+
+        shipper = parts[1].strip()
+        rate = parts[4].strip()
+        exp_str = parts[7].strip()
+        t_mdq_str = parts[10].strip()
+
+        try:
+            t_mdq = int(t_mdq_str.replace(',', '')) if t_mdq_str else 0
+        except (ValueError, AttributeError):
+            t_mdq = 0
+
+        if t_mdq == 0 or not shipper:
+            continue
+
+        num_contracts += 1
+        shippers.add(shipper)
+
+        if 'FT' in rate.upper():
+            firm_mdq += t_mdq
+
+        if exp_str:
+            try:
+                ed = datetime.strptime(exp_str.strip()[:10], '%m/%d/%Y')
+                if ed <= cutoff:
+                    expiring_2yr += t_mdq
+            except (ValueError, IndexError):
+                pass
+
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
+
+
+def fetch_oneok_capacity(pipeline):
+    """Fetch OAC from ONEOK JSON API.
+
+    Returns list of dicts with: DRN_NB, DRN_DESC, DESIGN_CAP, OPERATING_CAPACITY,
+    SCHD_CAPACITY, AVAIL_CAPACITY, LOC_PURPOSE, LOC_QTI, FLOW_IND
+    """
+    url = f'{ONEOK_API}/CapacityOperationallyAvailable?startDate={TODAY_MMDDYYYY}&endDate={TODAY_MMDDYYYY}&pipeline={pipeline}'
+    r = requests.get(url, timeout=30)
+    if r.status_code != 200:
+        return []
+    return r.json()
+
+
+def fetch_oneok_unsub(pipeline):
+    """Fetch Unsubscribed Capacity from ONEOK JSON API.
+
+    Returns list of dicts with: LOC, LOC_NAME, QTY_AVAIL, LOC_PURPOSE, LOC_QTI
+    """
+    url = f'{ONEOK_API}/CapacityUnsubscribed?startDate={TODAY_MMDDYYYY}&endDate={TODAY_MMDDYYYY}&pipeline={pipeline}'
+    r = requests.get(url, timeout=30)
+    if r.status_code != 200:
+        return []
+    return r.json()
+
+
+def fetch_oneok_locations(pipeline):
+    """Fetch location metadata from ONEOK JSON API.
+
+    Returns dict of LOC -> {state, county} for county/state enrichment.
+    """
+    url = f'{ONEOK_API}/PointsLocationData?pipeline={pipeline}'
+    r = requests.get(url, timeout=30)
+    if r.status_code != 200:
+        return {}
+    loc_map = {}
+    for row in r.json():
+        loc_id = str(row.get('LOC', '')).strip()
+        if loc_id:
+            loc_map[loc_id] = {
+                'state': row.get('LOCSTABBREV', '').strip(),
+                'county': row.get('LOCCNTY', '').strip(),
+            }
+    return loc_map
+
+
+# ============================================================
 # TC ENERGY (eConnects ReportViewer CSV)
 # ============================================================
 
@@ -1650,6 +1779,88 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
 
+    # ONEOK (REST JSON API)
+    for pl in ONEOK_PIPELINES:
+        print(f"Fetching ONEOK {pl['short']}...")
+        try:
+            oac_rows = fetch_oneok_capacity(pl['code'])
+            ioc = fetch_oneok_ioc(pl['code'])
+            unsub_rows = fetch_oneok_unsub(pl['code'])
+            loc_map = fetch_oneok_locations(pl['code'])
+
+            points = []
+            for row in oac_rows:
+                loc_id = str(row.get('DRN_NB', '')).strip()
+                if not loc_id:
+                    continue
+
+                dc = parse_int_safe(row.get('DESIGN_CAP'))
+                opc = parse_int_safe(row.get('OPERATING_CAPACITY'))
+                sched = parse_int_safe(row.get('SCHD_CAPACITY'))
+                avail = parse_int_safe(row.get('AVAIL_CAPACITY'))
+
+                design = dc if dc > 0 else opc
+                if design == 0:
+                    continue
+
+                purp = row.get('LOC_PURPOSE', '').strip()
+                ptype = 'delivery' if 'D' in purp else ('receipt' if 'R' in purp else 'other')
+                loc_info = loc_map.get(loc_id, {})
+
+                pt = {
+                    'id': loc_id,
+                    'name': row.get('DRN_DESC', '').strip()[:50],
+                    'type': ptype,
+                    'county': loc_info.get('county', '').replace(' County', '').strip(),
+                    'state': loc_info.get('state', '').strip(),
+                    'design': design,
+                    'scheduled': sched,
+                    'available': avail,
+                    'utilization': round(sched / design * 100) if design > 0 else 0,
+                    'connected': '',
+                }
+
+                if ioc:
+                    pt['firm_contracted'] = ioc.get('firm_mdq', 0)
+                    pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
+                    pt['num_shippers'] = ioc.get('num_shippers', 0)
+                    pt['num_contracts'] = ioc.get('num_contracts', 0)
+
+                points.append(pt)
+
+            # Build unsub points
+            unsub = []
+            for row in unsub_rows:
+                loc_id = str(row.get('LOC', '')).strip()
+                if not loc_id:
+                    continue
+                qty = parse_int_safe(row.get('QTY_AVAIL'))
+                unsub.append({
+                    'Loc': loc_id,
+                    'Loc_Name': row.get('LOC_NAME', '').strip(),
+                    'Loc_Purp_Desc': row.get('LOC_PURPOSE', '').strip(),
+                    'Unsubscribed_Capacity': qty,
+                })
+
+            pl_data = {
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': points,
+            }
+
+            if unsub:
+                pl_data['unsub_points'] = unsub
+                total_unsub = sum(u.get('Unsubscribed_Capacity', 0) for u in unsub)
+                print(f"  {pl['short']}: {len(points)} OAC points, {ioc.get('num_contracts', 0)} IOC contracts, {len(unsub)} unsub locations, {total_unsub:,} total unsub")
+            else:
+                print(f"  {pl['short']}: {len(points)} OAC points, {ioc.get('num_contracts', 0)} IOC contracts")
+
+            pipelines.append(pl_data)
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+
     return pipelines
 
 
@@ -1742,6 +1953,7 @@ PIPELINE_HIFLD_MAP = {
     'Tuscarora Gas Transmission Company': ['TUSCARORA GAS TRANSMISSION COMPANY'],
     'North Baja Pipeline, LLC': ['NORTH BAJA PIPELINE'],
     'WBI Energy Transmission, Inc.': ['WBI ENERGY TRANSMISSION, INCORPORATED'],
+    'OkTex Pipeline Company, L.L.C.': ['OKTEX PIPELINE COMPANY'],
 }
 
 ZONE_COORDS = {
@@ -2050,6 +2262,7 @@ TRACKER_NAME_MAP = {
     'Tuscarora': 'Tuscarora Gas Transmission',
     'North Baja': 'North Baja Pipeline',
     'WBI Energy': 'WBI Energy Transmission',
+    'ONEOK OkTex': 'ONEOK OkTex Pipeline (OKT)',
 }
 
 

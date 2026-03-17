@@ -1389,6 +1389,30 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       }
+    },
+    {
+      "pipeline_name": "ONEOK OkTex Pipeline (OKT)",
+      "hifld_company": "OKTEX PIPELINE COMPANY",
+      "operator": "ONEOK",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "oneok_api",
+        "url": "https://services.oneok.com/webip/v1/api/IndexOfCustomersBytes?pipeline=OKT",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "oneok_api",
+        "url": "https://services.oneok.com/webip/v1/api/CapacityUnsubscribed?pipeline=OKT",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "notes": "ONEOK REST JSON API. No auth. IOC via base64 FERC H/D/P, OAC + Unsub via JSON."
     }
   ],
   "staleness_rules": {
