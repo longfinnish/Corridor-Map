@@ -11,6 +11,7 @@ Platforms:
   - Northwest Pipeline (Williams) — IOC via Excel, OAC via HTML parse
   - Energy Transfer CSV (CenterPoint/EGT) — OAC via direct CSV download
   - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora, North Baja) — IOC + Unsub
+  - WBI Energy Transmission (ASP.NET ViewState POST) — IOC + OAC + Unsub
 """
 
 import requests
@@ -684,6 +685,164 @@ def fetch_egt_unsub(asset):
             unsub = int(unsub_str)
         except ValueError:
             unsub = 0
+
+        results.append({
+            'Loc': loc_id,
+            'Loc_Name': loc_name,
+            'Loc_Purp_Desc': purp,
+            'Unsubscribed_Capacity': unsub,
+        })
+
+    return results
+
+
+# ============================================================
+# WBI ENERGY TRANSMISSION (ASP.NET ViewState POST)
+# ============================================================
+
+WBI_PIPELINES = [
+    {'name': 'WBI Energy Transmission, Inc.', 'short': 'WBI Energy'},
+]
+
+
+def fetch_wbi_download(url, button_name='btnDownload'):
+    """GET to capture ViewState, then POST with hidden fields + download button.
+
+    WBI portal uses ASP.NET ViewState. All pages are public, no login.
+    Returns response text (tab-delimited).
+    """
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+
+    r = s.get(url, timeout=15)
+    if r.status_code != 200:
+        return ''
+
+    fields = extract_hidden_fields(r.text)
+
+    # Find any date field (name starts with 'cal') and include its current value
+    for m in re.finditer(r'<input[^>]*name="([^"]*cal[^"]*)"[^>]*value="([^"]*)"', r.text, re.I):
+        fields[m.group(1)] = m.group(2)
+
+    fields[button_name] = 'Download'
+
+    r2 = s.post(url, data=fields, timeout=30)
+    return r2.text if r2.status_code == 200 else ''
+
+
+def fetch_wbi_ioc():
+    """Fetch IOC from WBI Energy portal (tab-delimited, FERC H/D/P format).
+
+    D-row fields (tab-delimited, 0-indexed):
+    0=D, 1=Shipper Name, 2=Shipper ID, 3=Affiliation, 4=Rate Schedule,
+    5=Contract Number, 6=Effective Date, 7=Expiration Date,
+    8=Days Until Next Expiration, 9=Negotiated Rate, 10=Transport MDQ, 11=Storage MDQ
+    """
+    url = 'https://transmission.wbienergy.com/informational_postings/Index_of_Customers/Customer_Index.aspx'
+    text = fetch_wbi_download(url, button_name='butDownload')
+    if not text:
+        return {}
+
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+
+    for line in text.strip().split('\n'):
+        parts = line.split('\t')
+        if not parts or parts[0].strip() != 'D':
+            continue
+        if len(parts) < 12:
+            continue
+
+        shipper = parts[1].strip()
+        rate = parts[4].strip()
+        exp_str = parts[7].strip()
+        t_mdq_str = parts[10].strip()
+        s_mdq_str = parts[11].strip()
+
+        try:
+            t_mdq = int(t_mdq_str.replace(',', '')) if t_mdq_str else 0
+        except (ValueError, AttributeError):
+            t_mdq = 0
+
+        try:
+            s_mdq = int(s_mdq_str.replace(',', '')) if s_mdq_str else 0
+        except (ValueError, AttributeError):
+            s_mdq = 0
+
+        mdq = t_mdq + s_mdq
+        if mdq == 0 or not shipper:
+            continue
+
+        num_contracts += 1
+        shippers.add(shipper)
+
+        r_upper = rate.upper()
+        if 'FS' in r_upper or 'FT' in r_upper:
+            firm_mdq += mdq
+
+        if exp_str:
+            try:
+                ed = datetime.strptime(exp_str.strip()[:10], '%m/%d/%Y')
+                if ed <= cutoff:
+                    expiring_2yr += mdq
+            except (ValueError, IndexError):
+                pass
+
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
+
+
+def fetch_wbi_capacity():
+    """Fetch OAC Line Sections from WBI Energy portal (tab-delimited).
+
+    Headers: TSP, Post Date, Post Time, Loc, Loc Name, Loc Purp, Loc/QTI,
+    Flow Ind, All Qty Avail, DC, OPC, TSQ, OAC, IT, Meas Basis, Press Base Ind
+    """
+    url = 'https://transmission.wbienergy.com/informational_postings/capacity/operational_capacity_line_sections.aspx'
+    text = fetch_wbi_download(url)
+    if not text:
+        return []
+
+    rows = []
+    reader = csv.DictReader(io.StringIO(text), delimiter='\t')
+    for row in reader:
+        rows.append(row)
+    return rows
+
+
+def fetch_wbi_unsub():
+    """Fetch Unsubscribed Locations from WBI Energy portal (tab-delimited).
+
+    Headers: TSP, Post Date, Post Time, Loc, Loc Name, Loc Purp, Loc/QTI,
+    Unsub Cap, Meas Basis, etc.
+    """
+    url = 'https://transmission.wbienergy.com/informational_postings/capacity/unsubscribed_locations.aspx'
+    text = fetch_wbi_download(url)
+    if not text:
+        return []
+
+    results = []
+    reader = csv.DictReader(io.StringIO(text), delimiter='\t')
+    for row in reader:
+        loc_id = row.get('Loc', '').strip()
+        loc_name = row.get('Loc Name', '').strip()
+        purp = row.get('Loc Purp', '').strip()
+        unsub_str = row.get('Unsub Cap', row.get('Unsub Cap ', '')).strip()
+
+        try:
+            unsub = int(unsub_str.replace(',', '')) if unsub_str else 0
+        except ValueError:
+            unsub = 0
+
+        if not loc_id:
+            continue
 
         results.append({
             'Loc': loc_id,
@@ -1425,6 +1584,72 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
 
+    # WBI Energy Transmission (ASP.NET ViewState POST)
+    for pl in WBI_PIPELINES:
+        print(f"Fetching WBI {pl['short']}...")
+        try:
+            oac_rows = fetch_wbi_capacity()
+            ioc = fetch_wbi_ioc()
+            unsub = fetch_wbi_unsub()
+
+            points = []
+            for row in oac_rows:
+                loc_id = row.get('Loc', '').strip()
+                if not loc_id:
+                    continue
+
+                purp = row.get('Loc Purp', '').strip()
+                dc = parse_int_safe(row.get('DC'))
+                opc = parse_int_safe(row.get('OPC'))
+                sched = parse_int_safe(row.get('TSQ'))
+                avail = parse_int_safe(row.get('OAC'))
+
+                if dc == 0 and opc == 0:
+                    continue
+
+                design = dc if dc > 0 else opc
+                ptype = 'delivery' if 'Del' in purp else ('receipt' if 'Rec' in purp else 'other')
+
+                pt = {
+                    'id': loc_id,
+                    'name': row.get('Loc Name', '').strip()[:50],
+                    'type': ptype,
+                    'county': '',
+                    'state': '',
+                    'design': design,
+                    'scheduled': sched,
+                    'available': avail,
+                    'utilization': round(sched / design * 100) if design > 0 else 0,
+                    'connected': '',
+                }
+
+                if ioc:
+                    pt['firm_contracted'] = ioc.get('firm_mdq', 0)
+                    pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
+                    pt['num_shippers'] = ioc.get('num_shippers', 0)
+                    pt['num_contracts'] = ioc.get('num_contracts', 0)
+
+                points.append(pt)
+
+            pl_data = {
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': points,
+            }
+
+            if unsub:
+                pl_data['unsub_points'] = unsub
+                total_unsub = sum(u.get('Unsubscribed_Capacity', 0) for u in unsub)
+                print(f"  {pl['short']}: {len(points)} OAC points, {ioc.get('num_contracts', 0)} IOC contracts, {len(unsub)} unsub locations, {total_unsub:,} total unsub")
+            else:
+                print(f"  {pl['short']}: {len(points)} OAC points, {ioc.get('num_contracts', 0)} IOC contracts")
+
+            pipelines.append(pl_data)
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+
     return pipelines
 
 
@@ -1516,6 +1741,7 @@ PIPELINE_HIFLD_MAP = {
     'Gas Transmission Northwest LLC': ['GAS TRANSMISSION NORTHWEST'],
     'Tuscarora Gas Transmission Company': ['TUSCARORA GAS TRANSMISSION COMPANY'],
     'North Baja Pipeline, LLC': ['NORTH BAJA PIPELINE'],
+    'WBI Energy Transmission, Inc.': ['WBI ENERGY TRANSMISSION, INCORPORATED'],
 }
 
 ZONE_COORDS = {
@@ -1823,6 +2049,7 @@ TRACKER_NAME_MAP = {
     'GTN': 'Gas Transmission Northwest (GTN)',
     'Tuscarora': 'Tuscarora Gas Transmission',
     'North Baja': 'North Baja Pipeline',
+    'WBI Energy': 'WBI Energy Transmission',
 }
 
 
