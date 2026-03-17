@@ -10,7 +10,7 @@ Platforms:
   - Enbridge IOC CSV (Texas Eastern, Algonquin, East Tennessee, Maritimes NE)
   - Northwest Pipeline (Williams) — IOC via Excel, OAC via HTML parse
   - Energy Transfer CSV (CenterPoint/EGT) — OAC via direct CSV download
-  - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora) — IOC only
+  - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora, North Baja) — IOC + Unsub
 """
 
 import requests
@@ -586,15 +586,16 @@ def fetch_tc_capacity(asset_id, report_name):
 
 # ============================================================
 # TC PLUS (tcplus.com — JSON API, no auth)
-# Covers: Great Lakes, GTN, Tuscarora
+# Covers: Great Lakes, GTN, Tuscarora, North Baja
 # IOC: POST /{pipeline}/IndexOfCustomers/Generate → JSON
-# Unsub: POST /{pipeline}/Export/Generate → CSV (needs session fix)
+# Unsub: POST /{pipeline}/UnsubscribedCapacity/Generate → JSON
 # ============================================================
 
 TCPLUS_PIPELINES = [
     {'path': 'Great%20Lakes', 'name': 'Great Lakes Gas Transmission Limited Partnership', 'short': 'Great Lakes'},
     {'path': 'GTN', 'name': 'Gas Transmission Northwest LLC', 'short': 'GTN'},
     {'path': 'Tuscarora', 'name': 'Tuscarora Gas Transmission Company', 'short': 'Tuscarora'},
+    {'path': 'North%20Baja', 'name': 'North Baja Pipeline, LLC', 'short': 'North Baja'},
 ]
 
 
@@ -663,67 +664,51 @@ def fetch_tcplus_ioc(pipeline_path):
     }
 
 
-# TODO: fetch_tcplus_unsub has a session/context bug — the Export/Generate
-# endpoint returns empty or HTML instead of CSV. Needs investigation into
-# whether a specific cookie or prior page visit sets the correct context.
-# Uncomment and fix when ready.
-#
-# def fetch_tcplus_unsub(pipeline_path):
-#     """Fetch Unsubscribed Capacity CSV from TC Plus Export endpoint."""
-#     s = requests.Session()
-#     s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-#
-#     # First visit the unsub page to set session context for this pipeline
-#     s.get(f'https://tcplus.com/{pipeline_path}/UnsubscribedCapacity', timeout=15)
-#     time.sleep(1)
-#
-#     # Then export
-#     url = f'https://tcplus.com/{pipeline_path}/Export/Generate'
-#     form_data = {
-#         'serviceTypeName': 'Ganesha.InfoPost.Service.UnsubscribedCapacity.UnsubscribedCapacityService, Ganesha.InfoPost.Service',
-#         'filterTypeName': 'System.Int32',
-#         'templateType': '7',
-#         'exportType': '1',
-#         'filter': '6',
-#         'customExtension': '',
-#     }
-#
-#     r = s.post(url, data=form_data, timeout=30)
-#
-#     if r.status_code != 200 or 'csv' not in r.headers.get('Content-Type', '').lower():
-#         return []
-#
-#     # Parse CSV — skip header rows (first 5 lines are metadata)
-#     lines = r.text.strip().split('\n')
-#     data_lines = []
-#     header_found = False
-#
-#     for line in lines:
-#         if 'Location Name' in line:
-#             header_found = True
-#             continue
-#         if header_found and line.strip():
-#             reader = csv.reader(io.StringIO(line))
-#             for row in reader:
-#                 if len(row) >= 5:
-#                     loc_name = row[0].strip().strip('"')
-#                     loc_id = row[1].strip().strip('"')
-#                     purp = row[2].strip().strip('"')
-#                     unsub_str = row[4].strip().strip('"').replace(',', '')
-#
-#                     try:
-#                         unsub = int(unsub_str)
-#                     except:
-#                         unsub = 0
-#
-#                     data_lines.append({
-#                         'Loc': loc_id,
-#                         'Loc_Name': loc_name,
-#                         'Loc_Purp_Desc': purp,
-#                         'Unsubscribed_Capacity': unsub,
-#                     })
-#
-#     return data_lines
+def fetch_tcplus_unsub(pipeline_path):
+    """Fetch Unsubscribed Capacity from TC Plus JSON API.
+
+    POST https://www.tcplus.com/{path}/UnsubscribedCapacity/Generate
+    Returns JSON with data.Content[] array containing:
+    LocationName, LocationID, LocationPurposeDescription, LocQti,
+    UnsubscribedCapacity (comma-formatted string), StartEffectiveGasDay, EndEffectiveGasDay
+    """
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    s.headers['X-Requested-With'] = 'XMLHttpRequest'
+
+    url = f'https://www.tcplus.com/{pipeline_path}/UnsubscribedCapacity/Generate'
+    r = s.post(url, timeout=30)
+
+    if r.status_code != 200:
+        return []
+
+    try:
+        data = r.json()
+    except:
+        return []
+
+    items = data.get('data', {}).get('Content', [])
+    results = []
+
+    for item in items:
+        loc_id = item.get('LocationID', '').strip()
+        loc_name = item.get('LocationName', '').strip()
+        purp = item.get('LocationPurposeDescription', '').strip()
+        unsub_str = item.get('UnsubscribedCapacity', '0')
+
+        try:
+            unsub = int(str(unsub_str).replace(',', ''))
+        except (ValueError, AttributeError):
+            unsub = 0
+
+        results.append({
+            'Loc': loc_id,
+            'Loc_Name': loc_name,
+            'Loc_Purp_Desc': purp,
+            'Unsubscribed_Capacity': unsub,
+        })
+
+    return results
 
 
 # ============================================================
@@ -1241,25 +1226,32 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
 
-    # TC Plus (IOC only — no capacity fetch yet, unsub endpoint has session bug)
+    # TC Plus (IOC + Unsub via JSON API)
     for pl in TCPLUS_PIPELINES:
         print(f"Fetching TC Plus {pl['short']}...")
         try:
             ioc = fetch_tcplus_ioc(pl['path'])
+            unsub = fetch_tcplus_unsub(pl['path'])
 
-            # TC Plus pipelines: IOC-only for now (no OAC endpoint discovered)
-            # Create a single pipeline-level entry so IOC data is tracked
+            pl_data = {
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': [],
+            }
+
             if ioc and ioc.get('num_contracts', 0) > 0:
-                pipelines.append({
-                    'name': pl['name'],
-                    'short': pl['short'],
-                    'updated': TODAY,
-                    'points': [],
-                    'ioc_totals': ioc,
-                })
-                print(f"  {pl['short']}: {ioc.get('num_contracts', 0)} IOC contracts, {ioc.get('num_shippers', 0)} shippers, {ioc.get('firm_mdq', 0):,} firm MDQ")
+                pl_data['ioc_totals'] = ioc
+
+            if unsub:
+                pl_data['unsub_points'] = unsub
+                total_unsub = sum(u.get('Unsubscribed_Capacity', 0) for u in unsub)
+                print(f"  {pl['short']}: {ioc.get('num_contracts', 0) if ioc else 0} IOC contracts, {len(unsub)} unsub locations, {total_unsub:,} total unsub capacity")
             else:
-                print(f"  {pl['short']}: no IOC data returned")
+                print(f"  {pl['short']}: {ioc.get('num_contracts', 0) if ioc else 0} IOC contracts, no unsub data")
+
+            if ioc or unsub:
+                pipelines.append(pl_data)
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
@@ -1354,6 +1346,7 @@ PIPELINE_HIFLD_MAP = {
     'Great Lakes Gas Transmission Limited Partnership': ['GREAT LAKES GAS TRANS LTD'],
     'Gas Transmission Northwest LLC': ['GAS TRANSMISSION NORTHWEST'],
     'Tuscarora Gas Transmission Company': ['TUSCARORA GAS TRANSMISSION COMPANY'],
+    'North Baja Pipeline, LLC': ['NORTH BAJA PIPELINE'],
 }
 
 ZONE_COORDS = {
@@ -1660,6 +1653,7 @@ TRACKER_NAME_MAP = {
     'Great Lakes': 'Great Lakes Gas Transmission',
     'GTN': 'Gas Transmission Northwest (GTN)',
     'Tuscarora': 'Tuscarora Gas Transmission',
+    'North Baja': 'North Baja Pipeline',
 }
 
 

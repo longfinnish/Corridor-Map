@@ -819,15 +819,13 @@
         "refresh_frequency_days": 1
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
+        "status": "captured",
+        "access_method": "daily_auto",
         "platform": "tc_plus",
-        "url": "https://tcplus.com/Great%20Lakes/Export/Generate",
+        "url": "https://www.tcplus.com/Great%20Lakes/UnsubscribedCapacity/Generate",
         "last_refreshed": null,
-        "refresh_frequency_days": null,
-        "notes": "Export endpoint returns Great Lakes data regardless of pipeline path. Session-based \u2014 needs fix."
-      },
-      "notes": "TC Plus platform \u2014 different from TC eConnects (login required). Agent says no login needed."
+        "refresh_frequency_days": 1
+      }
     },
     {
       "pipeline_name": "Mojave Pipeline",
@@ -960,13 +958,12 @@
         "refresh_frequency_days": 1
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
+        "status": "captured",
+        "access_method": "daily_auto",
         "platform": "tc_plus",
-        "url": "https://tcplus.com/GTN/Export/Generate",
+        "url": "https://www.tcplus.com/GTN/UnsubscribedCapacity/Generate",
         "last_refreshed": null,
-        "refresh_frequency_days": null,
-        "notes": "Export endpoint session bug \u2014 returns Great Lakes data"
+        "refresh_frequency_days": 1
       }
     },
     {
@@ -1053,13 +1050,35 @@
         "refresh_frequency_days": 1
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
+        "status": "captured",
+        "access_method": "daily_auto",
         "platform": "tc_plus",
-        "url": "https://tcplus.com/Tuscarora/Export/Generate",
+        "url": "https://www.tcplus.com/Tuscarora/UnsubscribedCapacity/Generate",
         "last_refreshed": null,
-        "refresh_frequency_days": null,
-        "notes": "Export endpoint session bug \u2014 returns Great Lakes data"
+        "refresh_frequency_days": 1
+      }
+    },
+    {
+      "pipeline_name": "North Baja Pipeline",
+      "hifld_company": "NORTH BAJA PIPELINE, LLC",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "tc_plus",
+        "url": "https://tcplus.com/North%20Baja/IndexOfCustomers/Generate",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "tc_plus",
+        "url": "https://www.tcplus.com/North%20Baja/UnsubscribedCapacity/Generate",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1
       }
     },
     {
