@@ -1,10 +1,9 @@
-name: Gas & LMP Refresh
+name: Gas & IOC Refresh
 
 on:
-  # PAUSED: Daily refresh disabled to prevent overwriting expanded manual data
-  # Re-enable after scripts are updated to merge instead of overwrite
-  # Original: cron: '0 12 * * *'
-  workflow_dispatch:  # Manual trigger only
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,37 +11,29 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
-    
+    timeout-minutes: 10
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
-        run: pip install requests openpyxl gridstatus pandas pytz
-      
+        run: pip install requests openpyxl
+
       - name: Fetch gas data from pipeline portals
         env:
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
         run: python scripts/fetch_gas_data.py
-      
-      - name: Fetch ERCOT LMP data
-        continue-on-error: true
-        run: python scripts/fetch_lmp_data.py
-      
-      - name: Fetch MISO LMP data
-        continue-on-error: true
-        run: python scripts/fetch_miso_lmp.py
-      
+
       - name: Fetch IOC contract data
         continue-on-error: true
         run: python scripts/fetch_ioc_data.py
-      
+
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Daily refresh ${{ github.event.schedule && '(auto)' || '(manual)' }}"
-          file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ercot_lmp.json data/miso_lmp.json data/ioc_contracts.json'
+          file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ioc_contracts.json data/corridor_pipeline_tracker.json'

@@ -1,0 +1,36 @@
+name: LMP Refresh
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests gridstatus pandas pytz
+
+      - name: Fetch ERCOT LMP data
+        continue-on-error: true
+        run: python scripts/fetch_lmp_data.py
+
+      - name: Fetch MISO LMP data
+        continue-on-error: true
+        run: python scripts/fetch_miso_lmp.py
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "LMP refresh (manual)"
+          file_pattern: 'data/ercot_lmp.json data/miso_lmp.json'

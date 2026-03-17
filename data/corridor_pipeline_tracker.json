@@ -716,22 +716,21 @@
       "regulation": "interstate",
       "hifld_points": 455,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=KMIGT",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMIGT",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 30
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=KMIGT",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=KMIGT",
         "last_refreshed": null,
-        "refresh_frequency_days": null
-      },
-      "notes": "Agent confirmed: same KM portal as TGP/NGPL/EPNG."
+        "refresh_frequency_days": 30
+      }
     },
     {
       "pipeline_name": "Northwest Pipeline",
@@ -837,22 +836,21 @@
       "regulation": "interstate",
       "hifld_points": 54,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=MOJAVE",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=MOJAVE",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 30
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=MOJAVE",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=MOJAVE",
         "last_refreshed": null,
-        "refresh_frequency_days": null
-      },
-      "notes": "Same KM portal."
+        "refresh_frequency_days": 30
+      }
     },
     {
       "pipeline_name": "Carolina Gas Transmission",
@@ -885,22 +883,21 @@
       "regulation": "interstate",
       "hifld_points": 26,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=TRANSCOLORADO",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TRANSCOLORADO",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 30
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=TRANSCOLORADO",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=TRANSCOLORADO",
         "last_refreshed": null,
-        "refresh_frequency_days": null
-      },
-      "notes": "Same KM portal."
+        "refresh_frequency_days": 30
+      }
     },
     {
       "pipeline_name": "Wyoming Interstate",
@@ -909,22 +906,21 @@
       "regulation": "interstate",
       "hifld_points": 26,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/PortalUI/DefaultKM.aspx?TSP=WIC",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=WIC",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 30
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/PortalUI/DefaultKM.aspx?TSP=WIC",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=WIC",
         "last_refreshed": null,
-        "refresh_frequency_days": null
-      },
-      "notes": "Same KM portal."
+        "refresh_frequency_days": 30
+      }
     },
     {
       "pipeline_name": "South Georgia Natural Gas",
@@ -933,20 +929,20 @@
       "regulation": "interstate",
       "hifld_points": 69,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=SGNG",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=SGNG",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 30
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "kinder_morgan",
-        "url": "https://pipeportal.kindermorgan.com/portalui/DefaultKM.aspx?TSP=SGNG",
+        "status": "captured",
+        "access_method": "quarterly_manual",
+        "platform": "km_portal",
+        "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=SGNG",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 30
       }
     },
     {

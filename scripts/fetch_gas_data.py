@@ -1631,29 +1631,119 @@ def geocode_and_locate(pipelines):
     print(f"  County centroid: {stats['county']} ({stats['county']*100//max(total,1)}%)")
     print(f"  Zone estimate: {stats['zone']} ({stats['zone']*100//max(total,1)}%)")
 
+TRACKER_FILE = os.path.join(DATA_DIR, 'corridor_pipeline_tracker.json')
+
+# Mapping from fetcher short names to tracker pipeline_name values
+TRACKER_NAME_MAP = {
+    'El Paso': 'El Paso Natural Gas',
+    'Tennessee Gas': 'Tennessee Gas Pipeline (TGP)',
+    'NGPL': 'NGPL',
+    'Midcontinent Express': 'Midcontinent Express (MEP)',
+    'Southern Natural': 'Southern Natural Gas (SNG)',
+    'Florida Gas': 'Florida Gas Transmission',
+    'Colorado Interstate': 'Colorado Interstate Gas (CIG)',
+    'Transco': 'Transco',
+    'Panhandle Eastern': 'Panhandle Eastern',
+    'Trunkline': 'Trunkline',
+    'Transwestern': 'Transwestern',
+    'Tiger': 'Tiger',
+    'Sea Robin': 'Sea Robin',
+    'Rover': 'Rover',
+    'Enable MRT': 'Enable MRT',
+    'Texas Eastern': 'Texas Eastern',
+    'Algonquin': 'Algonquin',
+    'East Tennessee': 'East Tennessee Natural Gas',
+    'Maritimes NE': 'Maritimes NE',
+    'Southern Star': 'Southern Star',
+    'CenterPoint EGT': 'CenterPoint Energy Gas Transmission (EGT)',
+    'Northwest': 'Northwest Pipeline',
+    'Great Lakes': 'Great Lakes Gas Transmission',
+    'GTN': 'Gas Transmission Northwest (GTN)',
+    'Tuscarora': 'Tuscarora Gas Transmission',
+}
+
+
+def update_pipeline_tracker(pipelines):
+    """Update corridor_pipeline_tracker.json with today's refresh dates for daily_auto pipelines."""
+    if not os.path.exists(TRACKER_FILE):
+        print("Tracker file not found — skipping update")
+        return
+
+    with open(TRACKER_FILE) as f:
+        tracker = json.load(f)
+
+    # Build lookup: which pipelines were successfully fetched
+    fetched = {}
+    for pl in pipelines:
+        short = pl.get('short', '')
+        has_points = len(pl.get('points', [])) > 0
+        has_ioc = pl.get('ioc_totals', {}).get('num_contracts', 0) > 0
+        # Check if any point has IOC data attached
+        if not has_ioc and has_points:
+            has_ioc = any(pt.get('num_contracts', 0) > 0 for pt in pl['points'])
+        fetched[short] = {'has_points': has_points, 'has_ioc': has_ioc}
+
+    updated = 0
+    for entry in tracker.get('gas_pipelines', []):
+        tracker_name = entry.get('pipeline_name', '')
+
+        # Find matching fetcher short name
+        matched_short = None
+        for short, tname in TRACKER_NAME_MAP.items():
+            if tname == tracker_name:
+                matched_short = short
+                break
+
+        if not matched_short or matched_short not in fetched:
+            continue
+
+        info = fetched[matched_short]
+
+        # Update IOC last_refreshed if daily_auto and data was fetched
+        ioc = entry.get('ioc', {})
+        if ioc.get('access_method') == 'daily_auto' and (info['has_points'] or info['has_ioc']):
+            ioc['last_refreshed'] = TODAY
+            updated += 1
+
+        # Update unsub last_refreshed if daily_auto and points were fetched
+        unsub = entry.get('unsub', {})
+        if unsub.get('access_method') == 'daily_auto' and info['has_points']:
+            unsub['last_refreshed'] = TODAY
+            updated += 1
+
+    with open(TRACKER_FILE, 'w') as f:
+        json.dump(tracker, f, indent=2)
+
+    print(f"\nTracker updated: {updated} fields set to {TODAY}")
+
+
 if __name__ == '__main__':
     print(f"=== Gas Interconnect Refresh: {TODAY} ===\n")
-    
+
     # Fetch fresh data
     pipelines = fetch_all_capacity()
-    
+
     total_pts = sum(len(p['points']) for p in pipelines)
     print(f"\nTotal: {len(pipelines)} pipelines, {total_pts} points")
-    
+
     # Update history for rolling averages
     history = update_history(pipelines)
-    
+
     # Compute rolling stats
     compute_rolling_stats(pipelines, history)
-    
+
     # Geocode + HIFLD coordinate matching
     geocode_and_locate(pipelines)
-    
+
     output = {'pipelines': pipelines}
     with open(OUTPUT_FILE, 'w') as f:
         json.dump(output, f)
-    
+
     print(f"\nOutput: {os.path.getsize(OUTPUT_FILE) / 1024:.0f} KB")
+
+    # Update pipeline tracker with today's refresh dates
+    update_pipeline_tracker(pipelines)
+
     print("Done.")
 
 
