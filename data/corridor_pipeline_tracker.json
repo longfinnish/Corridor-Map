@@ -739,12 +739,12 @@
       "regulation": "interstate",
       "hifld_points": 370,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "direct_csv",
+        "status": "captured",
+        "access_method": "daily_auto",
         "platform": "williams",
-        "url": "http://www.northwest.williams.com/NWP_Portal/",
+        "url": "http://www.northwest.williams.com/NWP_Portal/file_download?hfFileURL=Files/Northwest/Downloads/shipper.xlsx",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 1
       },
       "unsub": {
         "status": "exists_not_captured",
