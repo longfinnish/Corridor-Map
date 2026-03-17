@@ -544,6 +544,95 @@ def fetch_egt_capacity(asset):
     return oac_rows, loc_map
 
 
+def fetch_egt_ioc(asset):
+    """Fetch IOC from EGT pipe-delimited report download.
+
+    First fetches the report listing page to find the most recent report ID,
+    then downloads the pipe-delimited text file.
+
+    D row fields (pipe-delimited, 0-indexed):
+    0=D, 1=Shipper Name, 2=Shipper ID, 3=Affiliation, 4=Rate Schedule,
+    5=Contract Number, 6=Effective Date, 7=Expiration Date,
+    8=Days Until Next Expiration, 9=Negotiated Rate, 10=Transport MDQ, 11=Storage MDQ
+    """
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+
+    # Find the most recent report ID from the listing page
+    listing_url = f'https://pipelines.energytransfer.com/ipost/index-of-customers/ioc-report-download?asset={asset}'
+    r = s.get(listing_url, timeout=30)
+    if r.status_code != 200:
+        return {}
+
+    report_ids = re.findall(r'download-data/(\d+)\?asset=' + asset, r.text)
+    if not report_ids:
+        print(f"    No IOC report IDs found for {asset}")
+        return {}
+
+    report_id = report_ids[0]  # Most recent is first
+
+    # Download the pipe-delimited report
+    dl_url = f'https://pipelines.energytransfer.com/ipost/base/download-data/{report_id}?asset={asset}&title=Customer+Index+Data'
+    r2 = s.get(dl_url, timeout=30)
+    if r2.status_code != 200:
+        return {}
+
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+
+    for line in r2.text.strip().split('\n'):
+        parts = line.split('|')
+        if not parts or parts[0].strip() != 'D':
+            continue
+        if len(parts) < 12:
+            continue
+
+        shipper = parts[1].strip()
+        rate = parts[4].strip()
+        exp_str = parts[7].strip()
+        t_mdq_str = parts[10].strip()
+        s_mdq_str = parts[11].strip()
+
+        try:
+            t_mdq = int(t_mdq_str.replace(',', '')) if t_mdq_str else 0
+        except (ValueError, AttributeError):
+            t_mdq = 0
+
+        try:
+            s_mdq = int(s_mdq_str.replace(',', '')) if s_mdq_str else 0
+        except (ValueError, AttributeError):
+            s_mdq = 0
+
+        mdq = t_mdq + s_mdq
+        if mdq == 0 or not shipper:
+            continue
+
+        num_contracts += 1
+        shippers.add(shipper)
+
+        r_upper = rate.upper()
+        if 'FT' in r_upper or 'FSS' in r_upper or 'FTS' in r_upper:
+            firm_mdq += mdq
+
+        if exp_str:
+            try:
+                ed = datetime.strptime(exp_str.strip()[:10], '%m/%d/%Y')
+                if ed <= cutoff:
+                    expiring_2yr += mdq
+            except (ValueError, IndexError):
+                pass
+
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
+
+
 # ============================================================
 # TC ENERGY (eConnects ReportViewer CSV)
 # ============================================================
@@ -1126,6 +1215,7 @@ def fetch_all_capacity():
         print(f"Fetching EGT {pl['short']}...")
         try:
             oac_rows, loc_map = fetch_egt_capacity(pl['asset'])
+            ioc = fetch_egt_ioc(pl['asset'])
 
             points = []
             for c in oac_rows:
@@ -1148,7 +1238,7 @@ def fetch_all_capacity():
                 ptype = 'delivery' if 'Delivery' in flow else ('receipt' if 'Receipt' in flow else 'other')
                 loc_info = loc_map.get(loc_id, {})
 
-                points.append({
+                pt = {
                     'id': loc_id,
                     'name': c.get('LOCATION NAME', '').strip()[:50],
                     'type': ptype,
@@ -1159,7 +1249,15 @@ def fetch_all_capacity():
                     'available': avail,
                     'utilization': round(sched / dc * 100) if dc > 0 else 0,
                     'connected': loc_info.get('operator', '').strip()[:50],
-                })
+                }
+
+                if ioc:
+                    pt['firm_contracted'] = ioc.get('firm_mdq', 0)
+                    pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
+                    pt['num_shippers'] = ioc.get('num_shippers', 0)
+                    pt['num_contracts'] = ioc.get('num_contracts', 0)
+
+                points.append(pt)
 
             pipelines.append({
                 'name': pl['name'],
@@ -1167,7 +1265,7 @@ def fetch_all_capacity():
                 'updated': TODAY,
                 'points': points,
             })
-            print(f"  {pl['short']}: {len(points)} points (from {len(oac_rows)} rows, {len(loc_map)} locations)")
+            print(f"  {pl['short']}: {len(points)} points (from {len(oac_rows)} rows, {len(loc_map)} locations), {ioc.get('num_contracts', 0)} IOC contracts")
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)

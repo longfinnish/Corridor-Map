@@ -689,13 +689,12 @@
       "regulation": "interstate",
       "hifld_points": 1169,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "browser_only",
+        "status": "captured",
+        "access_method": "daily_auto",
         "platform": "et_ipost",
-        "url": "https://pipelines.energytransfer.com/ipost/base/popup-report/137?asset=EGT",
+        "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/ioc-report-download?asset=EGT",
         "last_refreshed": null,
-        "refresh_frequency_days": null,
-        "notes": "IOC in popup report \u2014 needs JS rendering or manual export. OAC is priority."
+        "refresh_frequency_days": 1
       },
       "unsub": {
         "status": "exists_not_captured",
