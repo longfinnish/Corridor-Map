@@ -8,6 +8,7 @@ Platforms:
   - Williams 1line (Transco)
   - Enbridge rtba (Texas Eastern, Algonquin, Maritimes NE, East Tennessee)
   - Enbridge IOC CSV (Texas Eastern, Algonquin, East Tennessee, Maritimes NE)
+  - Northwest Pipeline (Williams) — IOC via Excel, OAC via HTML parse
   - Energy Transfer CSV (CenterPoint/EGT) — OAC via direct CSV download
   - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora) — IOC only
 """
@@ -253,6 +254,143 @@ def fetch_enbridge_ioc(bu_code):
         'num_contracts': num_contracts,
         'num_shippers': len(shippers),
     }
+
+
+# ============================================================
+# NORTHWEST PIPELINE (Williams — Excel IOC + HTML OAC, no auth)
+# ============================================================
+
+NWP_PIPELINES = [
+    {'name': 'Northwest Pipeline LLC', 'short': 'Northwest'},
+]
+
+
+def fetch_nwp_ioc():
+    """Fetch IOC from Northwest Pipeline Excel download.
+
+    Multi-row format: shipper row has name in col 2, DUNS in col 9, MDQ in col 28,
+    expiration date in col 20. Rate schedule row follows with value in col 12.
+    TF-1 = firm transportation.
+    """
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+
+    url = 'http://www.northwest.williams.com/NWP_Portal/file_download?hfFileURL=Files/Northwest/Downloads/shipper.xlsx'
+    r = s.get(url, timeout=60)
+
+    if r.status_code != 200 or r.content[:2] != b'PK':
+        return {}
+
+    wb = openpyxl.load_workbook(io.BytesIO(r.content), read_only=True)
+    ws = wb.active
+    rows = list(ws.iter_rows(values_only=True))
+
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+
+    current_shipper = ''
+    current_mdq = 0
+    current_expiring = False
+
+    for i, row in enumerate(rows):
+        if not row or len(row) < 10:
+            continue
+
+        # Shipper row: col 2 (idx 1) = shipper name, col 9 (idx 8) = DUNS,
+        # col 28 (idx 27) = MDQ, col 20 (idx 19) = expiration date
+        shipper_name = str(row[1]).strip() if row[1] else ''
+        duns = str(row[8]).strip() if len(row) > 8 and row[8] else ''
+
+        # Detect shipper row by DUNS number (9-digit numeric)
+        if duns and duns.replace('-', '').isdigit() and len(duns.replace('-', '')) >= 9 and shipper_name:
+            current_shipper = shipper_name
+
+            mdq_val = row[27] if len(row) > 27 else 0
+            try:
+                current_mdq = int(str(mdq_val).replace(',', '').strip()) if mdq_val else 0
+            except (ValueError, AttributeError):
+                current_mdq = 0
+
+            current_expiring = False
+            exp_val = row[19] if len(row) > 19 else None
+            if exp_val:
+                try:
+                    if isinstance(exp_val, datetime):
+                        ed = exp_val
+                    else:
+                        ed = datetime.strptime(str(exp_val).strip()[:10], '%m/%d/%Y')
+                    current_expiring = ed <= cutoff
+                except (ValueError, TypeError):
+                    pass
+
+            if current_mdq > 0:
+                num_contracts += 1
+                shippers.add(current_shipper)
+                if current_expiring:
+                    expiring_2yr += current_mdq
+
+            continue
+
+        # Rate schedule row: col 12 (idx 11) = rate schedule name
+        rate = str(row[11]).strip() if len(row) > 11 and row[11] else ''
+        if rate and current_mdq > 0 and current_shipper:
+            if 'TF-1' in rate.upper() or 'TF1' in rate.upper() or 'FT' in rate.upper():
+                firm_mdq += current_mdq
+
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
+
+
+def fetch_nwp_capacity():
+    """Fetch OAC from Northwest Pipeline HTML table.
+
+    HTML table columns (11 cols):
+    0=location ID, 1=name, 2=location code, 3=location type, 4=flow direction,
+    5=quantity type, 6=design capacity, 7=operating capacity, 8=scheduled qty,
+    9=available capacity, 10=(empty)
+    """
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+
+    url = 'http://www.northwest.williams.com/NWP_Portal/CapacityResultsScrollable.action'
+    r = s.get(url, timeout=60)
+
+    if r.status_code != 200:
+        return []
+
+    all_rows = re.findall(r'<tr[^>]*>(.*?)</tr>', r.text, re.DOTALL | re.I)
+    data = []
+    for row in all_rows:
+        cells = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.I)
+        if len(cells) < 8:
+            continue
+        clean = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
+
+        # Skip non-data rows (header, script, etc.)
+        has_num = any(c.replace(',', '').replace('.', '').replace('-', '').isdigit() for c in clean[6:10] if c)
+        if not has_num:
+            continue
+
+        data.append({
+            'Loc': clean[0],
+            'Loc_Name': clean[1],
+            'Loc_Code': clean[2],
+            'Loc_Purp_Desc': clean[3],
+            'Flow_Ind_Desc': clean[4],
+            'QTI': clean[5],
+            'Total_Design_Capacity': clean[6],
+            'Operating_Capacity': clean[7],
+            'Total_Scheduled_Quantity': clean[8] if len(clean) > 8 else '0',
+            'Operationally_Available_Capacity': clean[9] if len(clean) > 9 else '0',
+        })
+    return data
 
 
 # ============================================================
@@ -890,6 +1028,58 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
     
+    # Northwest Pipeline (Williams)
+    for pl in NWP_PIPELINES:
+        print(f"Fetching NWP {pl['short']}...")
+        try:
+            caps = fetch_nwp_capacity()
+            ioc = fetch_nwp_ioc()
+
+            points = []
+            for c in caps:
+                dc = parse_int_safe(c.get('Total_Design_Capacity'))
+                sched = parse_int_safe(c.get('Total_Scheduled_Quantity'))
+                avail = parse_int_safe(c.get('Operationally_Available_Capacity'))
+
+                if dc == 0:
+                    continue
+
+                flow = c.get('Flow_Ind_Desc', '')
+                ptype = 'delivery' if 'Delivery' in flow else ('receipt' if 'Receipt' in flow else 'other')
+
+                pt = {
+                    'id': c.get('Loc', ''),
+                    'name': c.get('Loc_Name', '').strip()[:50],
+                    'type': ptype,
+                    'county': '',
+                    'state': '',
+                    'design': dc,
+                    'scheduled': sched,
+                    'available': avail,
+                    'utilization': round(sched / dc * 100) if dc > 0 else 0,
+                    'connected': '',
+                }
+
+                # Apply pipeline-level IOC stats to all points
+                if ioc:
+                    pt['firm_contracted'] = ioc.get('firm_mdq', 0)
+                    pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
+                    pt['num_shippers'] = ioc.get('num_shippers', 0)
+                    pt['num_contracts'] = ioc.get('num_contracts', 0)
+
+                points.append(pt)
+
+            pipelines.append({
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': points,
+            })
+            print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts")
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+
     # Energy Transfer
     for pl in ET_PIPELINES:
         print(f"Fetching ET {pl['short']}...")
@@ -1159,6 +1349,7 @@ PIPELINE_HIFLD_MAP = {
     'Columbia Gas Transmission, LLC': ['COLUMBIA GAS TRANSMISSION'],
     'Columbia Gulf Transmission, LLC': ['COLUMBIA GULF TRANSMISSION'],
     'Northern Border Pipeline Company': ['NORTHERN BORDER PIPELINE COMPANY'],
+    'Northwest Pipeline LLC': ['NORTHWEST PIPELINE'],
     'CenterPoint Energy Gas Transmission Company': ['CENTERPOINT ENERGY', 'ENABLE GAS TRANSMISSION'],
     'Great Lakes Gas Transmission Limited Partnership': ['GREAT LAKES GAS TRANS LTD'],
     'Gas Transmission Northwest LLC': ['GAS TRANSMISSION NORTHWEST'],
