@@ -311,6 +311,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Gas Pipelines (EIA)</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Gas Pipelines (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>Interconnect Capacity (FERC) <a href="#" onclick="event.preventDefault();event.stopPropagation();showGasMethod()" style="color:#C4854C;font-size:10px;text-decoration:none;margin-left:2px" title="View methodology">&#9432;</a></span><label class="tg"><input type="checkbox" id="t-gasix" onchange="togGasIx()"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF8F00"></span>TX Intrastate Gas Pipelines</span><label class="tg"><input type="checkbox" id="t-rrc" onchange="togRRC()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Facilities (HIFLD)</span><label class="tg"><input type="checkbox" id="t-gi-all" onchange="togGIAll(this.checked)"><span class="ts"></span></label><span class="collapse-arrow" onclick="event.stopPropagation();this.parentElement.nextElementSibling.classList.toggle('sub-collapsed');this.textContent=this.parentElement.nextElementSibling.classList.contains('sub-collapsed')?'\u25B6':'\u25BC'">&#x25B6;</span></div>
 <div class="sub-group sub-collapsed" id="gi-subs">
 <div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Compressor Stations</span><label class="tg"><input type="checkbox" id="t-gcomp" onchange="togGI('gcomp')"><span class="ts"></span></label></div>
@@ -511,7 +512,8 @@ wtr:{on:false,mz:0,ly:null},
 cty:{on:false,mz:0,ly:null},
 
 st:{on:true,mz:0,ly:null},
-hs:{on:false,mz:0,g:L.layerGroup(),ld:false,ac:null}
+hs:{on:false,mz:0,g:L.layerGroup(),ld:false,ac:null},
+rrc:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null}
 };
 
 function tog(n){
@@ -543,7 +545,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='wtr'){rWtr();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='rrc')ldRRC();
 }
 
 function bboxEnv(){
@@ -738,6 +740,90 @@ popup+='<br>Status: '+(p.status||'\u2014');
 ly.bindPopup(popup,{maxWidth:300})}
 }).addTo(s.g);s.ld=false;
 }).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
+}
+
+// TX RRC Intrastate Gas Pipelines
+var rrcCache={};  // county name -> GeoJSON features array
+var rrcRendered={};  // county name -> true if already on map
+var RRCURL='https://gis.rrc.texas.gov/server/rest/services/rrc_public/RRC_Public_Viewer_Srvs/MapServer/12/query';
+
+function rrcColor(d){if(d>=36)return'#E53935';if(d>=24)return'#FF6D00';if(d>=18)return'#FF8F00';return'#FFD600'}
+function rrcWeight(d){if(d>=36)return 4;if(d>=24)return 3;if(d>=18)return 2.5;return 2}
+
+function togRRC(){
+var s=LS.rrc;s.on=!s.on;
+if(s.on){s.g.addTo(map);ldRRC()}
+else{map.removeLayer(s.g);s.g.clearLayers();rrcRendered={};rrcCache={}}
+uLeg();
+}
+
+function ldRRC(){
+var s=LS.rrc;if(!s.on)return;
+var b=map.getBounds();
+// Only query when viewing Texas (rough bbox: lat 25.8-36.5, lng -106.7 to -93.5)
+if(b.getNorth()<25.8||b.getSouth()>36.5||b.getEast()<-106.7||b.getWest()>-93.5)return;
+// Determine which TX counties are in viewport via ArcGIS county service
+var ctyUrl='https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized_Boundaries/FeatureServer/0/query';
+var ctyParams=new URLSearchParams({
+where:"STATE_ABBR = 'TX'",geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+spatialRel:'esriSpatialRelIntersects',outFields:'NAME',
+returnGeometry:'false',f:'json',outSR:'4326'
+});
+fetch(ctyUrl+'?'+ctyParams.toString()).then(function(r){return r.json()}).then(function(d){
+var counties=(d.features||[]).map(function(f){return f.attributes.NAME.replace(/ County$/i,'').toUpperCase()});
+// Remove rendered layers for counties no longer in viewport
+for(var c in rrcRendered){
+if(counties.indexOf(c)<0){rrcRendered[c]=false}
+}
+// Rebuild layer from cache for visible counties
+s.g.clearLayers();rrcRendered={};
+var toFetch=[];
+counties.forEach(function(c){
+if(rrcCache[c]){renderRRCCounty(rrcCache[c]);rrcRendered[c]=true}
+else{toFetch.push(c)}
+});
+// Fetch uncached counties
+toFetch.forEach(function(c){fetchRRCCounty(c)});
+}).catch(function(e){console.error('RRC county lookup error:',e)});
+}
+
+function fetchRRCCounty(county){
+var allFeatures=[];
+function fetchPage(offset){
+var params=new URLSearchParams({
+where:"COMMODITY = 'NATURAL GAS' AND DIAMETER >= 12 AND INTERSTATE = 'No' AND STATUS = 'In Service' AND COUNTY_NAME = '"+county.replace(/'/g,"''")+"'",
+outFields:'OPERATOR,DIAMETER,SYSTEM_NAME,T4PERMIT,SYSTEM_TYPE',
+returnGeometry:'true',outSR:'4326',f:'geojson',
+resultRecordCount:'1000',resultOffset:String(offset)
+});
+fetch(RRCURL+'?'+params.toString()).then(function(r){return r.json()}).then(function(d){
+var feats=d.features||[];
+allFeatures=allFeatures.concat(feats);
+if(feats.length>=1000){fetchPage(offset+1000)}
+else{
+rrcCache[county]=allFeatures;
+if(LS.rrc.on){renderRRCCounty(allFeatures);rrcRendered[county]=true}
+}
+}).catch(function(e){console.error('RRC fetch error ('+county+'):',e)});
+}
+fetchPage(0);
+}
+
+function renderRRCCounty(features){
+if(!features.length)return;
+var fc={type:'FeatureCollection',features:features};
+L.geoJSON(fc,{
+style:function(f){var d=f.properties.DIAMETER||12;return{color:rrcColor(d),weight:rrcWeight(d),opacity:0.8}},
+onEachFeature:function(f,ly){var p=f.properties;
+var d=p.DIAMETER||'';
+var popup='<div style="font-size:9px;color:#FF8F00;font-weight:700;letter-spacing:1px;margin-bottom:4px">TX INTRASTATE</div>';
+popup+='<b>'+(p.OPERATOR||'Unknown Operator')+'</b>';
+popup+='<br>Diameter: '+(d?d+'"':'\u2014');
+popup+='<br>System: '+(p.SYSTEM_NAME||'\u2014');
+popup+='<br>T-4 Permit: '+(p.T4PERMIT||'\u2014');
+popup+='<br>Type: '+(p.SYSTEM_TYPE||'\u2014');
+ly.bindPopup(popup,{maxWidth:300})}
+}).addTo(LS.rrc.g);
 }
 
 var fiberLayer=null;
@@ -3681,6 +3767,7 @@ if(document.getElementById('t-cap')&&document.getElementById('t-cap').checked){h
 if(plannedLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#00E676"></span>New Lines</div><div class="lgi"><span class="lgl" style="background:#FFB74D"></span>Upgrades</div>'}
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
+if(LS.rrc.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E53935"></span>TX Intra 36"+</div><div class="lgi"><span class="lgl" style="background:#FF6D00"></span>TX Intra 24"+</div><div class="lgi"><span class="lgl" style="background:#FF8F00"></span>TX Intra 18"+</div><div class="lgi"><span class="lgl" style="background:#FFD600"></span>TX Intra 12"+</div>'}
 if(fiberLayer||lumenLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Fiber Routes</div>'}
 if(LS.gi.on){has=true;
 if(LS.gi.types.gcomp)h+='<div class="lgi"><span class="ld" style="background:#FF5722"></span>Compressor</div>';
