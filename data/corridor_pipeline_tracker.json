@@ -1446,6 +1446,65 @@
         "last_refreshed": "2026-03-19"
       },
       "notes": "Portal blocked from cloud (Incapsula WAF), browser-only downloads. Manual refresh required."
+    },
+    {
+      "pipeline_name": "East Cheyenne Gas Storage",
+      "hifld_company": null,
+      "operator": "Tallgrass Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "type": "storage",
+      "ioc": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "url": "https://pipeline.tallgrassenergylp.com/Pages/IndexCustomer.aspx?pipeline=335",
+        "last_refreshed": "2026-01-02",
+        "refresh_frequency_days": 90,
+        "contract_count": 3
+      },
+      "unsub": {
+        "status": "not_applicable"
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "last_refreshed": "2026-03-19"
+      },
+      "notes": "Storage facility in Logan County CO. Portal blocked from cloud (Incapsula WAF), browser-only downloads."
+    },
+    {
+      "pipeline_name": "Cheyenne Connector",
+      "hifld_company": null,
+      "operator": "Tallgrass Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "type": "pipeline",
+      "ioc": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "url": "https://pipeline.tallgrassenergylp.com/Pages/IndexCustomer.aspx?pipeline=314",
+        "last_refreshed": "2026-01-02",
+        "refresh_frequency_days": 90,
+        "contract_count": 2,
+        "shipper_count": 2
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "last_refreshed": "2026-03-19",
+        "point_count": 1
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "last_refreshed": "2026-03-19"
+      },
+      "notes": "Gathering pipeline in Weld County CO. Portal blocked from cloud (Incapsula WAF), browser-only downloads."
     }
   ],
   "staleness_rules": {
