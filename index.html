@@ -741,24 +741,26 @@ popup+='<br>Status: '+(p.status||'\u2014');
 ly.bindPopup(popup,{maxWidth:300})}
 }).addTo(s.g);s.ld=false;
 // Also load REX line geometry from EIA layer
-ldREXLines(s);
+ldTallgrassLines(s);
 }).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
 }
 
-function ldREXLines(s){
-var rexParams=new URLSearchParams({
-where:"Operator LIKE '%Rockies Express%'",
-geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+function ldTallgrassLines(s){
+var where="Operator LIKE '%Rockies Express%' OR Operator LIKE '%Trailblazer%' OR Operator LIKE '%Cheyenne Plains%'";
+var params=new URLSearchParams({
+where:where,geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
 spatialRel:'esriSpatialRelIntersects',
 outFields:'Operator,TYPEPIPE',returnGeometry:'true',
 f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
-fetch(EIAURL+'?'+rexParams.toString()).then(function(r){return r.json()}).then(function(d){
+fetch(EIAURL+'?'+params.toString()).then(function(r){return r.json()}).then(function(d){
 if(!d.features||!d.features.length)return;
 L.geoJSON(d,{style:{color:'#42A5F5',weight:3,opacity:0.9},
-onEachFeature:function(f,ly){ly.bindPopup('<b>Rockies Express Pipeline (REX)</b><br>Operator: Tallgrass Energy<br>Type: Interstate',{maxWidth:300})}
+onEachFeature:function(f,ly){var op=f.properties.Operator||'';
+var label=op.indexOf('Rockies Express')>=0?'Rockies Express Pipeline (REX)':op.indexOf('Trailblazer')>=0?'Trailblazer Pipeline':op.indexOf('Cheyenne Plains')>=0?'Cheyenne Plains Pipeline':op;
+ly.bindPopup('<b>'+label+'</b><br>Operator: Tallgrass Energy<br>Type: Interstate',{maxWidth:300})}
 }).addTo(s.g);
-}).catch(function(e){console.error('REX line error:',e)});
+}).catch(function(e){console.error('Tallgrass line error:',e)});
 }
 
 // TX RRC Intrastate Gas Pipelines
