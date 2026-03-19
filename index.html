@@ -435,6 +435,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <script>
 var TXURL='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query';
 var GASURL='https://geo.dot.gov/server/rest/services/hosted/Natural_Gas_Pipelines_US_EIA/FeatureServer/0/query';
+var EIAURL='https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Natural_Gas_Interstate_and_Intrastate_Pipelines_1/FeatureServer/0/query';
 
 var BL={
 sat:L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
@@ -739,7 +740,25 @@ popup+='<br>Type: '+(p.typepipe||'\u2014');
 popup+='<br>Status: '+(p.status||'\u2014');
 ly.bindPopup(popup,{maxWidth:300})}
 }).addTo(s.g);s.ld=false;
+// Also load REX line geometry from EIA layer
+ldREXLines(s);
 }).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
+}
+
+function ldREXLines(s){
+var rexParams=new URLSearchParams({
+where:"Operator LIKE '%Rockies Express%'",
+geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
+spatialRel:'esriSpatialRelIntersects',
+outFields:'Operator,TYPEPIPE',returnGeometry:'true',
+f:'geojson',outSR:'4326',resultRecordCount:'2000'
+});
+fetch(EIAURL+'?'+rexParams.toString()).then(function(r){return r.json()}).then(function(d){
+if(!d.features||!d.features.length)return;
+L.geoJSON(d,{style:{color:'#42A5F5',weight:3,opacity:0.9},
+onEachFeature:function(f,ly){ly.bindPopup('<b>Rockies Express Pipeline (REX)</b><br>Operator: Tallgrass Energy<br>Type: Interstate',{maxWidth:300})}
+}).addTo(s.g);
+}).catch(function(e){console.error('REX line error:',e)});
 }
 
 // TX RRC Intrastate Gas Pipelines

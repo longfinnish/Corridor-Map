@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "Corridor Gas Pipeline Data Tracker \u2014 operational scoreboard",
+    "description": "Corridor Gas Pipeline Data Tracker — operational scoreboard",
     "version": "1.0.0",
     "created": "2026-03-20",
     "last_audit": "2026-03-20",
@@ -798,7 +798,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "Agent confirmed: ET iPost. May overlap with existing Enable MRT entry \u2014 verify."
+      "notes": "Agent confirmed: ET iPost. May overlap with existing Enable MRT entry — verify."
     },
     {
       "pipeline_name": "Great Lakes Gas Transmission",
@@ -868,7 +868,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "BHE GT&S portal \u2014 same as Dominion/EGTS."
+      "notes": "BHE GT&S portal — same as Dominion/EGTS."
     },
     {
       "pipeline_name": "TransColorado",
@@ -1090,7 +1090,7 @@
         "url": "https://dtmidstream.trellisenergy.com/ptms/public/infopost/viewInfoPostingReportTable.do?reportType=16&globalTSP=9",
         "last_refreshed": null,
         "refresh_frequency_days": null,
-        "notes": "No login required. Data visible in browser. API needs JS session state \u2014 server returns 400/500 from curl. Needs Puppeteer/Playwright."
+        "notes": "No login required. Data visible in browser. API needs JS session state — server returns 400/500 from curl. Needs Puppeteer/Playwright."
       },
       "unsub": {
         "status": "exists_not_captured",
@@ -1223,7 +1223,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
+      "notes": "Complex ownership: Questar → Dominion → Southwest Gas → Williams. Now MountainWest Pipeline."
     },
     {
       "pipeline_name": "Dominion/Eastern Gas Transmission (EGTS)",
@@ -1413,6 +1413,39 @@
         "refresh_frequency_days": 1
       },
       "notes": "ONEOK REST JSON API. No auth. IOC via base64 FERC H/D/P, OAC + Unsub via JSON."
+    },
+    {
+      "pipeline_name": "Rockies Express Pipeline (REX)",
+      "hifld_company": "ROCKIES EXPRESS PIPELINE",
+      "operator": "Tallgrass Energy",
+      "regulation": "interstate",
+      "hifld_points": 65,
+      "ioc": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "url": "https://pipeline.tallgrassenergylp.com/Pages/IndexCustomer.aspx?pipeline=501",
+        "last_refreshed": "2026-01-02",
+        "refresh_frequency_days": 90,
+        "contract_count": 122,
+        "shipper_count": 56
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "url": "https://pipeline.tallgrassenergylp.com/Pages/IndexCustomer.aspx?pipeline=501",
+        "last_refreshed": "2026-03-19",
+        "refresh_frequency_days": 30,
+        "point_count": 98
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "monthly_manual",
+        "platform": "tallgrass_ebb",
+        "last_refreshed": "2026-03-19"
+      },
+      "notes": "Portal blocked from cloud (Incapsula WAF), browser-only downloads. Manual refresh required."
     }
   ],
   "staleness_rules": {
