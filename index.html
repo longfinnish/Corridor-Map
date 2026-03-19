@@ -311,6 +311,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#FFA726"></span>Gas Pipelines (EIA)</span><label class="tg"><input type="checkbox" id="t-gas" onchange="tog('gas')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#E040FB"></span>Gas Pipelines (OSM)</span><label class="tg"><input type="checkbox" id="t-osmpipe" onchange="tog('osmpipe')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#00E5FF"></span>Interconnect Capacity (FERC) <a href="#" onclick="event.preventDefault();event.stopPropagation();showGasMethod()" style="color:#C4854C;font-size:10px;text-decoration:none;margin-left:2px" title="View methodology">&#9432;</a></span><label class="tg"><input type="checkbox" id="t-gasix" onchange="togGasIx()"><span class="ts"></span></label></div>
+<div id="gasix-filter" style="display:none;padding:2px 16px 6px 28px"><select id="gasix-pl" onchange="filterGasIx()" style="width:100%;padding:5px 8px;background:#253545;border:1px solid rgba(196,133,76,0.3);border-radius:4px;color:#F0EDE8;font-family:DM Sans,sans-serif;font-size:11px;outline:none;cursor:pointer"><option value="">Show All Pipelines</option></select></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF8F00"></span>TX Intrastate Gas Pipelines</span><label class="tg"><input type="checkbox" id="t-rrc" onchange="togRRC()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#FF5722"></span>Facilities (HIFLD)</span><label class="tg"><input type="checkbox" id="t-gi-all" onchange="togGIAll(this.checked)"><span class="ts"></span></label><span class="collapse-arrow" onclick="event.stopPropagation();this.parentElement.nextElementSibling.classList.toggle('sub-collapsed');this.textContent=this.parentElement.nextElementSibling.classList.contains('sub-collapsed')?'\u25B6':'\u25BC'">&#x25B6;</span></div>
 <div class="sub-group sub-collapsed" id="gi-subs">
@@ -3515,6 +3516,7 @@ return '#EF5350';
 var iocData=null;
 function togGasIx(){
 var on=document.getElementById('t-gasix').checked;
+var filterDiv=document.getElementById('gasix-filter');
 if(on){
 if(!gasIxLoaded){
 Promise.all([
@@ -3526,11 +3528,28 @@ gasIxLoaded=true;
 iocData=results[1];
 window.gasIxData=results[0];
 window.unsubData=results[2];
+populateGasIxFilter(results[0]);
 renderGasIx(results[0]);
 });
 }else{gasIxLayer.addTo(map)}
-}else{map.removeLayer(gasIxLayer)}
+filterDiv.style.display='block';
+}else{map.removeLayer(gasIxLayer);filterDiv.style.display='none'}
 uLeg();
+}
+function populateGasIxFilter(data){
+var sel=document.getElementById('gasix-pl');
+sel.innerHTML='<option value="">Show All Pipelines</option>';
+var pipelines=data.pipelines||[];
+pipelines.slice().sort(function(a,b){return(a.short||a.name).localeCompare(b.short||b.name)}).forEach(function(pl){
+var opt=document.createElement('option');
+opt.value=pl.short||pl.name;
+opt.textContent=(pl.short||pl.name)+' ('+pl.points.length+')';
+sel.appendChild(opt);
+});
+}
+function filterGasIx(){
+if(!window.gasIxData)return;
+renderGasIx(window.gasIxData);
 }
 function getIocForPipeline(pipeName){
 if(!iocData||!iocData.pipelines)return null;
@@ -3542,11 +3561,17 @@ return null;
 function renderGasIx(data){
 gasIxLayer.clearLayers();
 var pipelines=data.pipelines||[{name:data.pipeline,short:data.pipeline,updated:data.updated,points:data.points}];
+var filterSel=document.getElementById('gasix-pl');
+var filterPl=filterSel?filterSel.value:'';
 pipelines.forEach(function(pl){
+var plKey=pl.short||pl.name;
+var isMatch=!filterPl||plKey===filterPl;
+if(filterPl&&!isMatch)return;
 pl.points.forEach(function(p){
 var col=gasIxColor(p.type,p.utilization||0);
 var radius=(p.design||0)>500000?7:(p.design||0)>100000?6:(p.design||0)>10000?5:4;
-var m=L.circleMarker([p.lat,p.lng],{radius:radius,fillColor:col,fillOpacity:0.85,color:'#fff',weight:1,pane:'markerPane'});
+if(filterPl&&isMatch){radius=Math.max(radius+2,7)}
+var m=L.circleMarker([p.lat,p.lng],{radius:radius,fillColor:col,fillOpacity:0.85,color:filterPl&&isMatch?'#C4854C':'#fff',weight:filterPl&&isMatch?2:1,pane:'markerPane'});
 var h='<b>'+p.name+'</b>';
 h+='<br><span style="color:#00E5FF">'+pl.name+'</span>';
 h+='<br>Type: '+(p.type==='delivery'?'Delivery Point':(p.type==='receipt'?'Receipt Point':p.type));
