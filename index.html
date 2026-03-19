@@ -745,22 +745,25 @@ ldTallgrassLines(s);
 }).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
 }
 
+var tallgrassData=null;
 function ldTallgrassLines(s){
+if(tallgrassData){renderTallgrass(tallgrassData,s);return}
 var where="Operator LIKE '%Rockies Express%' OR Operator LIKE '%Trailblazer%' OR Operator LIKE '%Cheyenne Plains%'";
 var params=new URLSearchParams({
-where:where,geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
-spatialRel:'esriSpatialRelIntersects',
-outFields:'Operator,TYPEPIPE',returnGeometry:'true',
+where:where,outFields:'Operator,TYPEPIPE',returnGeometry:'true',
 f:'geojson',outSR:'4326',resultRecordCount:'2000'
 });
 fetch(EIAURL+'?'+params.toString()).then(function(r){return r.json()}).then(function(d){
 if(!d.features||!d.features.length)return;
+tallgrassData=d;renderTallgrass(d,s);
+}).catch(function(e){console.error('Tallgrass line error:',e)});
+}
+function renderTallgrass(d,s){
 L.geoJSON(d,{style:{color:'#42A5F5',weight:3,opacity:0.9},
 onEachFeature:function(f,ly){var op=f.properties.Operator||'';
 var label=op.indexOf('Rockies Express')>=0?'Rockies Express Pipeline (REX)':op.indexOf('Trailblazer')>=0?'Trailblazer Pipeline':op.indexOf('Cheyenne Plains')>=0?'Cheyenne Plains Pipeline':op;
 ly.bindPopup('<b>'+label+'</b><br>Operator: Tallgrass Energy<br>Type: Interstate',{maxWidth:300})}
 }).addTo(s.g);
-}).catch(function(e){console.error('Tallgrass line error:',e)});
 }
 
 // TX RRC Intrastate Gas Pipelines
@@ -847,7 +850,7 @@ ly.bindPopup(popup,{maxWidth:300})}
 }).addTo(LS.rrc.g);
 }
 
-var fiberLayer=null;
+var fiberLayer=null;var infrapediaData=null;
 var lumenLayer=null;var lumenData=null;
 function togAllFiber(){
 if(fiberLayer||lumenLayer){
@@ -855,8 +858,15 @@ if(fiberLayer){map.removeLayer(fiberLayer);fiberLayer=null}
 if(lumenLayer){map.removeLayer(lumenLayer);lumenLayer=null}
 uLeg();return;
 }
-// Load Infrapedia from local GeoJSON
-fetch('data/infrapedia_fiber.json').then(function(r){return r.json()}).then(function(d){
+// Load Infrapedia — cache raw data so toggle off/on doesn't re-download
+if(infrapediaData){renderInfrapedia(infrapediaData)}
+else{fetch('data/infrapedia_fiber.json').then(function(r){return r.json()}).then(function(d){infrapediaData=d;renderInfrapedia(d)}).catch(function(e){console.error('Infrapedia load error:',e)})}
+// Load Lumen
+if(lumenData){renderLumen()}
+else{fetch('data/lumen_routes.json').then(function(r){return r.json()}).then(function(d){lumenData=d;renderLumen()}).catch(function(e){console.error('Lumen load error:',e)})}
+uLeg();
+}
+function renderInfrapedia(d){
 fiberLayer=L.geoJSON(d,{
 style:function(){return{color:'#FF6D00',weight:1.5,opacity:0.7}},
 onEachFeature:function(f,ly){
@@ -870,13 +880,7 @@ return h;
 });
 }
 });
-fiberLayer.addTo(map);
-uLeg();
-}).catch(function(e){console.error('Infrapedia load error:',e)});
-// Load Lumen
-if(lumenData){renderLumen()}
-else{fetch('data/lumen_routes.json').then(function(r){return r.json()}).then(function(d){lumenData=d;renderLumen()}).catch(function(e){console.error('Lumen load error:',e)})}
-uLeg();
+fiberLayer.addTo(map);uLeg();
 }
 function renderLumen(){
 lumenLayer=L.geoJSON(lumenData,{
@@ -4076,11 +4080,11 @@ path.forEach(function(pt){txLines.push({lat:pt[1],lng:pt[0],kv:kv})});
 });}
 }catch(te){console.log('TX line data not available');}
 
-// Load fiber routes for proximity — Lumen + Infrapedia
+// Load fiber routes for proximity — Lumen + Infrapedia (use cached data if available)
 var fiberPts=[];
 try{
-var fr=await fetch('data/lumen_routes.json');
-var fd=await fr.json();
+if(!lumenData){var fr=await fetch('data/lumen_routes.json');lumenData=await fr.json()}
+var fd=lumenData;
 if(fd.features){fd.features.forEach(function(f){
 if(f.geometry&&f.geometry.coordinates){
 var coords=f.geometry.type==='MultiLineString'?f.geometry.coordinates.flat():f.geometry.coordinates;
@@ -4088,8 +4092,8 @@ coords.forEach(function(c,i){if(i%5===0&&c.length>=2)fiberPts.push({lat:c[1],lng
 }});}
 }catch(fe){}
 try{
-var fr2=await fetch('data/infrapedia_fiber.json');
-var fd2=await fr2.json();
+if(!infrapediaData){var fr2=await fetch('data/infrapedia_fiber.json');infrapediaData=await fr2.json()}
+var fd2=infrapediaData;
 if(fd2.features){fd2.features.forEach(function(f){
 if(f.geometry&&f.geometry.coordinates){
 f.geometry.coordinates.forEach(function(c,i){if(i%3===0&&c.length>=2)fiberPts.push({lat:c[1],lng:c[0],name:f.properties.name||'Fiber'})});
