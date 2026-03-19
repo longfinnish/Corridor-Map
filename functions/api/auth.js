@@ -71,6 +71,11 @@ async function validatePassword(password, env) {
     return true;
   }
 
+  // Check demo password
+  if (password === 'demo') {
+    return true;
+  }
+
   // Check temp passwords
   if (env.TEMP_PASSWORDS) {
     try {
