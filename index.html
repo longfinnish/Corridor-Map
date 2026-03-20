@@ -1498,12 +1498,12 @@ uLeg();
 var slopeLayer=null;
 var slopeR2=null;
 var slopeUSGS=null;
-var R2_BASE='https://pub-9dff06b37e4f49368dffbeb217d8668d.r2.dev';
+var R2_TERRAIN='https://pub-9dff06b37e4f49368dffbeb217d8668d.r2.dev';
 function togSlope(){
 var on=document.getElementById('t-slope').checked;
 if(on){
 if(!slopeR2){
-slopeR2=L.tileLayer(R2_BASE+'/slope/{z}/{x}/{y}.png',{
+slopeR2=L.tileLayer(R2_TERRAIN+'/slope/{z}/{x}/{y}.png',{
 minZoom:6,maxZoom:10,opacity:0.55,attribution:'USGS 3DEP',
 errorTileUrl:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAA0lEQVQI12P4z8BQDwAEgAF/QualzQAAAABJRU5ErkJggg=='
 });
@@ -1532,7 +1532,7 @@ function togHillshade(){
 var on=document.getElementById('t-hill').checked;
 if(on){
 if(!hillR2){
-hillR2=L.tileLayer(R2_BASE+'/hillshade/{z}/{x}/{y}.png',{
+hillR2=L.tileLayer(R2_TERRAIN+'/hillshade/{z}/{x}/{y}.png',{
 minZoom:6,maxZoom:10,opacity:0.45,attribution:'USGS 3DEP',
 errorTileUrl:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAAlwSFlzAAAWJQAAFiUBSVIk8AAAAA0lEQVQI12P4z8BQDwAEgAF/QualzQAAAABJRU5ErkJggg=='
 });
