@@ -741,8 +741,9 @@ map.on('click',onEiaGasClick);
 }
 function onEiaGasClick(e){
 if(!LS.gas.on||!eiaGasLayer)return;
-var feats=eiaGasLayer.queryFeatures(e.latlng.lng,e.latlng.lat);
-if(!feats||!feats.length)return;
+var result=eiaGasLayer.queryTileFeaturesDebug(e.latlng.lng,e.latlng.lat,16);
+var feats=[];result.forEach(function(v){feats=feats.concat(v)});
+if(!feats.length)return;
 var hit=null;
 for(var i=0;i<feats.length;i++){if(feats[i].layerName==='eia_pipelines'){hit=feats[i];break}}
 if(!hit)return;
@@ -777,8 +778,9 @@ uLeg();
 }
 function onRrcClick(e){
 if(!LS.rrc.on||!rrcTileLayer)return;
-var feats=rrcTileLayer.queryFeatures(e.latlng.lng,e.latlng.lat);
-if(!feats||!feats.length)return;
+var result=rrcTileLayer.queryTileFeaturesDebug(e.latlng.lng,e.latlng.lat,16);
+var feats=[];result.forEach(function(v){feats=feats.concat(v)});
+if(!feats.length)return;
 var hit=null;
 for(var i=0;i<feats.length;i++){if(feats[i].layerName==='tx_rrc'){hit=feats[i];break}}
 if(!hit)return;
@@ -786,6 +788,7 @@ var p=hit.feature.props;var d=p.DIAMETER||'';
 var popup='<div style="font-size:9px;color:#FF8F00;font-weight:700;letter-spacing:1px;margin-bottom:4px">TX INTRASTATE</div>';
 popup+='<b>'+(p.OPERATOR||'Unknown Operator')+'</b>';
 popup+='<br>Diameter: '+(d?d+'"':'\u2014');
+popup+='<br>County: '+(p.COUNTY_NAME||'\u2014');
 popup+='<br>System: '+(p.SYSTEM_NAME||'\u2014');
 popup+='<br>T-4 Permit: '+(p.T4PERMIT||'\u2014');
 L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(popup).openOn(map);
@@ -822,8 +825,8 @@ uLeg();
 function onFiberClick(e){
 if(!fiberTileLayer&&!lumenTileLayer)return;
 var hit=null;var src='';
-if(fiberTileLayer){var feats=fiberTileLayer.queryFeatures(e.latlng.lng,e.latlng.lat);if(feats&&feats.length){for(var i=0;i<feats.length;i++){if(feats[i].layerName==='fiber'){hit=feats[i];src='fiber';break}}}}
-if(!hit&&lumenTileLayer){var feats2=lumenTileLayer.queryFeatures(e.latlng.lng,e.latlng.lat);if(feats2&&feats2.length){for(var j=0;j<feats2.length;j++){if(feats2[j].layerName==='lumen'){hit=feats2[j];src='lumen';break}}}}
+if(fiberTileLayer){var r1=fiberTileLayer.queryTileFeaturesDebug(e.latlng.lng,e.latlng.lat,16);var feats=[];r1.forEach(function(v){feats=feats.concat(v)});if(feats.length){for(var i=0;i<feats.length;i++){if(feats[i].layerName==='fiber'){hit=feats[i];src='fiber';break}}}}
+if(!hit&&lumenTileLayer){var r2=lumenTileLayer.queryTileFeaturesDebug(e.latlng.lng,e.latlng.lat,16);var feats2=[];r2.forEach(function(v){feats2=feats2.concat(v)});if(feats2.length){for(var j=0;j<feats2.length;j++){if(feats2[j].layerName==='lumen'){hit=feats2[j];src='lumen';break}}}}
 if(!hit)return;
 var p=hit.feature.props;var popup='';
 if(src==='lumen'){popup='<b style="font-size:13px">Lumen / CenturyLink</b><br>';if(p.name)popup+='<b>Route:</b> '+p.name+'<br>';if(p.status)popup+='<b>Status:</b> '+p.status.replace(/_/g,' ')+'<br>'}
