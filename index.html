@@ -17,6 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<script src="https://unpkg.com/protomaps-leaflet@latest/dist/protomaps-leaflet.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
@@ -435,8 +436,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </div>
 <script>
 var TXURL='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query';
-var GASURL='https://geo.dot.gov/server/rest/services/hosted/Natural_Gas_Pipelines_US_EIA/FeatureServer/0/query';
-var EIAURL='https://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Natural_Gas_Interstate_and_Intrastate_Pipelines_1/FeatureServer/0/query';
+var R2_BASE='https://pub-9dff06b37e4f49368dffbeb217d8668d.r2.dev/tiles';
 
 var BL={
 sat:L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
@@ -529,6 +529,7 @@ if(allOn){s.g.addTo(map);rl('tx')}
 else{map.removeLayer(s.g);s.g.clearLayers()}
 uLeg();return;
 }
+if(n==='gas'){if(s.on){ldGas()}else{if(eiaGasLayer)map.removeLayer(eiaGasLayer)}uLeg();return}
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
 else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}if(n==='cty'&&ctyLabels){map.removeLayer(ctyLabels)}}
 uLeg();
@@ -547,7 +548,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='wtr'){rWtr();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();else if(n==='rrc')ldRRC();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();
 }
 
 function bboxEnv(){
@@ -724,181 +725,106 @@ if(k.indexOf(first)===0)return pipeCapacity[k];
 return null;
 }
 
+var eiaGasLayer=null;
 function ldGas(){
-var s=LS.gas;if(s.ld&&s.ac)s.ac.abort();s.ld=true;s.ac=new AbortController();
-loadPipeCapacity();
-var params=new URLSearchParams({
-where:'1=1',geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
-spatialRel:'esriSpatialRelIntersects',outFields:'typepipe,operator,status',
-returnGeometry:'true',f:'geojson',outSR:'4326',resultRecordCount:'2000'
+if(eiaGasLayer){if(!map.hasLayer(eiaGasLayer))eiaGasLayer.addTo(map);return}
+eiaGasLayer=protomapsL.leafletLayer({
+url:R2_BASE+'/eia_national_pipelines.pmtiles',
+paintRules:[{dataLayer:'eia_pipelines',symbolizer:new protomapsL.LineSymbolizer({color:function(z,f){var t=(f.props.TYPEPIPE||'').toLowerCase();if(t.indexOf('interstate')>=0)return'#FFA726';if(t.indexOf('intrastate')>=0)return'#FFD54F';return'#9E9E9E'},width:2,opacity:0.75})}],
+labelRules:[],
+attribution:''
 });
-fetch(GASURL+'?'+params.toString(),{signal:s.ac.signal}).then(function(r){return r.json()}).then(function(d){
-s.g.clearLayers();if(!d.features||!d.features.length){s.ld=false;return}
-L.geoJSON(d,{style:function(f){var t=(f.properties.typepipe||'').toLowerCase();var c='#9E9E9E';if(t.indexOf('interstate')>=0)c='#FFA726';else if(t.indexOf('intrastate')>=0)c='#FFD54F';return{color:c,weight:2,opacity:0.75}},
-onEachFeature:function(f,ly){var p=f.properties;
-var popup='<b>'+(p.operator||'Gas Pipeline')+'</b>';
-popup+='<br>Type: '+(p.typepipe||'\u2014');
-popup+='<br>Status: '+(p.status||'\u2014');
-ly.bindPopup(popup,{maxWidth:300})}
-}).addTo(s.g);s.ld=false;
-// Also load REX line geometry from EIA layer
-ldTallgrassLines(s);
-}).catch(function(e){if(e.name!=='AbortError')console.error('Gas error:',e);s.ld=false});
+eiaGasLayer.addTo(map);
+// Click handler for popups
+map.on('click',onEiaGasClick);
+}
+function onEiaGasClick(e){
+if(!LS.gas.on||!eiaGasLayer)return;
+var feats=eiaGasLayer.queryFeatures(e.latlng.lng,e.latlng.lat);
+if(!feats||!feats.length)return;
+var hit=null;
+for(var i=0;i<feats.length;i++){if(feats[i].layerName==='eia_pipelines'){hit=feats[i];break}}
+if(!hit)return;
+var p=hit.feature.props;
+var popup='<b>'+(p.Operator||'Gas Pipeline')+'</b>';
+popup+='<br>Type: '+(p.TYPEPIPE||'\u2014');
+popup+='<br>Status: '+(p.Status||'\u2014');
+L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(popup).openOn(map);
 }
 
-var tallgrassData=null;
-function ldTallgrassLines(s){
-if(tallgrassData){renderTallgrass(tallgrassData,s);return}
-var where="Operator LIKE '%Rockies Express%' OR Operator LIKE '%Trailblazer%' OR Operator LIKE '%Cheyenne Plains%'";
-var params=new URLSearchParams({
-where:where,outFields:'Operator,TYPEPIPE',returnGeometry:'true',
-f:'geojson',outSR:'4326',resultRecordCount:'2000'
-});
-fetch(EIAURL+'?'+params.toString()).then(function(r){return r.json()}).then(function(d){
-if(!d.features||!d.features.length)return;
-tallgrassData=d;renderTallgrass(d,s);
-}).catch(function(e){console.error('Tallgrass line error:',e)});
-}
-function renderTallgrass(d,s){
-L.geoJSON(d,{style:{color:'#42A5F5',weight:3,opacity:0.9},
-onEachFeature:function(f,ly){var op=f.properties.Operator||'';
-var label=op.indexOf('Rockies Express')>=0?'Rockies Express Pipeline (REX)':op.indexOf('Trailblazer')>=0?'Trailblazer Pipeline':op.indexOf('Cheyenne Plains')>=0?'Cheyenne Plains Pipeline':op;
-ly.bindPopup('<b>'+label+'</b><br>Operator: Tallgrass Energy<br>Type: Interstate',{maxWidth:300})}
-}).addTo(s.g);
-}
-
-// TX RRC Intrastate Gas Pipelines
-var rrcCache={};  // county name -> GeoJSON features array
-var rrcRendered={};  // county name -> true if already on map
-var RRCURL='https://gis.rrc.texas.gov/server/rest/services/rrc_public/RRC_Public_Viewer_Srvs/MapServer/12/query';
-
-function rrcColor(d){if(d>=36)return'#E53935';if(d>=24)return'#FF6D00';if(d>=18)return'#FF8F00';return'#FFD600'}
-function rrcWeight(d){if(d>=36)return 4;if(d>=24)return 3;if(d>=18)return 2.5;return 2}
+// TX RRC Intrastate Gas Pipelines (PMTiles)
+var rrcTileLayer=null;
 
 function togRRC(){
 var s=LS.rrc;s.on=!s.on;
-if(s.on){s.g.addTo(map);ldRRC()}
-else{map.removeLayer(s.g);s.g.clearLayers();rrcRendered={};rrcCache={}}
+if(s.on){
+if(!rrcTileLayer){
+rrcTileLayer=protomapsL.leafletLayer({
+url:R2_BASE+'/tx_rrc_pipelines.pmtiles',
+paintRules:[{dataLayer:'tx_rrc',symbolizer:new protomapsL.LineSymbolizer({
+color:function(z,f){var d=f.props.DIAMETER||12;if(d>=36)return'#E53935';if(d>=24)return'#FF6D00';if(d>=18)return'#FF8F00';return'#FFD600'},
+width:function(z,f){var d=f.props.DIAMETER||12;if(d>=36)return 4;if(d>=24)return 3;if(d>=18)return 2.5;return 2},
+opacity:0.8})}],
+labelRules:[],attribution:''
+});
+map.on('click',onRrcClick);
+}
+rrcTileLayer.addTo(map);
+}else{if(rrcTileLayer)map.removeLayer(rrcTileLayer)}
 uLeg();
 }
-
-function ldRRC(){
-var s=LS.rrc;if(!s.on)return;
-var b=map.getBounds();
-// Only query when viewing Texas (rough bbox: lat 25.8-36.5, lng -106.7 to -93.5)
-if(b.getNorth()<25.8||b.getSouth()>36.5||b.getEast()<-106.7||b.getWest()>-93.5)return;
-// Determine which TX counties are in viewport via ArcGIS county service
-var ctyUrl='https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized_Boundaries/FeatureServer/0/query';
-var ctyParams=new URLSearchParams({
-where:"STATE_ABBR = 'TX'",geometry:bboxEnv(),geometryType:'esriGeometryEnvelope',
-spatialRel:'esriSpatialRelIntersects',outFields:'NAME',
-returnGeometry:'false',f:'json',outSR:'4326'
-});
-fetch(ctyUrl+'?'+ctyParams.toString()).then(function(r){return r.json()}).then(function(d){
-var counties=(d.features||[]).map(function(f){return f.attributes.NAME.replace(/ County$/i,'').toUpperCase()});
-// Remove rendered layers for counties no longer in viewport
-for(var c in rrcRendered){
-if(counties.indexOf(c)<0){rrcRendered[c]=false}
-}
-// Rebuild layer from cache for visible counties
-s.g.clearLayers();rrcRendered={};
-var toFetch=[];
-counties.forEach(function(c){
-if(rrcCache[c]){renderRRCCounty(rrcCache[c]);rrcRendered[c]=true}
-else{toFetch.push(c)}
-});
-// Fetch uncached counties
-toFetch.forEach(function(c){fetchRRCCounty(c)});
-}).catch(function(e){console.error('RRC county lookup error:',e)});
-}
-
-function fetchRRCCounty(county){
-var allFeatures=[];
-function fetchPage(offset){
-var params=new URLSearchParams({
-where:"COMMODITY = 'NATURAL GAS' AND DIAMETER >= 12 AND INTERSTATE = 'No' AND STATUS = 'In Service' AND COUNTY_NAME = '"+county.replace(/'/g,"''")+"'",
-outFields:'OPERATOR,DIAMETER,SYSTEM_NAME,T4PERMIT,SYSTEM_TYPE',
-returnGeometry:'true',outSR:'4326',f:'geojson',
-resultRecordCount:'1000',resultOffset:String(offset)
-});
-fetch(RRCURL+'?'+params.toString()).then(function(r){return r.json()}).then(function(d){
-var feats=d.features||[];
-allFeatures=allFeatures.concat(feats);
-if(feats.length>=1000){fetchPage(offset+1000)}
-else{
-rrcCache[county]=allFeatures;
-if(LS.rrc.on){renderRRCCounty(allFeatures);rrcRendered[county]=true}
-}
-}).catch(function(e){console.error('RRC fetch error ('+county+'):',e)});
-}
-fetchPage(0);
-}
-
-function renderRRCCounty(features){
-if(!features.length)return;
-var fc={type:'FeatureCollection',features:features};
-L.geoJSON(fc,{
-style:function(f){var d=f.properties.DIAMETER||12;return{color:rrcColor(d),weight:rrcWeight(d),opacity:0.8}},
-onEachFeature:function(f,ly){var p=f.properties;
-var d=p.DIAMETER||'';
+function onRrcClick(e){
+if(!LS.rrc.on||!rrcTileLayer)return;
+var feats=rrcTileLayer.queryFeatures(e.latlng.lng,e.latlng.lat);
+if(!feats||!feats.length)return;
+var hit=null;
+for(var i=0;i<feats.length;i++){if(feats[i].layerName==='tx_rrc'){hit=feats[i];break}}
+if(!hit)return;
+var p=hit.feature.props;var d=p.DIAMETER||'';
 var popup='<div style="font-size:9px;color:#FF8F00;font-weight:700;letter-spacing:1px;margin-bottom:4px">TX INTRASTATE</div>';
 popup+='<b>'+(p.OPERATOR||'Unknown Operator')+'</b>';
 popup+='<br>Diameter: '+(d?d+'"':'\u2014');
 popup+='<br>System: '+(p.SYSTEM_NAME||'\u2014');
 popup+='<br>T-4 Permit: '+(p.T4PERMIT||'\u2014');
-popup+='<br>Type: '+(p.SYSTEM_TYPE||'\u2014');
-ly.bindPopup(popup,{maxWidth:300})}
-}).addTo(LS.rrc.g);
+L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(popup).openOn(map);
 }
 
-var fiberLayer=null;var infrapediaData=null;
-var lumenLayer=null;var lumenData=null;
+var fiberTileLayer=null;
+var lumenTileLayer=null;
+var infrapediaData=null;var lumenData=null;
 function togAllFiber(){
-if(fiberLayer||lumenLayer){
-if(fiberLayer){map.removeLayer(fiberLayer);fiberLayer=null}
-if(lumenLayer){map.removeLayer(lumenLayer);lumenLayer=null}
+if(fiberTileLayer||lumenTileLayer){
+if(fiberTileLayer){map.removeLayer(fiberTileLayer);fiberTileLayer=null}
+if(lumenTileLayer){map.removeLayer(lumenTileLayer);lumenTileLayer=null}
 uLeg();return;
 }
-// Load Infrapedia — cache raw data so toggle off/on doesn't re-download
-if(infrapediaData){renderInfrapedia(infrapediaData)}
-else{fetch('data/infrapedia_fiber.json').then(function(r){return r.json()}).then(function(d){infrapediaData=d;renderInfrapedia(d)}).catch(function(e){console.error('Infrapedia load error:',e)})}
-// Load Lumen
-if(lumenData){renderLumen()}
-else{fetch('data/lumen_routes.json').then(function(r){return r.json()}).then(function(d){lumenData=d;renderLumen()}).catch(function(e){console.error('Lumen load error:',e)})}
+// Infrapedia Fiber (PMTiles)
+fiberTileLayer=protomapsL.leafletLayer({
+url:R2_BASE+'/infrapedia_fiber.pmtiles',
+paintRules:[{dataLayer:'fiber',symbolizer:new protomapsL.LineSymbolizer({color:'#FF6D00',width:1.5,opacity:0.7})}],
+labelRules:[],attribution:''
+});
+fiberTileLayer.addTo(map);
+// Lumen Routes (PMTiles)
+lumenTileLayer=protomapsL.leafletLayer({
+url:R2_BASE+'/lumen_routes.pmtiles',
+paintRules:[{dataLayer:'lumen',symbolizer:new protomapsL.LineSymbolizer({color:'#FF6D00',width:1.5,opacity:0.7})}],
+labelRules:[],attribution:''
+});
+lumenTileLayer.addTo(map);
+map.on('click',onFiberClick);
 uLeg();
 }
-function renderInfrapedia(d){
-fiberLayer=L.geoJSON(d,{
-style:function(){return{color:'#FF6D00',weight:1.5,opacity:0.7}},
-onEachFeature:function(f,ly){
-ly.bindPopup(function(){
-var p=f.properties;
-var h='<b style="font-size:13px">'+(p.name||'Fiber Route')+'</b><br>';
-if(p.status)h+='<b>Status:</b> '+p.status+'<br>';
-if(p.category)h+='<b>Type:</b> '+p.category+'<br>';
-if(p.length)h+='<b>Length:</b> '+Number(p.length).toLocaleString()+' km';
-return h;
-});
-}
-});
-fiberLayer.addTo(map);uLeg();
-}
-function renderLumen(){
-lumenLayer=L.geoJSON(lumenData,{
-style:function(){return{color:'#FF6D00',weight:1.5,opacity:0.7}},
-onEachFeature:function(f,ly){
-ly.bindPopup(function(){
-var p=f.properties;
-var h='<b style="font-size:13px">Lumen / CenturyLink</b><br>';
-if(p.legacy)h+='<b>Network:</b> '+p.legacy+'<br>';
-if(p.status){var s=p.status.replace(/_/g,' ');h+='<b>Fiber:</b> '+s+'<br>'}
-if(p.install)h+='<b>Install:</b> '+p.install+'<br>';
-if(p.state)h+='<b>State:</b> '+p.state;
-return h;
-},{maxWidth:280});
-}
-}).addTo(map);
-uLeg();
+function onFiberClick(e){
+if(!fiberTileLayer&&!lumenTileLayer)return;
+var hit=null;var src='';
+if(fiberTileLayer){var feats=fiberTileLayer.queryFeatures(e.latlng.lng,e.latlng.lat);if(feats&&feats.length){for(var i=0;i<feats.length;i++){if(feats[i].layerName==='fiber'){hit=feats[i];src='fiber';break}}}}
+if(!hit&&lumenTileLayer){var feats2=lumenTileLayer.queryFeatures(e.latlng.lng,e.latlng.lat);if(feats2&&feats2.length){for(var j=0;j<feats2.length;j++){if(feats2[j].layerName==='lumen'){hit=feats2[j];src='lumen';break}}}}
+if(!hit)return;
+var p=hit.feature.props;var popup='';
+if(src==='lumen'){popup='<b style="font-size:13px">Lumen / CenturyLink</b><br>';if(p.name)popup+='<b>Route:</b> '+p.name+'<br>';if(p.status)popup+='<b>Status:</b> '+p.status.replace(/_/g,' ')+'<br>'}
+else{popup='<b style="font-size:13px">'+(p.name||'Fiber Route')+'</b><br>'}
+L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(popup).openOn(map);
 }
 var GIBASE='https://services5.arcgis.com/HDRa0B57OVrv2E1q/arcgis/rest/services/';
 var GI_SERVICES={
@@ -3818,7 +3744,7 @@ if(plannedLayer){has=true;h+='<div class="lgi"><span class="lgl" style="backgrou
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
 if(LS.rrc.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E53935"></span>TX Intra 36"+</div><div class="lgi"><span class="lgl" style="background:#FF6D00"></span>TX Intra 24"+</div><div class="lgi"><span class="lgl" style="background:#FF8F00"></span>TX Intra 18"+</div><div class="lgi"><span class="lgl" style="background:#FFD600"></span>TX Intra 12"+</div>'}
-if(fiberLayer||lumenLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Fiber Routes</div>'}
+if(fiberTileLayer||lumenTileLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Fiber Routes</div>'}
 if(LS.gi.on){has=true;
 if(LS.gi.types.gcomp)h+='<div class="lgi"><span class="ld" style="background:#FF5722"></span>Compressor</div>';
 if(LS.gi.types.grdp)h+='<div class="lgi"><span class="ld" style="background:#FFAB00"></span>Receipt/Delivery</div>';
