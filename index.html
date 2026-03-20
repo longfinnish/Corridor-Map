@@ -439,7 +439,7 @@ var TXURL='https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/El
 var R2_BASE='https://pub-9dff06b37e4f49368dffbeb217d8668d.r2.dev/tiles';
 
 var BL={
-sat:L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
+sat:L.tileLayer('https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
 str:L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{subdomains:'0123',maxZoom:21,attribution:'&copy; Google'}),
 osm:L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'})
 };
@@ -1218,6 +1218,7 @@ h+='<a href="#" onclick="showParcelDetail();return false" style="display:inline-
 if(ctyName&&stAbbr){
 h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarketIntel();return false" style="display:inline-block;background:#1B2B3A;color:#C4854C;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid #C4854C">Market Intel</a>';
 }
+h+='<a href="https://www.google.com/maps/@'+lat+','+lon+',3a,75y,0h,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192" target="_blank" style="display:inline-block;background:#1B2B3A;color:#F0EDE8;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid rgba(240,237,232,0.25)">Street View</a>';
 h+='</div>';
 h+='<div style="margin-top:5px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.12);color:#66BB6A;padding:5px 14px;border-radius:4px;text-decoration:none;font-weight:600;font-size:12px;border:1px solid rgba(102,187,106,0.25)">+ Save to Pipeline</a></div>';
 h+='</div>';
@@ -1228,6 +1229,7 @@ L.popup({maxWidth:340}).setLatLng(e.latlng).setContent(h).openOn(map);
 var h='<div style="text-align:center;padding:4px">';
 h+='<div onclick="navigator.clipboard.writeText(\''+coords+'\');this.textContent=\'Copied!\';var el=this;setTimeout(function(){el.textContent=\''+coords+'\'},1200)" style="font-size:14px;font-weight:600;color:#F0EDE8;margin-bottom:8px;cursor:pointer;padding:4px 8px;border-radius:4px" title="Click to copy">'+coords+'</div>';
 h+='<a href="#" onclick="window.open(\'https://app.regrid.com/us\',\'regrid\',\'width=900,height=700,left=100,top=100\');return false" style="display:inline-block;background:#C4854C;color:#1B2B3A;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:600;font-size:12px">Open Regrid</a>';
+h+=' <a href="https://www.google.com/maps/@'+lat+','+lon+',3a,75y,0h,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192" target="_blank" style="display:inline-block;background:#1B2B3A;color:#F0EDE8;padding:7px 16px;border-radius:5px;text-decoration:none;font-weight:600;font-size:12px;border:1px solid rgba(240,237,232,0.25)">Street View</a>';
 h+='</div>';
 L.popup({maxWidth:280}).setLatLng(e.latlng).setContent(h).openOn(map);
 });
@@ -1285,7 +1287,9 @@ L.geoJSON(d,{
 style:function(){return{color:'#FFB74D',weight:1.5,opacity:0.85,fillColor:'#FFB74D',fillOpacity:0.08}},
 onEachFeature:function(f,ly){
 var baseHtml=parcelPopup(st,f.properties);
-ly.bindPopup(baseHtml+'<div id="ba-'+f.id+'" style="margin-top:6px;font-size:12px;color:rgba(240,237,232,0.4)">Click for buildability analysis...</div>',{maxWidth:360,maxHeight:500});
+var cb=ly.getBounds?ly.getBounds().getCenter():null;
+var svLink=cb?'<div style="margin-top:4px"><a href="https://www.google.com/maps/@'+cb.lat+','+cb.lng+',3a,75y,0h,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192" target="_blank" style="color:#C4854C;font-size:11px;text-decoration:none;font-weight:600">Street View</a></div>':'';
+ly.bindPopup(baseHtml+svLink+'<div id="ba-'+f.id+'" style="margin-top:6px;font-size:12px;color:rgba(240,237,232,0.4)">Click for buildability analysis...</div>',{maxWidth:360,maxHeight:500});
 ly.on('click',function(){analyzeBuildability(f,ly,st)});
 }
 }).addTo(parcelGroups[st]);
