@@ -730,6 +730,7 @@ function ldGas(){
 if(eiaGasLayer){if(!map.hasLayer(eiaGasLayer))eiaGasLayer.addTo(map);return}
 eiaGasLayer=protomapsL.leafletLayer({
 url:R2_BASE+'/eia_national_pipelines.pmtiles',
+maxDataZoom:12,maxZoom:20,
 paintRules:[{dataLayer:'eia_pipelines',symbolizer:new protomapsL.LineSymbolizer({color:function(z,f){var t=(f.props.TYPEPIPE||'').toLowerCase();if(t.indexOf('interstate')>=0)return'#FFA726';if(t.indexOf('intrastate')>=0)return'#FFD54F';return'#9E9E9E'},width:2,opacity:0.75})}],
 labelRules:[],
 attribution:''
@@ -761,6 +762,7 @@ if(s.on){
 if(!rrcTileLayer){
 rrcTileLayer=protomapsL.leafletLayer({
 url:R2_BASE+'/tx_rrc_pipelines.pmtiles',
+maxDataZoom:14,maxZoom:20,
 paintRules:[{dataLayer:'tx_rrc',symbolizer:new protomapsL.LineSymbolizer({
 color:function(z,f){var d=f.props.DIAMETER||12;if(d>=36)return'#E53935';if(d>=24)return'#FF6D00';if(d>=18)return'#FF8F00';return'#FFD600'},
 width:function(z,f){var d=f.props.DIAMETER||12;if(d>=36)return 4;if(d>=24)return 3;if(d>=18)return 2.5;return 2},
@@ -801,6 +803,7 @@ uLeg();return;
 // Infrapedia Fiber (PMTiles)
 fiberTileLayer=protomapsL.leafletLayer({
 url:R2_BASE+'/infrapedia_fiber.pmtiles',
+maxDataZoom:12,maxZoom:20,
 paintRules:[{dataLayer:'fiber',symbolizer:new protomapsL.LineSymbolizer({color:'#FF6D00',width:1.5,opacity:0.7})}],
 labelRules:[],attribution:''
 });
@@ -808,6 +811,7 @@ fiberTileLayer.addTo(map);
 // Lumen Routes (PMTiles)
 lumenTileLayer=protomapsL.leafletLayer({
 url:R2_BASE+'/lumen_routes.pmtiles',
+maxDataZoom:12,maxZoom:20,
 paintRules:[{dataLayer:'lumen',symbolizer:new protomapsL.LineSymbolizer({color:'#FF6D00',width:1.5,opacity:0.7})}],
 labelRules:[],attribution:''
 });
