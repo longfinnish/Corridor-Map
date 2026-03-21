@@ -591,19 +591,37 @@
       "hifld_points": 836,
       "ioc": {
         "status": "captured",
-        "access_method": "quarterly_manual",
-        "platform": "gasquest",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
         "url": "https://www.gasquest.com/informational-posting",
         "last_refreshed": null,
-        "refresh_frequency_days": 90
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "not_captured",
-        "access_method": "unknown",
-        "platform": "gasquest",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
+        "url": "https://www.gasquest.com/informational-posting",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       }
     },
     {
@@ -614,19 +632,37 @@
       "hifld_points": 222,
       "ioc": {
         "status": "captured",
-        "access_method": "quarterly_manual",
-        "platform": "gasquest",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
         "url": "https://www.gasquest.com/informational-posting",
         "last_refreshed": null,
-        "refresh_frequency_days": 90
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "not_captured",
-        "access_method": "unknown",
-        "platform": "gasquest",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
+        "url": "https://www.gasquest.com/informational-posting",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "gasquest_rest_api",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       }
     },
     {
