@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "Corridor Gas Pipeline Data Tracker — operational scoreboard",
+    "description": "Corridor Gas Pipeline Data Tracker \u2014 operational scoreboard",
     "version": "1.0.0",
     "created": "2026-03-20",
     "last_audit": "2026-03-20",
@@ -19,7 +19,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://peplmessenger.energytransfer.com/ipost/index-of-customers/index?asset=PEPL&f=csv",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -42,7 +42,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://tgcmessenger.energytransfer.com/ipost/index-of-customers/index?asset=TGC&f=csv",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -65,7 +65,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://fgttransfer.energytransfer.com/ipost/index-of-customers/index?asset=FGT&f=csv",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -158,7 +158,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/index?asset=ROVER&f=csv",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -166,7 +166,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://pipelines.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=ROVER&f=csv",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       }
     },
@@ -204,7 +204,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge",
         "url": "https://infopost.enbridge.com/Downloads/IOC/TE_IOC.csv",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -830,7 +830,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "Agent confirmed: ET iPost. May overlap with existing Enable MRT entry — verify."
+      "notes": "Agent confirmed: ET iPost. May overlap with existing Enable MRT entry \u2014 verify."
     },
     {
       "pipeline_name": "Great Lakes Gas Transmission",
@@ -843,7 +843,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/Great%20Lakes/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -900,7 +900,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "BHE GT&S portal — same as Dominion/EGTS."
+      "notes": "BHE GT&S portal \u2014 same as Dominion/EGTS."
     },
     {
       "pipeline_name": "TransColorado",
@@ -959,7 +959,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/GTN/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1051,7 +1051,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/Tuscarora/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1074,7 +1074,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/North%20Baja/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1099,7 +1099,7 @@
         "url": "https://dtmidstream.trellisenergy.com/ptms/public/infopost/viewInfoPostingReportTable.do?reportType=16&globalTSP=9",
         "last_refreshed": null,
         "refresh_frequency_days": null,
-        "notes": "No login required. Data visible in browser. API needs JS session state — server returns 400/500 from curl. Needs Puppeteer/Playwright."
+        "notes": "No login required. Data visible in browser. API needs JS session state \u2014 server returns 400/500 from curl. Needs Puppeteer/Playwright."
       },
       "unsub": {
         "status": "exists_not_captured",
@@ -1197,7 +1197,7 @@
         "access_method": "daily_auto",
         "platform": "wbi_portal",
         "url": "https://transmission.wbienergy.com/informational_postings/Index_of_Customers/Customer_Index.aspx",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1205,7 +1205,7 @@
         "access_method": "daily_auto",
         "platform": "wbi_portal",
         "url": "https://transmission.wbienergy.com/informational_postings/capacity/unsubscribed_locations.aspx",
-        "last_refreshed": "2026-03-21",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "notes": "ASP.NET ViewState POST portal. IOC (tab-delimited FERC H/D/P), OAC line sections, unsub locations."
@@ -1232,7 +1232,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "Complex ownership: Questar → Dominion → Southwest Gas → Williams. Now MountainWest Pipeline."
+      "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
     },
     {
       "pipeline_name": "Dominion/Eastern Gas Transmission (EGTS)",
@@ -1643,7 +1643,7 @@
         "geocoded_points": 69,
         "geocode_method": "county_centroid"
       },
-      "notes": "~850 miles WY to CO. 34 pipeline interconnects, 21 gas plants, 6 pooling points, 4 storage. Major Cheyenne Hub feeder. KM portal code=WIC. 9.4M Dth/d total contracted — heavily utilized."
+      "notes": "~850 miles WY to CO. 34 pipeline interconnects, 21 gas plants, 6 pooling points, 4 storage. Major Cheyenne Hub feeder. KM portal code=WIC. 9.4M Dth/d total contracted \u2014 heavily utilized."
     },
     {
       "pipeline_name": "Cheyenne Plains Gas Pipeline",
