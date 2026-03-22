@@ -568,19 +568,30 @@
       "hifld_points": 125,
       "ioc": {
         "status": "captured",
-        "access_method": "quarterly_manual",
-        "platform": "williams",
-        "url": "https://1line.williams.com/Transco/index.html",
+        "access_method": "weekly_auto",
+        "platform": "williams_1line",
+        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=IndexOfCus&pipe_id=Transco",
         "last_refreshed": null,
-        "refresh_frequency_days": 90
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "not_captured",
-        "access_method": "unknown",
-        "platform": "williams",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_1line",
+        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=UnsubsCap&pipe_id=Transco",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_1line",
+        "url": "https://www.1line.williams.com/xhtml/location_data_download.jsf?buid=80",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       }
     },
     {
@@ -768,21 +779,31 @@
       "hifld_points": 370,
       "ioc": {
         "status": "captured",
-        "access_method": "daily_auto",
-        "platform": "williams",
-        "url": "http://www.northwest.williams.com/NWP_Portal/file_download?hfFileURL=Files/Northwest/Downloads/shipper.xlsx",
+        "access_method": "weekly_auto",
+        "platform": "williams_nwp",
+        "url": "https://northwest.williams.com/NWP_Portal/file_download?hfFileURL=Files/Northwest/Downloads/Shipper.tab",
         "last_refreshed": null,
-        "refresh_frequency_days": 1
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "williams",
-        "url": "http://www.northwest.williams.com/NWP_Portal/",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_nwp",
+        "url": "https://northwest.williams.com/NWP_Portal/UnsubscribedCapForm.action",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
-      "notes": "Agent confirmed: Williams portal, IOC may have direct CSV."
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_nwp",
+        "url": "https://northwest.williams.com/NWP_Portal/CapacityResultsScrollable.action",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      }
     },
     {
       "pipeline_name": "East Tennessee Natural Gas",
@@ -1170,20 +1191,29 @@
       "regulation": "interstate",
       "hifld_points": 18,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "login_required",
-        "platform": "williams",
-        "url": "http://www.1line.gulfstreamgas.com/GulfStream/index.html",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "status": "not_available",
+        "access_method": "weekly_auto",
+        "platform": "williams_1line",
+        "cloud_accessible": true,
+        "notes": "No IOC found on 1line portal for Gulfstream"
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "login_required",
-        "platform": "williams",
-        "url": "http://www.1line.gulfstreamgas.com/GulfStream/index.html",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_1line",
+        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=UnsubsCap&pipe_id=Gulfstream",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_1line",
+        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=MastrLocList&pipe_id=Gulfstream",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       }
     },
     {
@@ -1217,22 +1247,67 @@
       "regulation": "interstate",
       "hifld_points": 77,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "unknown",
-        "platform": "custom",
-        "url": "https://www.mwpipe.com/index.php",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_mwpipe",
+        "url": "https://www.mwpipe.com/IndexOfCustomers/MWP",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "unknown",
-        "platform": "custom",
-        "url": "https://www.mwpipe.com/index.php",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_mwpipe",
+        "url": "https://www.mwpipe.com/UnsubscribedCapacity/MWP",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_mwpipe",
+        "url": "https://www.mwpipe.com/OperationalCapacity/MWP/TIM/CURRENT",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
+    },
+    {
+      "pipeline_name": "MountainWest Overthrust Pipeline",
+      "hifld_company": "",
+      "operator": "Williams",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_mwpipe",
+        "url": "https://www.mwpipe.com/IndexOfCustomers/OTP",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_mwpipe",
+        "url": "https://www.mwpipe.com/UnsubscribedCapacity/OTP",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "williams_mwpipe",
+        "url": "https://www.mwpipe.com/OperationalCapacity/OTP/TIM/CURRENT",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      }
     },
     {
       "pipeline_name": "Dominion/Eastern Gas Transmission (EGTS)",
