@@ -679,25 +679,43 @@
     {
       "pipeline_name": "Ozark Gas Transmission",
       "hifld_company": "OZARK GAS TRANSMISSION, L.L.C.",
-      "operator": "Black Bear Transmission",
+      "operator": "BBT / Third Coast Midstream",
       "regulation": "interstate",
       "hifld_points": 9,
       "ioc": {
-        "status": "not_captured",
-        "access_method": "unknown",
-        "platform": "unknown",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=16",
         "last_refreshed": null,
-        "refresh_frequency_days": null,
-        "notes": "No known EBB portal"
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "not_captured",
-        "access_method": "unknown",
-        "platform": "unknown",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=16",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=16",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       }
     },
     {
@@ -1362,26 +1380,45 @@
     {
       "pipeline_name": "American Midstream (Midla)",
       "hifld_company": "AMERICAN MIDSTREAM (MIDLA), LLC",
-      "operator": "Third Coast Midstream",
+      "operator": "BBT / Third Coast Midstream",
       "regulation": "interstate",
       "hifld_points": 46,
       "ioc": {
-        "status": "unknown",
-        "access_method": "unknown",
-        "platform": "unknown",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=6",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "unknown",
-        "access_method": "unknown",
-        "platform": "unknown",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=6",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
-      "notes": "Acquired by Third Coast Midstream. No portal found yet."
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=6",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Acquired by Third Coast Midstream. BBT/Quorum platform."
     },
     {
       "pipeline_name": "Kinetica Partners",
@@ -1433,26 +1470,87 @@
     {
       "pipeline_name": "American Midstream (AlaTenn)",
       "hifld_company": "AMERICAN MIDSTREAM (ALATENN), LLC",
-      "operator": "Third Coast Midstream",
+      "operator": "BBT / Third Coast Midstream",
       "regulation": "interstate",
       "hifld_points": 30,
       "ioc": {
-        "status": "unknown",
-        "access_method": "unknown",
-        "platform": "unknown",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=3",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "unknown",
-        "access_method": "unknown",
-        "platform": "unknown",
-        "url": null,
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=3",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
-      "notes": "Acquired by Third Coast Midstream. No portal found yet."
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=3",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Acquired by Third Coast Midstream. BBT/Quorum platform."
+    },
+    {
+      "pipeline_name": "Trans-Union Interstate Pipeline",
+      "operator": "BBT / Third Coast Midstream",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=12",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=12",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=12",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "quorum_cloud",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "LA. BBT/Quorum platform tspno=12."
     },
     {
       "pipeline_name": "Sabine Pipeline",
