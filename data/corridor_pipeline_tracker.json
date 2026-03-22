@@ -1191,11 +1191,14 @@
       "regulation": "interstate",
       "hifld_points": 18,
       "ioc": {
-        "status": "not_available",
-        "access_method": "weekly_auto",
-        "platform": "williams_1line",
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/GS_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
         "cloud_accessible": true,
-        "notes": "No IOC found on 1line portal for Gulfstream"
+        "notes": "IOC from Enbridge (code GS), unsub/locations from Williams 1line"
       },
       "unsub": {
         "status": "captured",
@@ -2154,6 +2157,198 @@
         "geocode_method": "county_centroid"
       },
       "notes": "KM portal code=KMEF. States: TX."
+    },
+    {
+      "pipeline_name": "Egan Hub Storage",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/EG_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Storage facility, LA."
+    },
+    {
+      "pipeline_name": "Tres Palacios Gas Storage",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/TPGS_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Storage facility, TX."
+    },
+    {
+      "pipeline_name": "Big Sandy Pipeline",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/BSP_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Small pipeline, KY."
+    },
+    {
+      "pipeline_name": "Southeast Supply Header",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/SESH_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "LA-AL, important for Southeast corridor."
+    },
+    {
+      "pipeline_name": "Mississippi Canyon Gas Pipeline",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/MCGP_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Offshore Gulf."
+    },
+    {
+      "pipeline_name": "Bobcat Gas Storage",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/BGS_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Storage facility."
+    },
+    {
+      "pipeline_name": "Steckman Ridge",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/SR_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Storage facility, PA."
+    },
+    {
+      "pipeline_name": "Saltville Gas Storage",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/SG_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Storage facility, VA."
+    },
+    {
+      "pipeline_name": "Garden Banks Gas Pipeline",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/GB_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Offshore Gulf."
+    },
+    {
+      "pipeline_name": "Maritimes & Northeast Pipeline (U.S.)",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/MNUS_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "U.S. portion of Maritimes NE, NE corridor."
+    },
+    {
+      "pipeline_name": "Nautilus Pipeline",
+      "operator": "Enbridge",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/NPC_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "Offshore Gulf."
+    },
+    {
+      "pipeline_name": "Lake Charles LNG",
+      "operator": "Energy Transfer",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "et_ipost",
+        "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/index?asset=LCLNG&f=csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
+        "cloud_accessible": true
+      },
+      "notes": "LNG terminal, Lake Charles LA."
     }
   ],
   "staleness_rules": {

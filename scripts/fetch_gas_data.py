@@ -152,6 +152,19 @@ ENBRIDGE_PIPELINES = [
     {'bu': 'AG', 'name': 'Algonquin Gas Transmission, LLC', 'short': 'Algonquin'},
     {'bu': 'MN', 'name': 'Maritimes & Northeast Pipeline, LLC', 'short': 'Maritimes NE'},
     {'bu': 'ET', 'name': 'East Tennessee Natural Gas, LLC', 'short': 'East Tennessee'},
+    # IOC-only pipelines (no OAC via rtba)
+    {'bu': 'GS', 'name': 'Gulfstream Natural Gas System, LLC', 'short': 'Gulfstream ENB', 'ioc_only': True},
+    {'bu': 'EG', 'name': 'Egan Hub Storage, LLC', 'short': 'Egan Hub Storage', 'ioc_only': True},
+    {'bu': 'TPGS', 'name': 'Tres Palacios Gas Storage LLC', 'short': 'Tres Palacios', 'ioc_only': True},
+    {'bu': 'BSP', 'name': 'Big Sandy Pipeline, LLC', 'short': 'Big Sandy Pipeline', 'ioc_only': True},
+    {'bu': 'SESH', 'name': 'Southeast Supply Header, LLC', 'short': 'Southeast Supply Header', 'ioc_only': True},
+    {'bu': 'MCGP', 'name': 'Mississippi Canyon Gas Pipeline, LLC', 'short': 'Mississippi Canyon', 'ioc_only': True},
+    {'bu': 'BGS', 'name': 'Bobcat Gas Storage', 'short': 'Bobcat Gas Storage', 'ioc_only': True},
+    {'bu': 'SR', 'name': 'Steckman Ridge, LP', 'short': 'Steckman Ridge', 'ioc_only': True},
+    {'bu': 'SG', 'name': 'Saltville Gas Storage Company L.L.C.', 'short': 'Saltville Gas Storage', 'ioc_only': True},
+    {'bu': 'GB', 'name': 'Garden Banks Gas Pipeline, LLC', 'short': 'Garden Banks', 'ioc_only': True},
+    {'bu': 'MNUS', 'name': 'Maritimes & Northeast Pipeline, L.L.C. (U.S.)', 'short': 'Maritimes NE US', 'ioc_only': True},
+    {'bu': 'NPC', 'name': 'Nautilus Pipeline Company, L.L.C.', 'short': 'Nautilus Pipeline', 'ioc_only': True},
 ]
 
 # Enbridge bu codes map to different IOC CSV filename codes
@@ -160,6 +173,18 @@ ENBRIDGE_IOC_CODES = {
     'AG': 'AG',  # Algonquin
     'ET': 'ET',  # East Tennessee
     'MN': 'MN',  # Maritimes NE
+    'GS': 'GS',  # Gulfstream
+    'EG': 'EG',  # Egan Hub Storage
+    'TPGS': 'TPGS',  # Tres Palacios
+    'BSP': 'BSP',  # Big Sandy Pipeline
+    'SESH': 'SESH',  # Southeast Supply Header
+    'MCGP': 'MCGP',  # Mississippi Canyon
+    'BGS': 'BGS',  # Bobcat Gas Storage
+    'SR': 'SR',  # Steckman Ridge
+    'SG': 'SG',  # Saltville Gas Storage
+    'GB': 'GB',  # Garden Banks
+    'MNUS': 'MNUS',  # Maritimes NE US
+    'NPC': 'NPC',  # Nautilus Pipeline
 }
 
 def fetch_enbridge_capacity(bu_code):
@@ -696,6 +721,74 @@ def fetch_egt_unsub(asset):
         })
 
     return results
+
+
+# ============================================================
+# LAKE CHARLES LNG (ET iPost CSV download, IOC only)
+# ============================================================
+
+LCLNG_PIPELINES = [
+    {'asset': 'LCLNG', 'name': 'Lake Charles LNG Company, LLC', 'short': 'Lake Charles LNG'},
+]
+
+
+def fetch_lclng_ioc(asset):
+    """Fetch IOC CSV from ET iPost with ?f=csv parameter. Returns H/D/P format CSV."""
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+
+    url = f'https://pipelines.energytransfer.com/ipost/index-of-customers/index?asset={asset}&f=csv'
+    r = s.get(url, timeout=30)
+    if r.status_code != 200:
+        print(f"    LCLNG IOC returned {r.status_code}")
+        return {}
+
+    cutoff = datetime.now() + timedelta(days=730)
+    firm_mdq = 0
+    expiring_2yr = 0
+    num_contracts = 0
+    shippers = set()
+
+    reader = csv.reader(io.StringIO(r.text))
+    for row in reader:
+        if not row or row[0].strip() != 'D':
+            continue
+        if len(row) < 11:
+            continue
+
+        shipper = row[1].strip()
+        rate = row[4].strip()
+        k_end_str = row[7].strip()
+        mdq_str = row[10].strip() if len(row) > 10 else '0'
+
+        try:
+            mdq = int(mdq_str.replace(',', ''))
+        except (ValueError, AttributeError):
+            mdq = 0
+
+        if mdq == 0 or not shipper:
+            continue
+
+        num_contracts += 1
+        shippers.add(shipper)
+
+        if 'FT' in rate.upper() or 'FIRM' in rate.upper():
+            firm_mdq += mdq
+
+        if k_end_str:
+            try:
+                ed = datetime.strptime(k_end_str.strip()[:10], '%m/%d/%Y')
+                if ed <= cutoff:
+                    expiring_2yr += mdq
+            except (ValueError, IndexError):
+                pass
+
+    return {
+        'firm_mdq': firm_mdq,
+        'expiring_2yr': expiring_2yr,
+        'num_contracts': num_contracts,
+        'num_shippers': len(shippers),
+    }
 
 
 # ============================================================
@@ -1400,54 +1493,72 @@ def fetch_all_capacity():
     for pl in ENBRIDGE_PIPELINES:
         print(f"Fetching Enbridge {pl['short']}...")
         try:
-            caps = fetch_enbridge_capacity(pl['bu'])
             ioc = fetch_enbridge_ioc(pl['bu'])
 
-            points = []
-            for c in caps:
-                if 'Segment' in c.get('Loc_Purp_Desc', ''):
-                    continue
-
-                dc = parse_int_safe(c.get('Total_Design_Capacity'))
-                sched = parse_int_safe(c.get('Total_Scheduled_Quantity'))
-                avail = parse_int_safe(c.get('Operationally_Available_Capacity'))
-
-                if dc == 0:
-                    continue
-
-                flow = c.get('Flow_Ind_Desc', '')
-                ptype = 'delivery' if 'Delivery' in flow else ('receipt' if 'Receipt' in flow else 'other')
-
-                pt = {
-                    'id': c.get('Loc', ''),
-                    'name': c.get('Loc_Name', '').strip()[:50],
-                    'type': ptype,
-                    'county': '',
-                    'state': '',
-                    'zone': c.get('Loc_Zn', ''),
-                    'design': dc,
-                    'scheduled': sched,
-                    'available': avail,
-                    'utilization': round(sched / dc * 100) if dc > 0 else 0,
-                    'connected': '',
+            if pl.get('ioc_only'):
+                # IOC-only pipeline — no OAC via rtba, just record IOC totals
+                entry = {
+                    'name': pl['name'],
+                    'short': pl['short'],
+                    'updated': TODAY,
+                    'points': [],
+                    'ioc_totals': {
+                        'firm_mdq': ioc.get('firm_mdq', 0),
+                        'num_contracts': ioc.get('num_contracts', 0),
+                        'num_shippers': ioc.get('num_shippers', 0),
+                    },
                 }
+                pipelines.append(entry)
+                print(f"  {pl['short']}: IOC only — {ioc.get('num_contracts', 0)} contracts, {ioc.get('num_shippers', 0)} shippers")
+            else:
+                # Full pipeline with OAC + IOC
+                caps = fetch_enbridge_capacity(pl['bu'])
 
-                # Apply pipeline-level IOC stats to all points (same pattern as ET)
-                if ioc:
-                    pt['firm_contracted'] = ioc.get('firm_mdq', 0)
-                    pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
-                    pt['num_shippers'] = ioc.get('num_shippers', 0)
-                    pt['num_contracts'] = ioc.get('num_contracts', 0)
+                points = []
+                for c in caps:
+                    if 'Segment' in c.get('Loc_Purp_Desc', ''):
+                        continue
 
-                points.append(pt)
+                    dc = parse_int_safe(c.get('Total_Design_Capacity'))
+                    sched = parse_int_safe(c.get('Total_Scheduled_Quantity'))
+                    avail = parse_int_safe(c.get('Operationally_Available_Capacity'))
 
-            pipelines.append({
-                'name': pl['name'],
-                'short': pl['short'],
-                'updated': TODAY,
-                'points': points,
-            })
-            print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts")
+                    if dc == 0:
+                        continue
+
+                    flow = c.get('Flow_Ind_Desc', '')
+                    ptype = 'delivery' if 'Delivery' in flow else ('receipt' if 'Receipt' in flow else 'other')
+
+                    pt = {
+                        'id': c.get('Loc', ''),
+                        'name': c.get('Loc_Name', '').strip()[:50],
+                        'type': ptype,
+                        'county': '',
+                        'state': '',
+                        'zone': c.get('Loc_Zn', ''),
+                        'design': dc,
+                        'scheduled': sched,
+                        'available': avail,
+                        'utilization': round(sched / dc * 100) if dc > 0 else 0,
+                        'connected': '',
+                    }
+
+                    # Apply pipeline-level IOC stats to all points (same pattern as ET)
+                    if ioc:
+                        pt['firm_contracted'] = ioc.get('firm_mdq', 0)
+                        pt['expiring_2yr'] = ioc.get('expiring_2yr', 0)
+                        pt['num_shippers'] = ioc.get('num_shippers', 0)
+                        pt['num_contracts'] = ioc.get('num_contracts', 0)
+
+                    points.append(pt)
+
+                pipelines.append({
+                    'name': pl['name'],
+                    'short': pl['short'],
+                    'updated': TODAY,
+                    'points': points,
+                })
+                print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts")
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
@@ -1625,6 +1736,27 @@ def fetch_all_capacity():
                 print(f"  {pl['short']}: {len(points)} points, {ioc.get('num_contracts', 0)} IOC contracts")
 
             pipelines.append(pl_data)
+        except Exception as e:
+            print(f"  ERROR {pl['short']}: {e}")
+        time.sleep(2)
+
+    # Lake Charles LNG (ET iPost CSV, IOC only)
+    for pl in LCLNG_PIPELINES:
+        print(f"Fetching ET {pl['short']}...")
+        try:
+            ioc = fetch_lclng_ioc(pl['asset'])
+            pipelines.append({
+                'name': pl['name'],
+                'short': pl['short'],
+                'updated': TODAY,
+                'points': [],
+                'ioc_totals': {
+                    'firm_mdq': ioc.get('firm_mdq', 0),
+                    'num_contracts': ioc.get('num_contracts', 0),
+                    'num_shippers': ioc.get('num_shippers', 0),
+                },
+            })
+            print(f"  {pl['short']}: IOC only — {ioc.get('num_contracts', 0)} contracts, {ioc.get('num_shippers', 0)} shippers")
         except Exception as e:
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
@@ -2263,6 +2395,21 @@ TRACKER_NAME_MAP = {
     'North Baja': 'North Baja Pipeline',
     'WBI Energy': 'WBI Energy Transmission',
     'ONEOK OkTex': 'ONEOK OkTex Pipeline (OKT)',
+    # Enbridge IOC-only
+    'Gulfstream ENB': 'Gulfstream Natural Gas',
+    'Egan Hub Storage': 'Egan Hub Storage',
+    'Tres Palacios': 'Tres Palacios Gas Storage',
+    'Big Sandy Pipeline': 'Big Sandy Pipeline',
+    'Southeast Supply Header': 'Southeast Supply Header',
+    'Mississippi Canyon': 'Mississippi Canyon Gas Pipeline',
+    'Bobcat Gas Storage': 'Bobcat Gas Storage',
+    'Steckman Ridge': 'Steckman Ridge',
+    'Saltville Gas Storage': 'Saltville Gas Storage',
+    'Garden Banks': 'Garden Banks Gas Pipeline',
+    'Maritimes NE US': 'Maritimes & Northeast Pipeline (U.S.)',
+    'Nautilus Pipeline': 'Nautilus Pipeline',
+    # ET iPost CSV
+    'Lake Charles LNG': 'Lake Charles LNG',
 }
 
 
