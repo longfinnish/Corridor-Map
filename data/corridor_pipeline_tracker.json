@@ -432,21 +432,31 @@
       "regulation": "interstate",
       "hifld_points": 166,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "login_required",
-        "platform": "tc_energy",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
         "refresh_frequency_days": null
-      }
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 3005, folder anr. IOC TAB + Locations CSV via SSRS ReportViewer."
     },
     {
       "pipeline_name": "Columbia Gas Transmission",
@@ -455,21 +465,31 @@
       "regulation": "interstate",
       "hifld_points": 38,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "login_required",
-        "platform": "tc_energy",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
         "refresh_frequency_days": null
-      }
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 51, folder tco. IOC TAB + Locations CSV via SSRS ReportViewer."
     },
     {
       "pipeline_name": "Columbia Gulf Transmission",
@@ -478,21 +498,31 @@
       "regulation": "interstate",
       "hifld_points": 71,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "login_required",
-        "platform": "tc_energy",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
         "refresh_frequency_days": null
-      }
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 14, folder cgt. IOC TAB + Locations CSV via SSRS ReportViewer."
     },
     {
       "pipeline_name": "Northern Border Pipeline",
@@ -501,21 +531,31 @@
       "regulation": "interstate",
       "hifld_points": 89,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "login_required",
-        "platform": "tc_energy",
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
-        "refresh_frequency_days": null
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy",
+        "platform": "tc_energy_econnects",
         "url": "https://ebb.tceconnects.com/infopost/",
         "last_refreshed": null,
         "refresh_frequency_days": null
-      }
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 3029, folder nbpl. IOC TAB + Locations CSV via SSRS ReportViewer."
     },
     {
       "pipeline_name": "Northern Natural Gas (NNG)",
@@ -2524,6 +2564,221 @@
         "cloud_accessible": true
       },
       "notes": "Salesforce Experience Cloud portal. TSP 062498393, code MVP. 10 IOC, 36 OAC, 9 locations."
+    },
+    {
+      "pipeline_name": "ANR Storage",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 3009, folder anrsc. IOC TAB + Locations CSV via SSRS ReportViewer."
+    },
+    {
+      "pipeline_name": "Bison Pipeline",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 3031, folder bison. IOC TAB + Locations CSV via SSRS ReportViewer."
+    },
+    {
+      "pipeline_name": "Blue Lake Gas Storage",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 3014, folder blgsc. IOC TAB + Locations CSV via SSRS ReportViewer."
+    },
+    {
+      "pipeline_name": "Crossroads Pipeline",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 44, folder xrd. IOC TAB + Locations CSV via SSRS ReportViewer."
+    },
+    {
+      "pipeline_name": "Hardy Storage",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 465, folder hrd. IOC TAB + Locations CSV via SSRS ReportViewer."
+    },
+    {
+      "pipeline_name": "Millennium Pipeline",
+      "operator": "TC Energy",
+      "regulation": "interstate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 26, folder mpl. IOC TAB + Locations CSV via SSRS ReportViewer."
+    },
+    {
+      "pipeline_name": "TC Louisiana Intrastate",
+      "operator": "TC Energy",
+      "regulation": "intrastate",
+      "hifld_points": 0,
+      "ioc": {
+        "status": "not_available",
+        "access_method": null,
+        "platform": "tc_energy_econnects",
+        "url": "https://ebb.tceconnects.com/infopost/",
+        "last_refreshed": null,
+        "refresh_frequency_days": null
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "tc_energy_econnects",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "Asset 3119, folder tcli. Intrastate — Locations CSV only, no IOC available."
     }
   ],
   "staleness_rules": {
@@ -2540,18 +2795,18 @@
     }
   },
   "_summary": {
-    "total_pipelines": 79,
-    "total_hifld_points_covered": 9358,
-    "ioc_captured": 26,
-    "ioc_exists_not_captured": 26,
+    "total_pipelines": 86,
+    "total_hifld_points_covered": 9722,
+    "ioc_captured": 36,
+    "ioc_exists_not_captured": 16,
     "ioc_unknown": 3,
     "unsub_captured": 13,
     "login_required_portals": 8,
     "platforms": {
       "et_ipost": 11,
       "kinder_morgan": 11,
+      "tc_energy_econnects": 11,
       "enbridge": 4,
-      "tc_energy": 4,
       "tc_plus": 4,
       "williams": 3,
       "gasquest": 2,
