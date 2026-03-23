@@ -2486,33 +2486,38 @@
         "access_method": "weekly_auto",
         "platform": "eqt_salesforce",
         "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 56,
+        "shipper_count": 28
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "eqt_salesforce",
         "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 145
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "eqt_salesforce",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 146
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "eqt_salesforce",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 267,
+        "geocoded_points": 122,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Salesforce Experience Cloud portal. TSP 189569585, code EQU. 64 IOC, 322 OAC, 267 locations."
@@ -2527,18 +2532,21 @@
         "access_method": "weekly_auto",
         "platform": "eqt_salesforce",
         "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 10,
+        "shipper_count": 8
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "eqt_salesforce",
         "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 13
       },
       "capacity": {
         "status": "captured",
@@ -2552,8 +2560,9 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "eqt_salesforce",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 9,
+        "geocoded_points": 0,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Salesforce Experience Cloud portal. TSP 062498393, code MVP. 10 IOC, 36 OAC, 9 locations."
