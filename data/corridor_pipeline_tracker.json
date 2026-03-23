@@ -722,17 +722,16 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=16",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 0,
+        "shipper_count": 0
       },
       "unsub": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=16",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "capacity": {
@@ -748,8 +747,9 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 65,
+        "geocoded_points": 50,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       }
     },
@@ -1423,17 +1423,16 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=6",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 0,
+        "shipper_count": 0
       },
       "unsub": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=6",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "capacity": {
@@ -1449,8 +1448,9 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 21,
+        "geocoded_points": 8,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Acquired by Third Coast Midstream. BBT/Quorum platform."
@@ -1513,17 +1513,16 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=3",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 0,
+        "shipper_count": 0
       },
       "unsub": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=3",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "capacity": {
@@ -1539,8 +1538,9 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 95,
+        "geocoded_points": 67,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Acquired by Third Coast Midstream. BBT/Quorum platform."
@@ -1555,17 +1555,16 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=12",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 0,
+        "shipper_count": 0
       },
       "unsub": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=12",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "capacity": {
@@ -1581,8 +1580,9 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 6,
+        "geocoded_points": 5,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "LA. BBT/Quorum platform tspno=12."
@@ -2778,7 +2778,7 @@
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
-      "notes": "Asset 3119, folder tcli. Intrastate — Locations CSV only, no IOC available."
+      "notes": "Asset 3119, folder tcli. Intrastate \u2014 Locations CSV only, no IOC available."
     }
   ],
   "staleness_rules": {
