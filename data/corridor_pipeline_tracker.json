@@ -434,26 +434,28 @@
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 601,
+        "shipper_count": 153
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 736,
+        "geocoded_points": 614,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 3005, folder anr. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -467,26 +469,28 @@
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 490,
+        "shipper_count": 147
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 4296,
+        "geocoded_points": 1270,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 51, folder tco. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -500,26 +504,28 @@
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 82,
+        "shipper_count": 45
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 907,
+        "geocoded_points": 900,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 14, folder cgt. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -533,26 +539,28 @@
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 197,
+        "shipper_count": 64
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 288,
+        "geocoded_points": 286,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 3029, folder nbpl. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -2573,28 +2581,27 @@
       "regulation": "interstate",
       "hifld_points": 0,
       "ioc": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "notes": "IOC folder exists but TAB file empty or download failed"
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 4,
+        "geocoded_points": 0,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 3009, folder anrsc. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -2605,28 +2612,27 @@
       "regulation": "interstate",
       "hifld_points": 0,
       "ioc": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "notes": "IOC folder exists but TAB file empty or download failed"
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 7,
+        "geocoded_points": 5,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 3031, folder bison. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -2637,28 +2643,27 @@
       "regulation": "interstate",
       "hifld_points": 0,
       "ioc": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "notes": "IOC folder exists but TAB file empty or download failed"
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 4,
+        "geocoded_points": 4,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 3014, folder blgsc. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -2671,26 +2676,28 @@
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 6,
+        "shipper_count": 5
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 19,
+        "geocoded_points": 12,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 44, folder xrd. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -2701,28 +2708,27 @@
       "regulation": "interstate",
       "hifld_points": 0,
       "ioc": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "notes": "IOC folder exists but TAB file empty or download failed"
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 6,
+        "geocoded_points": 5,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 465, folder hrd. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -2735,26 +2741,28 @@
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
+        "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 53,
+        "shipper_count": 28
       },
       "unsub": {
         "status": "exists_not_captured",
         "access_method": "login_required",
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 309,
+        "geocoded_points": 49,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 26, folder mpl. IOC TAB + Locations CSV via SSRS ReportViewer."
@@ -2765,22 +2773,29 @@
       "regulation": "intrastate",
       "hifld_points": 0,
       "ioc": {
-        "status": "not_available",
-        "access_method": null,
-        "platform": "tc_energy_econnects",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "status": "not_published",
+        "access_method": "weekly_auto",
+        "platform": "tce_infopost",
+        "cloud_accessible": true,
+        "notes": "No IOC folder on TC Energy infopost for this pipeline"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "tc_energy_econnects",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "platform": "tce_infopost",
+        "cracked_points": 8,
+        "geocoded_points": 8,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
-      "notes": "Asset 3119, folder tcli. Intrastate \u2014 Locations CSV only, no IOC available."
+      "notes": "Asset 3119, folder tcli. Intrastate \u2014 Locations CSV only, no IOC available.",
+      "unsub": {
+        "status": "exists_not_captured",
+        "access_method": "login_required",
+        "platform": "tce_econnects_app",
+        "url": "https://ebb.tceconnects.com/app/",
+        "notes": "Behind TC eConnects Angular app login"
+      }
     }
   ],
   "staleness_rules": {
