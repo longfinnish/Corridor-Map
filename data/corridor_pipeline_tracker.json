@@ -611,12 +611,9 @@
         "cloud_accessible": true
       },
       "unsub": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
         "platform": "williams_1line",
-        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=UnsubsCap&pipe_id=Transco",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "locations": {
@@ -835,28 +832,29 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "url": "https://northwest.williams.com/NWP_Portal/file_download?hfFileURL=Files/Northwest/Downloads/Shipper.tab",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 232,
+        "shipper_count": 65
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "url": "https://northwest.williams.com/NWP_Portal/UnsubscribedCapForm.action",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 606
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "url": "https://northwest.williams.com/NWP_Portal/CapacityResultsScrollable.action",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 586
       }
     },
     {
@@ -1245,22 +1243,16 @@
       "regulation": "interstate",
       "hifld_points": 18,
       "ioc": {
-        "status": "captured",
-        "access_method": "daily_auto",
-        "platform": "enbridge_csv",
-        "url": "https://infopost.enbridge.com/Downloads/IOC/GS_IOC.csv",
-        "last_refreshed": null,
-        "refresh_frequency_days": 1,
-        "cloud_accessible": true,
-        "notes": "IOC from Enbridge (code GS), unsub/locations from Williams 1line"
-      },
-      "unsub": {
-        "status": "captured",
+        "status": "not_available",
         "access_method": "weekly_auto",
         "platform": "williams_1line",
-        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=UnsubsCap&pipe_id=Gulfstream",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cloud_accessible": true,
+        "notes": "No IOC found on 1line portal for Gulfstream"
+      },
+      "unsub": {
+        "status": "attempted",
+        "access_method": "weekly_auto",
+        "platform": "williams_1line",
         "cloud_accessible": true
       },
       "locations": {
@@ -1316,19 +1308,19 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "url": "https://www.mwpipe.com/UnsubscribedCapacity/MWP",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 46
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "url": "https://www.mwpipe.com/OperationalCapacity/MWP/TIM/CURRENT",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 90
       },
       "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
     },
@@ -1351,19 +1343,19 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "url": "https://www.mwpipe.com/UnsubscribedCapacity/OTP",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 46
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "url": "https://www.mwpipe.com/OperationalCapacity/OTP/TIM/CURRENT",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 90
       }
     },
     {
