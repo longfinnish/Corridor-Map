@@ -552,36 +552,31 @@
         "access_method": "weekly_auto",
         "platform": "nng_direct_csv",
         "url": "https://www.northernnaturalgas.com/infopostings/Pages/IndexOfCustomers.aspx?download=true",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "contract_count": 487,
+        "shipper_count": 211
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "nng_direct_csv",
-        "url": "https://www.northernnaturalgas.com/infopostings/Pages/UnsubscribedCapacity.aspx",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "last_refreshed": "2026-03-23",
+        "point_count": 1648
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "nng_direct_csv",
-        "url": "https://www.northernnaturalgas.com/infopostings/Pages/LocationDataDownload.aspx?download=true",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cracked_points": 2524,
+        "geocoded_points": 505,
+        "geocode_method": "county_centroid"
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "nng_direct_csv",
-        "url": "https://www.northernnaturalgas.com/infopostings/Pages/OperationallyAvailableCapacity.aspx",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "last_refreshed": "2026-03-23",
+        "point_count": 1751
       }
     },
     {
