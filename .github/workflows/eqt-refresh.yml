@@ -1,0 +1,33 @@
+name: EQT Pipeline Refresh
+
+on:
+  schedule:
+    - cron: '0 19 * * 1'  # Monday 7pm UTC (1pm CT), after BBT refresh
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch EQT pipeline data
+        run: python scripts/fetch_eqt_data.py
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "EQT refresh ${{ github.event.schedule && '(auto)' || '(manual)' }}"
+          file_pattern: 'data/gas_interconnects.json data/corridor_pipeline_tracker.json data/gas_county_coords.json'

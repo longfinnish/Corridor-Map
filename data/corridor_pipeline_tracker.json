@@ -19,7 +19,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://peplmessenger.energytransfer.com/ipost/index-of-customers/index?asset=PEPL&f=csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -42,7 +42,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://tgcmessenger.energytransfer.com/ipost/index-of-customers/index?asset=TGC&f=csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -65,7 +65,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://fgttransfer.energytransfer.com/ipost/index-of-customers/index?asset=FGT&f=csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -158,7 +158,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/index?asset=ROVER&f=csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -166,7 +166,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://pipelines.energytransfer.com/ipost/capacity/unsubscribed-by-location?asset=ROVER&f=csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       }
     },
@@ -204,7 +204,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge",
         "url": "https://infopost.enbridge.com/Downloads/IOC/TE_IOC.csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -298,7 +298,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TGP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -306,12 +306,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=TGP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 90
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -325,7 +321,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=NGPL",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -333,12 +329,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=NGPL",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 90
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -352,7 +344,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=EPNG",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -360,12 +352,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=EPNG",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 90
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -379,7 +367,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=SNG",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -387,12 +375,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=SNG",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 90
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -406,7 +390,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=CIG",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -414,12 +398,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=CIG",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 90
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -433,7 +413,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=MEP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -441,12 +421,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=MEP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 90
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -552,31 +528,36 @@
         "access_method": "weekly_auto",
         "platform": "nng_direct_csv",
         "url": "https://www.northernnaturalgas.com/infopostings/Pages/IndexOfCustomers.aspx?download=true",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "contract_count": 487,
-        "shipper_count": 211
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "nng_direct_csv",
-        "last_refreshed": "2026-03-23",
-        "point_count": 1648
+        "url": "https://www.northernnaturalgas.com/infopostings/Pages/UnsubscribedCapacity.aspx",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "cracked_points": 2524,
-        "geocoded_points": 505,
-        "geocode_method": "county_centroid"
+        "platform": "nng_direct_csv",
+        "url": "https://www.northernnaturalgas.com/infopostings/Pages/LocationDataDownload.aspx?download=true",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "nng_direct_csv",
-        "last_refreshed": "2026-03-23",
-        "point_count": 1751
+        "url": "https://www.northernnaturalgas.com/infopostings/Pages/OperationallyAvailableCapacity.aspx",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       }
     },
     {
@@ -595,9 +576,12 @@
         "cloud_accessible": true
       },
       "unsub": {
-        "status": "attempted",
+        "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_1line",
+        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=UnsubsCap&pipe_id=Transco",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "locations": {
@@ -662,26 +646,25 @@
         "access_method": "weekly_auto",
         "platform": "gasquest_rest_api",
         "url": "https://www.gasquest.com/informational-posting",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "contract_count": 0,
-        "shipper_count": 0
+        "cloud_accessible": true
       },
       "unsub": {
-        "status": "attempted",
+        "status": "captured",
         "access_method": "weekly_auto",
         "platform": "gasquest_rest_api",
-        "cloud_accessible": true,
-        "notes": "No unsub data returned"
+        "url": "https://www.gasquest.com/informational-posting",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "gasquest_rest_api",
-        "cracked_points": 0,
-        "geocoded_points": 0,
-        "geocode_method": "county_centroid",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "capacity": {
@@ -794,7 +777,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://pipelines.energytransfer.com/ipost/index-of-customers/ioc-report-download?asset=EGT",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-19",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -802,7 +785,7 @@
         "access_method": "daily_auto",
         "platform": "et_ipost",
         "url": "https://pipelines.energytransfer.com/ipost/capacity/enbl-unsubscribed?asset=EGT",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-19",
         "refresh_frequency_days": 1
       }
     },
@@ -816,29 +799,28 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-23",
+        "url": "https://northwest.williams.com/NWP_Portal/file_download?hfFileURL=Files/Northwest/Downloads/Shipper.tab",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "contract_count": 232,
-        "shipper_count": 65
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-23",
+        "url": "https://northwest.williams.com/NWP_Portal/UnsubscribedCapForm.action",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "point_count": 606
+        "cloud_accessible": true
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-23",
+        "url": "https://northwest.williams.com/NWP_Portal/CapacityResultsScrollable.action",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "point_count": 586
+        "cloud_accessible": true
       }
     },
     {
@@ -900,7 +882,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/Great%20Lakes/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -923,7 +905,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=MOJAVE",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -931,12 +913,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=MOJAVE",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 30
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -974,7 +952,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TRANSCOLORADO",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
@@ -982,12 +960,8 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/Capacity/UnsubscribedPoint.aspx?code=TRANSCOLORADO",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 30
-      },
-      "locations": {
-        "status": "captured",
-        "access_method": "weekly_auto"
       }
     },
     {
@@ -1024,7 +998,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/GTN/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1116,7 +1090,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/Tuscarora/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1139,7 +1113,7 @@
         "access_method": "daily_auto",
         "platform": "tc_plus",
         "url": "https://tcplus.com/North%20Baja/IndexOfCustomers/Generate",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1235,16 +1209,22 @@
       "regulation": "interstate",
       "hifld_points": 18,
       "ioc": {
-        "status": "not_available",
-        "access_method": "weekly_auto",
-        "platform": "williams_1line",
+        "status": "captured",
+        "access_method": "daily_auto",
+        "platform": "enbridge_csv",
+        "url": "https://infopost.enbridge.com/Downloads/IOC/GS_IOC.csv",
+        "last_refreshed": null,
+        "refresh_frequency_days": 1,
         "cloud_accessible": true,
-        "notes": "No IOC found on 1line portal for Gulfstream"
+        "notes": "IOC from Enbridge (code GS), unsub/locations from Williams 1line"
       },
       "unsub": {
-        "status": "attempted",
+        "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_1line",
+        "url": "https://www.1line.williams.com/xhtml/document_list.jsf?category=UnsubsCap&pipe_id=Gulfstream",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
       "locations": {
@@ -1268,7 +1248,7 @@
         "access_method": "daily_auto",
         "platform": "wbi_portal",
         "url": "https://transmission.wbienergy.com/informational_postings/Index_of_Customers/Customer_Index.aspx",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "unsub": {
@@ -1276,7 +1256,7 @@
         "access_method": "daily_auto",
         "platform": "wbi_portal",
         "url": "https://transmission.wbienergy.com/informational_postings/capacity/unsubscribed_locations.aspx",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-22",
         "refresh_frequency_days": 1
       },
       "notes": "ASP.NET ViewState POST portal. IOC (tab-delimited FERC H/D/P), OAC line sections, unsub locations."
@@ -1300,19 +1280,19 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "url": "https://www.mwpipe.com/UnsubscribedCapacity/MWP",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "point_count": 46
+        "cloud_accessible": true
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "url": "https://www.mwpipe.com/OperationalCapacity/MWP/TIM/CURRENT",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "point_count": 90
+        "cloud_accessible": true
       },
       "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
     },
@@ -1335,19 +1315,19 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "url": "https://www.mwpipe.com/UnsubscribedCapacity/OTP",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "point_count": 46
+        "cloud_accessible": true
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "url": "https://www.mwpipe.com/OperationalCapacity/OTP/TIM/CURRENT",
+        "last_refreshed": null,
         "refresh_frequency_days": 7,
-        "cloud_accessible": true,
-        "point_count": 90
+        "cloud_accessible": true
       }
     },
     {
@@ -1816,7 +1796,7 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=WIC",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-21",
         "refresh_frequency_days": 7,
         "contract_count": 158,
         "shipper_count": 30
@@ -1825,7 +1805,7 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-21",
         "point_count": 25
       },
       "capacity": {
@@ -1834,7 +1814,7 @@
       },
       "locations": {
         "status": "captured",
-        "access_method": "weekly_auto",
+        "access_method": "quarterly_manual",
         "cracked_points": 69,
         "geocoded_points": 69,
         "geocode_method": "county_centroid"
@@ -1854,14 +1834,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=CP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -1883,14 +1863,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=SGP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -1912,14 +1892,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=EEC",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -1941,14 +1921,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=STAG",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -1970,14 +1950,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=ARLS",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -1999,14 +1979,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=YGS",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2028,14 +2008,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=TTP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2057,14 +2037,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMTP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2086,14 +2066,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMTJ",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2115,14 +2095,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMNT",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2144,14 +2124,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=GCX",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2173,14 +2153,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=PHP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2202,14 +2182,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMBP",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2231,14 +2211,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=NETM",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2260,14 +2240,14 @@
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
         "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMEF",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 7
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "last_refreshed": null
       },
       "locations": {
         "status": "captured",
@@ -2318,7 +2298,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge_csv",
         "url": "https://infopost.enbridge.com/Downloads/IOC/BSP_IOC.csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 1,
         "cloud_accessible": true
       },
@@ -2334,7 +2314,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge_csv",
         "url": "https://infopost.enbridge.com/Downloads/IOC/SESH_IOC.csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 1,
         "cloud_accessible": true
       },
@@ -2350,7 +2330,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge_csv",
         "url": "https://infopost.enbridge.com/Downloads/IOC/MCGP_IOC.csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 1,
         "cloud_accessible": true
       },
@@ -2414,7 +2394,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge_csv",
         "url": "https://infopost.enbridge.com/Downloads/IOC/GB_IOC.csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 1,
         "cloud_accessible": true
       },
@@ -2430,7 +2410,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge_csv",
         "url": "https://infopost.enbridge.com/Downloads/IOC/MNUS_IOC.csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 1,
         "cloud_accessible": true
       },
@@ -2446,7 +2426,7 @@
         "access_method": "daily_auto",
         "platform": "enbridge_csv",
         "url": "https://infopost.enbridge.com/Downloads/IOC/NPC_IOC.csv",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": null,
         "refresh_frequency_days": 1,
         "cloud_accessible": true
       },
@@ -2469,62 +2449,86 @@
       "notes": "LNG terminal, Lake Charles LA."
     },
     {
-      "pipeline_name": "Kinder Morgan Louisiana Pipeline",
-      "pipeline_id": "kmlp",
-      "operator": "Kinder Morgan",
-      "parent": "Kinder Morgan",
+      "pipeline_name": "Equitrans",
+      "operator": "EQT Corporation",
       "regulation": "interstate",
       "hifld_points": 0,
-      "type": "pipeline",
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "kinder_morgan_postback",
-        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMLP",
-        "last_refreshed": "2026-03-23",
-        "refresh_frequency_days": 7
+        "platform": "eqt_salesforce",
+        "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "platform": "eqt_salesforce",
+        "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "eqt_salesforce",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "geocode_method": "county_centroid"
+        "platform": "eqt_salesforce",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
-      "notes": "KM portal code=KMLP. States: LA."
+      "notes": "Salesforce Experience Cloud portal. TSP 189569585, code EQU. 64 IOC, 322 OAC, 267 locations."
     },
     {
-      "pipeline_name": "KM Illinois Pipeline",
-      "pipeline_id": "kmil",
-      "operator": "Kinder Morgan",
-      "parent": "Kinder Morgan",
+      "pipeline_name": "Mountain Valley Pipeline",
+      "operator": "EQT Corporation",
       "regulation": "interstate",
       "hifld_points": 0,
-      "type": "pipeline",
       "ioc": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "kinder_morgan_postback",
-        "url": "https://pipeline2.kindermorgan.com/IndexOfCust/IOC.aspx?code=KMIL",
-        "last_refreshed": "2026-03-23",
-        "refresh_frequency_days": 7
+        "platform": "eqt_salesforce",
+        "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "platform": "kinder_morgan_postback",
-        "last_refreshed": "2026-03-23"
+        "platform": "eqt_salesforce",
+        "url": "https://infopost.eqt.com/CustomerPortal/informational-postings",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "eqt_salesforce",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
-        "geocode_method": "county_centroid"
+        "platform": "eqt_salesforce",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
       },
-      "notes": "KM portal code=KMIL. States: IL."
+      "notes": "Salesforce Experience Cloud portal. TSP 062498393, code MVP. 10 IOC, 36 OAC, 9 locations."
     }
   ],
   "staleness_rules": {
@@ -2541,7 +2545,7 @@
     }
   },
   "_summary": {
-    "total_pipelines": 95,
+    "total_pipelines": 79,
     "total_hifld_points_covered": 9358,
     "ioc_captured": 26,
     "ioc_exists_not_captured": 26,
