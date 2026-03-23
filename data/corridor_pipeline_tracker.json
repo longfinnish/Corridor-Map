@@ -681,25 +681,26 @@
         "access_method": "weekly_auto",
         "platform": "gasquest_rest_api",
         "url": "https://www.gasquest.com/informational-posting",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-23",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "contract_count": 0,
+        "shipper_count": 0
       },
       "unsub": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
         "platform": "gasquest_rest_api",
-        "url": "https://www.gasquest.com/informational-posting",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "notes": "No unsub data returned"
       },
       "locations": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "gasquest_rest_api",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 0,
+        "geocoded_points": 0,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "capacity": {
