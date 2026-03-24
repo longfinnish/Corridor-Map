@@ -195,24 +195,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .lg-arrow{font-size:8px;color:rgba(240,237,232,0.4);transition:transform 0.2s}
 .lg-group.collapsed .lg-arrow{transform:rotate(-90deg)}
 .lg-group.collapsed .lg-body{display:none}
-#intel-panel{position:fixed;top:0;right:0;width:70%;height:100vh;z-index:1500;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),width 0.3s ease;display:flex;flex-direction:column;pointer-events:none}
-#intel-panel.open{transform:translateX(0);pointer-events:all}
-#intel-panel.open.sidebar-collapsed{width:85%}
-#intel-shade{position:fixed;inset:0;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;z-index:1499}
-#intel-shade.open{background:rgba(0,0,0,0.35);pointer-events:all}
-#intel-inner{flex:1;display:flex;flex-direction:column;background:#0f1923;border-left:1px solid rgba(196,133,76,0.3);box-shadow:-8px 0 40px rgba(0,0,0,0.6);overflow:hidden;border-radius:12px 0 0 12px;min-height:0}
-#intel-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:linear-gradient(135deg,#1B2B3A,#253545);border-bottom:1px solid rgba(196,133,76,0.2);flex-shrink:0}
-#intel-bar-left{display:flex;align-items:center;gap:10px}
-#intel-bar-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase}
-#intel-bar-county{font-size:14px;font-weight:600;color:#F0EDE8}
-#intel-bar-close{background:none;border:1px solid rgba(240,237,232,0.15);color:rgba(240,237,232,0.6);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-#intel-bar-close:hover{background:rgba(240,237,232,0.1);color:#F0EDE8;border-color:rgba(240,237,232,0.3)}
-#intel-frame-wrap{flex:1;position:relative;min-height:0}
-#intel-frame{position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#0f1923}
-#intel-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0f1923;z-index:2}
-#intel-loading .spinner{width:28px;height:28px;border:3px solid rgba(196,133,76,0.2);border-top-color:#C4854C;border-radius:50%;animation:ispin 0.8s linear infinite}
-@keyframes ispin{to{transform:rotate(360deg)}}
-#intel-loading span{color:rgba(240,237,232,0.5);font-size:11px;margin-left:10px;letter-spacing:0.5px}
 #pf-panel{position:fixed;top:0;right:0;width:50%;max-width:560px;height:100vh;z-index:1500;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;pointer-events:none}
 #pf-panel.open{transform:translateX(0);pointer-events:all}
 #pf-shade{position:fixed;inset:0;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;z-index:1499}
@@ -445,7 +427,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div id="search-box"><input type="text" id="search-input" placeholder="Search address, city, county, or lat,lng..." autocomplete="off"><button id="search-btn" onclick="doSearch()">&#x2315;</button><div id="sr"></div></div>
 <div id="top-btns">
 <button id="pl-btn" onclick="openPipeline()">&#x1F4CB; Pipeline</button>
-<button id="mi-btn" onclick="openMarketIntel()">&#x26A1; Market Intel</button>
+<button id="mi-btn" onclick="openMarketIntel()">&#x26A1; Market Intel &#x2197;</button>
 <button id="mb" onclick="togMeasure()">&#x1F4CF; Measure</button>
 </div>
 <div id="mr"></div>
@@ -1722,40 +1704,15 @@ var _miCounty=null,_miState=null;
 function setMIContext(county,state){
 _miCounty=county;_miState=state;
 var btn=document.getElementById('mi-btn');
-if(county&&state){btn.innerHTML='&#x26A1; Market Intel <span class="mi-county">'+county+', '+state+'</span>'}
-else{btn.innerHTML='&#x26A1; Market Intel'}
+if(county&&state){btn.innerHTML='&#x26A1; Market Intel <span class="mi-county">'+county+', '+state+'</span> &#x2197;'}
+else{btn.innerHTML='&#x26A1; Market Intel &#x2197;'}
 }
 function openMarketIntel(){
-var panel=document.getElementById('intel-panel');
-var shade=document.getElementById('intel-shade');
-var frame=document.getElementById('intel-frame');
-var loading=document.getElementById('intel-loading');
-var countyEl=document.getElementById('intel-bar-county');
 var url='https://intel.thecorridor.io';
 if(_miCounty&&_miState){
 url+='?state='+_miState+'&county='+encodeURIComponent(_miCounty);
-countyEl.textContent=_miCounty+(_miState==='LA'?' Parish, ':' County, ')+_miState;
-}else{
-countyEl.textContent='';
 }
-// Check if sidebar is collapsed for wider panel
-if(document.getElementById('layer-panel').classList.contains('collapsed')){
-panel.classList.add('sidebar-collapsed');
-}else{
-panel.classList.remove('sidebar-collapsed');
-}
-loading.style.display='flex';
-frame.src=url;
-frame.onload=function(){loading.style.display='none'};
-panel.classList.add('open');
-shade.classList.add('open');
-}
-function closeIntelPanel(){
-var panel=document.getElementById('intel-panel');
-var shade=document.getElementById('intel-shade');
-panel.classList.remove('open');
-shade.classList.remove('open');
-setTimeout(function(){document.getElementById('intel-frame').src='about:blank'},400);
+window.open(url,'_blank');
 }
 
 // Panel tabs
@@ -1954,8 +1911,6 @@ closePlDetail();
 loadPipeline().then(function(){renderPipeline()});
 var panel=document.getElementById('pl-panel');
 var shade=document.getElementById('pl-shade');
-// Close intel if open
-closeIntelPanel();
 panel.classList.add('open');
 shade.style.background='rgba(0,0,0,0.35)';
 shade.style.pointerEvents='all';
@@ -3822,22 +3777,6 @@ console.log('Corridor Map v4.2.0 loaded');
 </div>
 </div>
 <div id="pl-save-modal" style="display:none"></div>
-<div id="intel-shade" onclick="closeIntelPanel()"></div>
-<div id="intel-panel">
-<div id="intel-inner">
-<div id="intel-bar">
-<div id="intel-bar-left">
-<div id="intel-bar-label">Market Intel</div>
-<div id="intel-bar-county"></div>
-</div>
-<button id="intel-bar-close" onclick="closeIntelPanel()">&times;</button>
-</div>
-<div id="intel-frame-wrap">
-<div id="intel-loading"><div class="spinner"></div><span>Loading intelligence...</span></div>
-<iframe id="intel-frame" src="about:blank"></iframe>
-</div>
-</div>
-</div>
 <div id="pf-shade" onclick="closePFPanel()"></div>
 <div id="pf-panel">
 <div id="pf-inner">
