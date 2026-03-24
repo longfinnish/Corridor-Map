@@ -247,6 +247,43 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .pf-loading{display:flex;align-items:center;justify-content:center;padding:60px 0;gap:10px}
 .pf-loading .spinner{width:24px;height:24px;border:3px solid rgba(196,133,76,0.2);border-top-color:#C4854C;border-radius:50%;animation:ispin 0.8s linear infinite}
 .pf-loading span{color:rgba(240,237,232,0.4);font-size:13px}
+/* Gas Assessment Panel */
+#ga-panel{position:fixed;top:0;right:0;width:50%;max-width:560px;height:100vh;z-index:1500;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;pointer-events:none}
+#ga-panel.open{transform:translateX(0);pointer-events:all}
+#ga-shade{position:fixed;inset:0;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;z-index:1499}
+#ga-shade.open{background:rgba(0,0,0,0.35);pointer-events:all}
+#ga-inner{flex:1;display:flex;flex-direction:column;background:#0f1923;border-left:1px solid rgba(196,133,76,0.3);box-shadow:-8px 0 40px rgba(0,0,0,0.6);overflow:hidden;border-radius:12px 0 0 12px}
+#ga-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg,#1B2B3A,#253545);border-bottom:1px solid rgba(196,133,76,0.2);flex-shrink:0}
+#ga-bar-left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+#ga-bar-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase}
+#ga-bar-sub{font-size:14px;font-weight:600;color:#F0EDE8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ga-bar-close{background:none;border:1px solid rgba(240,237,232,0.15);color:rgba(240,237,232,0.6);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;margin-left:10px}
+#ga-bar-close:hover{background:rgba(240,237,232,0.1);color:#F0EDE8;border-color:rgba(240,237,232,0.3)}
+#ga-body{flex:1;overflow-y:auto;padding:16px}
+.ga-section{margin-bottom:16px}
+.ga-section-title{font-size:10px;font-weight:700;letter-spacing:2px;color:#C4854C;text-transform:uppercase;margin-bottom:8px}
+.ga-hero{text-align:center;padding:14px 0;margin-bottom:12px;border-bottom:1px solid rgba(240,237,232,0.08)}
+.ga-hero-label{font-size:11px;color:rgba(240,237,232,0.4);margin-bottom:2px}
+.ga-hero-value{font-size:28px;font-weight:700;color:#F0EDE8}
+.ga-hero-sub{font-size:11px;color:rgba(240,237,232,0.35);margin-top:2px}
+.ga-stat{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(240,237,232,0.04);font-size:13px}
+.ga-stat-label{color:rgba(240,237,232,0.5)}
+.ga-stat-value{font-weight:600;color:#F0EDE8;text-align:right}
+.ga-point-row{display:flex;align-items:center;gap:8px;padding:7px 8px;margin-bottom:3px;border-radius:6px;background:rgba(240,237,232,0.02);cursor:pointer;transition:background 0.15s;font-size:12px}
+.ga-point-row:hover{background:rgba(196,133,76,0.1)}
+.ga-point-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ga-point-dot.delivery{background:#66BB6A}
+.ga-point-dot.receipt{background:transparent;border:2px solid #00E5FF}
+.ga-point-dot.bidirectional{background:#FDD835}
+.ga-point-dot.other{background:#9E9E9E}
+.ga-point-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#F0EDE8}
+.ga-point-dist{font-size:11px;color:rgba(240,237,232,0.35);flex-shrink:0}
+.ga-point-cap{font-size:11px;font-weight:600;flex-shrink:0;min-width:70px;text-align:right}
+.ga-bar-chart{height:6px;background:rgba(240,237,232,0.06);border-radius:3px;margin-top:4px;overflow:hidden}
+.ga-bar-fill{height:100%;border-radius:3px;transition:width 0.3s}
+.ga-no-data{color:rgba(240,237,232,0.3);font-size:12px;font-style:italic;padding:8px 0}
+.ga-nearby-pl{padding:6px 8px;margin-bottom:4px;border-radius:6px;background:rgba(240,237,232,0.02);font-size:12px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background 0.15s}
+.ga-nearby-pl:hover{background:rgba(196,133,76,0.1)}
 </style>
 </head>
 <body>
@@ -748,10 +785,7 @@ var hit=null;
 for(var i=0;i<feats.length;i++){if(feats[i].layerName==='eia_pipelines'){hit=feats[i];break}}
 if(!hit)return;
 var p=hit.feature.props;
-var popup='<b>'+(p.Operator||'Gas Pipeline')+'</b>';
-popup+='<br>Type: '+(p.TYPEPIPE||'\u2014');
-popup+='<br>Status: '+(p.Status||'\u2014');
-L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(popup).openOn(map);
+openGasAssessment(e.latlng.lat,e.latlng.lng,p.Operator||'Gas Pipeline',p.TYPEPIPE||'',p.Status||'','eia');
 }
 
 // TX RRC Intrastate Gas Pipelines (PMTiles)
@@ -784,14 +818,8 @@ if(!feats.length)return;
 var hit=null;
 for(var i=0;i<feats.length;i++){if(feats[i].layerName==='tx_rrc'){hit=feats[i];break}}
 if(!hit)return;
-var p=hit.feature.props;var d=p.DIAMETER||'';
-var popup='<div style="font-size:9px;color:#FF8F00;font-weight:700;letter-spacing:1px;margin-bottom:4px">TX INTRASTATE</div>';
-popup+='<b>'+(p.OPERATOR||'Unknown Operator')+'</b>';
-popup+='<br>Diameter: '+(d?d+'"':'\u2014');
-popup+='<br>County: '+(p.COUNTY_NAME||'\u2014');
-popup+='<br>System: '+(p.SYSTEM_NAME||'\u2014');
-popup+='<br>T-4 Permit: '+(p.T4PERMIT||'\u2014');
-L.popup({maxWidth:300}).setLatLng(e.latlng).setContent(popup).openOn(map);
+var p=hit.feature.props;
+openGasAssessment(e.latlng.lat,e.latlng.lng,p.OPERATOR||'Unknown Operator',p.SYSTEM_NAME||'','','rrc',p.DIAMETER||0,p.COUNTY_NAME||'',p.T4PERMIT||'');
 }
 
 var fiberTileLayer=null;
@@ -3833,6 +3861,19 @@ console.log('Corridor Map v4.2.0 loaded');
 <div id="pf-body"></div>
 </div>
 </div>
+<div id="ga-shade" onclick="closeGAPanel()"></div>
+<div id="ga-panel">
+<div id="ga-inner">
+<div id="ga-bar">
+<div id="ga-bar-left">
+<div id="ga-bar-label">Gas Assessment</div>
+<div id="ga-bar-sub"></div>
+</div>
+<button id="ga-bar-close" onclick="closeGAPanel()">&times;</button>
+</div>
+<div id="ga-body"></div>
+</div>
+</div>
 </div><!-- end main-app -->
 <script>
 async function checkMapAuth(){
@@ -4367,6 +4408,404 @@ var m=L.marker([r.lat,r.lon],{icon:L.divIcon({className:'',html:'<div style="bac
 m.addTo(map);
 alert('Added to pipeline: '+entry.name);
 if(typeof refreshPipeline==='function')refreshPipeline();
+}
+
+// ============================================================
+// GAS ASSESSMENT PANEL
+// ============================================================
+
+// Map indicators layer for gas assessment
+var gaIndicators=L.layerGroup().addTo(map);
+
+// EIA operator name → gas_interconnects.json pipeline short/name lookup
+var EIA_PIPE_MAP={
+// ET / Energy Transfer family
+'energy transfer':'Texas Eastern','energy transfer company':'Texas Eastern',
+'panhandle eastern':'Panhandle Eastern','panhandle eastern pipe line':'Panhandle Eastern',
+'trunkline':'Trunkline','trunkline lng':'Trunkline',
+'rover pipeline':'Rover','rover pipeline llc':'Rover',
+'florida gas transmission':'Florida Gas','florida gas':'Florida Gas',
+'midcontinent express pipeline':'Midcontinent Express','midcontinent express':'Midcontinent Express',
+'lake charles lng':'Lake Charles LNG',
+// Williams
+'transcontinental gas':'Transco','transcontinental gas pipe':'Transco',
+'transco':'Transco','williams':'Transco',
+'northwest pipeline':'Northwest','northwest pipeline llc':'Northwest',
+'gulfstream natural gas':'Gulfstream ENB',
+// TC Energy
+'anr pipeline':'ANR Pipeline','anr pipeline company':'ANR Pipeline',
+'columbia gas transmission':'Columbia Gas','columbia gas':'Columbia Gas',
+'columbia gulf':'Columbia Gulf','columbia gulf transmission':'Columbia Gulf',
+'great lakes gas transmission':'Great Lakes','great lakes':'Great Lakes',
+'northern border pipeline':'Northern Border','northern border':'Northern Border',
+'tuscarora gas transmission':'Tuscarora','tuscarora':'Tuscarora',
+'north baja pipeline':'North Baja','north baja':'North Baja',
+'gas transmission northwest':'GTN','gas transmission nw':'GTN',
+// Kinder Morgan
+'tennessee gas pipeline':'Tennessee Gas','tennessee gas':'Tennessee Gas',
+'el paso natural gas':'El Paso','el paso':'El Paso',
+'natural gas pipeline of america':'NGPL','natural gas pipeline':'NGPL','ngpl':'NGPL',
+'southern natural gas':'Southern Natural','southern natural':'Southern Natural',
+'colorado interstate gas':'Colorado Interstate','colorado interstate':'Colorado Interstate',
+// Berkshire Hathaway
+'northern natural gas':'NNG','northern natural':'NNG',
+// CenterPoint
+'centerpoint energy':'CenterPoint EGT','enable gas':'CenterPoint EGT',
+// WBI
+'wbi energy':'WBI Energy','wbi energy transmission':'WBI Energy',
+// ONEOK
+'oneok':'ONEOK OkTex','viking gas transmission':'ONEOK OkTex',
+// Other
+'algonquin gas transmission':'Algonquin','algonquin':'Algonquin',
+'east tennessee natural gas':'East Tennessee','east tennessee':'East Tennessee',
+'maritimes & northeast':'Maritimes NE','maritimes':'Maritimes NE',
+'southeast supply header':'Southeast Supply Header',
+'texas eastern transmission':'Texas Eastern','texas eastern':'Texas Eastern',
+'national fuel gas supply':'National Fuel Gas',
+};
+
+function matchEiaPipeline(operatorName){
+if(!operatorName)return null;
+var op=operatorName.toLowerCase().trim();
+// Direct lookup
+if(EIA_PIPE_MAP[op])return EIA_PIPE_MAP[op];
+// Partial match — check if any key is a substring of the operator
+for(var k in EIA_PIPE_MAP){
+if(op.indexOf(k)>=0||k.indexOf(op)>=0)return EIA_PIPE_MAP[k];
+}
+// Try matching against gas_interconnects pipeline names directly
+if(window.gasIxData){
+var pls=window.gasIxData.pipelines||[];
+for(var i=0;i<pls.length;i++){
+var pn=(pls[i].short||pls[i].name||'').toLowerCase();
+if(pn&&(op.indexOf(pn)>=0||pn.indexOf(op.substring(0,10))>=0))return pls[i].short||pls[i].name;
+}
+}
+return null;
+}
+
+function closeGAPanel(){
+document.getElementById('ga-panel').classList.remove('open');
+document.getElementById('ga-shade').classList.remove('open');
+gaIndicators.clearLayers();
+}
+
+function ensureGasData(){
+return new Promise(function(resolve){
+if(window.gasIxData){resolve();return}
+Promise.all([
+fetch('data/gas_interconnects.json').then(function(r){return r.json()}),
+fetch('data/ioc_contracts.json').then(function(r){return r.json()}).catch(function(){return null}),
+fetch('data/unsub_capacity.json').then(function(r){return r.json()}).catch(function(){return null})
+]).then(function(res){
+window.gasIxData=res[0];
+if(!iocData)iocData=res[1];
+if(!window.unsubData)window.unsubData=res[2];
+resolve();
+});
+});
+}
+
+function openGasAssessment(lat,lng,operator,pipeType,status,source,diameter,county,permit){
+map.closePopup();
+var panel=document.getElementById('ga-panel');
+var shade=document.getElementById('ga-shade');
+var body=document.getElementById('ga-body');
+var barSub=document.getElementById('ga-bar-sub');
+
+barSub.textContent=operator;
+body.innerHTML='<div class="pf-loading"><div class="spinner"></div><span>Loading gas assessment\u2026</span></div>';
+panel.classList.add('open');
+shade.classList.add('open');
+
+ensureGasData().then(function(){
+buildGasAssessment(lat,lng,operator,pipeType,status,source,diameter,county,permit);
+});
+}
+
+function buildGasAssessment(lat,lng,operator,pipeType,status,source,diameter,county,permit){
+var body=document.getElementById('ga-body');
+var barSub=document.getElementById('ga-bar-sub');
+
+// Match to gas_interconnects pipeline
+var plKey=source==='cross'?operator:matchEiaPipeline(operator);
+var plData=null;
+if(plKey&&window.gasIxData){
+var pls=window.gasIxData.pipelines||[];
+for(var i=0;i<pls.length;i++){
+if((pls[i].short||pls[i].name)===plKey){plData=pls[i];break}
+}
+}
+
+// Find nearby points on this pipeline (within 25 mi)
+var nearbyPoints=[];
+var allNearby=[];
+if(window.gasIxData){
+(window.gasIxData.pipelines||[]).forEach(function(pl){
+(pl.points||[]).forEach(function(p){
+if(!p.lat||!p.lng)return;
+var d=haversine(lat,lng,p.lat,p.lng);
+if(d<=25){
+var entry={dist:d,point:p,pipeline:pl.short||pl.name,plObj:pl};
+allNearby.push(entry);
+if(plData&&(pl.short||pl.name)===(plData.short||plData.name)){
+nearbyPoints.push(entry);
+}
+}
+});
+});
+}
+nearbyPoints.sort(function(a,b){return a.dist-b.dist});
+allNearby.sort(function(a,b){return a.dist-b.dist});
+
+// Other pipelines nearby (different from the clicked one)
+var otherPipelines={};
+allNearby.forEach(function(n){
+var pk=n.pipeline;
+if(plData&&pk===(plData.short||plData.name))return;
+if(!otherPipelines[pk])otherPipelines[pk]={name:pk,minDist:n.dist,points:[],plObj:n.plObj};
+if(otherPipelines[pk].minDist>n.dist)otherPipelines[pk].minDist=n.dist;
+otherPipelines[pk].points.push(n);
+});
+var otherPipeArr=Object.values(otherPipelines).sort(function(a,b){return a.minDist-b.minDist});
+
+// IOC data for matched pipeline
+var plIoc=plData?getIocForPipeline(plData.short||plData.name):null;
+
+// Unsub data
+var unsubPipe=null;
+if(window.unsubData&&window.unsubData.pipelines&&plData){
+var pn=plData.short||plData.name;
+for(var uk in window.unsubData.pipelines){
+if(pn.toLowerCase().indexOf(uk.toLowerCase().substring(0,8))>=0||uk.toLowerCase().indexOf(pn.toLowerCase().substring(0,8))>=0){
+unsubPipe=window.unsubData.pipelines[uk];break;
+}
+}
+}
+
+// Update header
+barSub.textContent=operator+(plKey?' \u2022 '+plKey:'');
+
+// Draw map indicators
+gaIndicators.clearLayers();
+drawGAIndicators(lat,lng,nearbyPoints,plData);
+
+// Build panel HTML
+var h='';
+
+// === SEGMENT INFO SECTION ===
+h+='<div class="ga-section">';
+h+='<div class="ga-section-title">'+(source==='rrc'?'TX INTRASTATE SEGMENT':'PIPELINE SEGMENT')+'</div>';
+h+='<div class="ga-stat"><span class="ga-stat-label">Operator</span><span class="ga-stat-value">'+operator+'</span></div>';
+if(pipeType)h+='<div class="ga-stat"><span class="ga-stat-label">Type</span><span class="ga-stat-value">'+pipeType+'</span></div>';
+if(status)h+='<div class="ga-stat"><span class="ga-stat-label">Status</span><span class="ga-stat-value">'+status+'</span></div>';
+if(source==='rrc'){
+if(diameter)h+='<div class="ga-stat"><span class="ga-stat-label">Diameter</span><span class="ga-stat-value">'+diameter+'"</span></div>';
+if(county)h+='<div class="ga-stat"><span class="ga-stat-label">County</span><span class="ga-stat-value">'+county+'</span></div>';
+if(permit)h+='<div class="ga-stat"><span class="ga-stat-label">T-4 Permit</span><span class="ga-stat-value">'+permit+'</span></div>';
+}
+if(plKey){
+h+='<div class="ga-stat"><span class="ga-stat-label">Matched Pipeline</span><span class="ga-stat-value" style="color:#00E5FF">'+plKey+'</span></div>';
+if(plData&&plData.updated)h+='<div class="ga-stat"><span class="ga-stat-label">Data Updated</span><span class="ga-stat-value" style="color:rgba(240,237,232,0.4)">'+plData.updated+'</span></div>';
+}else{
+h+='<div style="color:rgba(240,237,232,0.3);font-size:12px;margin-top:6px;font-style:italic">No capacity data available for this operator</div>';
+}
+h+='</div>';
+
+if(!plData){
+// No matching pipeline data — show only nearby pipelines
+if(otherPipeArr.length>0){
+h+=buildNearbyPipelinesSection(otherPipeArr,lat,lng);
+}
+h+='<div style="font-size:10px;color:rgba(240,237,232,0.2);text-align:center;margin-top:12px">Click a gas interconnect dot for full capacity detail</div>';
+body.innerHTML=h;
+return;
+}
+
+// === CAPACITY HERO ===
+if(nearbyPoints.length>0){
+var totalAvail=0,totalDesign=0,totalFirm=0,totalExpiring=0,deliveryCount=0,receiptCount=0;
+nearbyPoints.forEach(function(n){
+var p=n.point;
+totalAvail+=(p.available||0);
+totalDesign+=(p.design||0);
+totalFirm+=(p.firm_contracted||0);
+totalExpiring+=(p.expiring_2yr||0);
+if(p.type==='delivery')deliveryCount++;
+if(p.type==='receipt')receiptCount++;
+});
+var availMw=Math.round(totalAvail/7000);
+var designMw=Math.round(totalDesign/7000);
+var avgUtil=totalDesign>0?Math.round(nearbyPoints.reduce(function(s,n){return s+(n.point.utilization||0)},0)/nearbyPoints.length):0;
+var utilCol=avgUtil<50?'#66BB6A':avgUtil<80?'#FDD835':'#EF5350';
+
+h+='<div class="ga-section">';
+h+='<div class="ga-section-title">CAPACITY NEAR CLICK</div>';
+h+='<div class="ga-hero">';
+h+='<div class="ga-hero-label">Available Capacity ('+nearbyPoints.length+' points within 25 mi)</div>';
+h+='<div class="ga-hero-value" style="color:'+utilCol+'">'+totalAvail.toLocaleString()+' <span style="font-size:14px;font-weight:500">Dth/d</span></div>';
+h+='<div class="ga-hero-sub">\u2248 '+availMw.toLocaleString()+' MW combined-cycle equivalent</div>';
+h+='</div>';
+
+h+='<div class="ga-stat"><span class="ga-stat-label">Design Capacity</span><span class="ga-stat-value">'+totalDesign.toLocaleString()+' Dth/d (\u2248'+designMw.toLocaleString()+' MW)</span></div>';
+h+='<div class="ga-stat"><span class="ga-stat-label">Avg Utilization</span><span class="ga-stat-value" style="color:'+utilCol+'">'+avgUtil+'%</span></div>';
+h+='<div class="ga-bar-chart"><div class="ga-bar-fill" style="width:'+Math.min(avgUtil,100)+'%;background:'+utilCol+'"></div></div>';
+h+='<div class="ga-stat"><span class="ga-stat-label">Delivery Points</span><span class="ga-stat-value">'+deliveryCount+'</span></div>';
+h+='<div class="ga-stat"><span class="ga-stat-label">Receipt Points</span><span class="ga-stat-value">'+receiptCount+'</span></div>';
+if(totalFirm>0){
+var uncontracted=Math.max(0,totalDesign-totalFirm);
+h+='<div class="ga-stat"><span class="ga-stat-label">Firm Contracted</span><span class="ga-stat-value">'+totalFirm.toLocaleString()+' Dth/d</span></div>';
+h+='<div class="ga-stat"><span class="ga-stat-label">Uncontracted</span><span class="ga-stat-value" style="color:'+(uncontracted>0?'#66BB6A':'#EF5350')+'">'+uncontracted.toLocaleString()+' Dth/d</span></div>';
+}
+if(totalExpiring>0){
+var expMw=Math.round(totalExpiring/7000);
+h+='<div class="ga-stat"><span class="ga-stat-label">Expiring by 2028</span><span class="ga-stat-value" style="color:#FDD835">'+totalExpiring.toLocaleString()+' Dth/d (\u2248'+expMw+' MW)</span></div>';
+}
+h+='</div>';
+
+// === DELIVERY POINTS LIST ===
+h+='<div class="ga-section">';
+h+='<div class="ga-section-title">POINTS ON '+plKey.toUpperCase()+' ('+nearbyPoints.length+')</div>';
+nearbyPoints.slice(0,20).forEach(function(n){
+var p=n.point;
+var dotClass=p.type||'other';
+var capCol=gasIxColor(p.type,p.utilization||0);
+var capText=p.design>0?((p.available||0).toLocaleString()+' avail'):'—';
+h+='<div class="ga-point-row" onclick="panToGasPoint('+p.lat+','+p.lng+',\''+((p.name||'').replace(/'/g,"\\'"))+'\')" title="Click to open point popup">';
+h+='<div class="ga-point-dot '+dotClass+'"></div>';
+h+='<div class="ga-point-name">'+(p.name||'Point '+p.id)+'</div>';
+h+='<span class="ga-point-dist">'+n.dist.toFixed(1)+' mi</span>';
+h+='<span class="ga-point-cap" style="color:'+capCol+'">'+capText+'</span>';
+h+='</div>';
+});
+if(nearbyPoints.length>20){
+h+='<div style="font-size:11px;color:rgba(240,237,232,0.3);text-align:center;padding:4px 0">'+(nearbyPoints.length-20)+' more points not shown</div>';
+}
+h+='</div>';
+}else{
+h+='<div class="ga-section">';
+h+='<div class="ga-section-title">CAPACITY</div>';
+h+='<div class="ga-no-data">No geocoded delivery points within 25 miles of click</div>';
+h+='</div>';
+}
+
+// === IOC CONTRACT SUMMARY ===
+if(plIoc){
+h+='<div class="ga-section">';
+h+='<div class="ga-section-title">IOC CONTRACTS \u2014 '+plKey.toUpperCase()+'</div>';
+h+='<div class="ga-stat"><span class="ga-stat-label">Total Contracts</span><span class="ga-stat-value">'+plIoc.total_contracts+'</span></div>';
+if(plIoc.expiring_count>0){
+var expMdq=plIoc.expiring_mdq||0;
+var expMw2=Math.round(expMdq/7000);
+h+='<div class="ga-stat"><span class="ga-stat-label">Expiring 2026\u201327</span><span class="ga-stat-value" style="color:#FDD835">'+plIoc.expiring_count+' contracts</span></div>';
+h+='<div class="ga-stat"><span class="ga-stat-label">Expiring MDQ</span><span class="ga-stat-value" style="color:#FDD835">'+expMdq.toLocaleString()+' Dth/d (\u2248'+expMw2+' MW)</span></div>';
+// Top 3 expiring
+var topExp=(plIoc.contracts||[]).filter(function(c){return c.status==='expiring_soon'}).sort(function(a,b){return(b.mdq||0)-(a.mdq||0)}).slice(0,3);
+if(topExp.length>0){
+h+='<div style="font-size:11px;color:rgba(240,237,232,0.4);margin-top:6px;margin-bottom:3px">Largest expiring:</div>';
+topExp.forEach(function(c){
+h+='<div style="font-size:12px;display:flex;justify-content:space-between;padding:2px 0"><span style="color:rgba(240,237,232,0.6)">'+c.shipper.substring(0,28)+'</span><span style="color:rgba(240,237,232,0.5)">'+(c.mdq||0).toLocaleString()+' \u2022 '+c.end+'</span></div>';
+});
+}
+}else{
+h+='<div style="font-size:12px;color:rgba(240,237,232,0.3)">No near-term expirations</div>';
+}
+h+='</div>';
+}
+
+// === UNSUBSCRIBED CAPACITY ===
+if(unsubPipe&&nearbyPoints.length>0){
+var unsubEntries=[];
+nearbyPoints.forEach(function(n){
+var val=unsubPipe[String(n.point.id)];
+if(val!==undefined&&val>0)unsubEntries.push({name:n.point.name,id:n.point.id,unsub:val,dist:n.dist});
+});
+if(unsubEntries.length>0){
+h+='<div class="ga-section">';
+h+='<div class="ga-section-title">UNSUBSCRIBED CAPACITY</div>';
+unsubEntries.sort(function(a,b){return b.unsub-a.unsub});
+var totalUnsub=unsubEntries.reduce(function(s,e){return s+e.unsub},0);
+var unsubMw=Math.round(totalUnsub/7000);
+h+='<div class="ga-stat"><span class="ga-stat-label">Total Unsubscribed Nearby</span><span class="ga-stat-value" style="color:#66BB6A">'+totalUnsub.toLocaleString()+' Dth/d (\u2248'+unsubMw+' MW)</span></div>';
+unsubEntries.slice(0,5).forEach(function(e){
+h+='<div class="ga-stat"><span class="ga-stat-label" style="font-size:11px">'+e.name.substring(0,30)+' ('+e.dist.toFixed(1)+' mi)</span><span class="ga-stat-value" style="color:#66BB6A">'+e.unsub.toLocaleString()+'</span></div>';
+});
+h+='</div>';
+}
+}
+
+// === NEARBY OTHER PIPELINES ===
+if(otherPipeArr.length>0){
+h+=buildNearbyPipelinesSection(otherPipeArr,lat,lng);
+}
+
+// Disclaimer
+h+='<div style="font-size:10px;color:rgba(240,237,232,0.2);text-align:center;padding:12px 0;border-top:1px solid rgba(240,237,232,0.05);margin-top:12px;line-height:1.5">Source: FERC EBB, EIA, IOC | 7,000 Dth/d \u2248 1 MW CC<br>Click a point row to pan and open its full popup</div>';
+
+body.innerHTML=h;
+}
+
+function buildNearbyPipelinesSection(otherPipeArr,lat,lng){
+var h='<div class="ga-section">';
+h+='<div class="ga-section-title">OTHER PIPELINES NEARBY</div>';
+otherPipeArr.slice(0,8).forEach(function(op){
+var pts=op.points.length;
+var totalAvail=op.points.reduce(function(s,n){return s+(n.point.available||0)},0);
+var availMw=Math.round(totalAvail/7000);
+var availCol=totalAvail>100000?'#66BB6A':totalAvail>10000?'#FDD835':'rgba(240,237,232,0.4)';
+h+='<div class="ga-nearby-pl" onclick="openGasAssessment('+lat+','+lng+',\''+op.name.replace(/'/g,"\\'")+'\',\'\',\'\',\'cross\')">';
+h+='<div><span style="color:#00E5FF;font-weight:600">'+op.name+'</span> <span style="color:rgba(240,237,232,0.3);font-size:11px">'+pts+' pt'+(pts!==1?'s':'')+' \u2022 '+op.minDist.toFixed(1)+' mi</span></div>';
+if(totalAvail>0)h+='<span style="color:'+availCol+';font-size:11px;font-weight:600">\u2248'+availMw+' MW avail</span>';
+h+='</div>';
+});
+h+='</div>';
+return h;
+}
+
+function drawGAIndicators(lat,lng,nearbyPoints,plData){
+gaIndicators.clearLayers();
+
+// Click point marker
+L.circleMarker([lat,lng],{radius:6,fillColor:'#C4854C',fillOpacity:1,color:'#fff',weight:2,pane:'markerPane'}).addTo(gaIndicators);
+
+if(!nearbyPoints||nearbyPoints.length===0)return;
+
+// Draw delivery/receipt points
+nearbyPoints.forEach(function(n){
+var p=n.point;
+var isReceipt=p.type==='receipt';
+var col=isReceipt?'#00E5FF':(p.type==='bidirectional'?'#FDD835':'#66BB6A');
+var opts={radius:5,color:col,weight:2,pane:'markerPane'};
+if(isReceipt){opts.fillColor='transparent';opts.fillOpacity=0}
+else{opts.fillColor=col;opts.fillOpacity=0.85}
+L.circleMarker([p.lat,p.lng],opts).addTo(gaIndicators);
+});
+
+// Dashed line to nearest point
+var nearest=nearbyPoints[0];
+if(nearest){
+var np=nearest.point;
+L.polyline([[lat,lng],[np.lat,np.lng]],{color:'#C4854C',weight:1.5,dashArray:'6 4',opacity:0.7}).addTo(gaIndicators);
+// Distance label at midpoint
+var midLat=(lat+np.lat)/2;
+var midLng=(lng+np.lng)/2;
+L.marker([midLat,midLng],{icon:L.divIcon({className:'',html:'<div style="background:rgba(27,43,58,0.85);color:#C4854C;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;border:1px solid rgba(196,133,76,0.4)">'+nearest.dist.toFixed(1)+' mi</div>',iconSize:[60,18],iconAnchor:[30,9]}),interactive:false}).addTo(gaIndicators);
+}
+}
+
+function panToGasPoint(lat,lng,name){
+map.setView([lat,lng],Math.max(map.getZoom(),12),{animate:true});
+// Find the gas interconnects marker at this location and open its popup
+setTimeout(function(){
+gasIxLayer.eachLayer(function(l){
+if(l.getLatLng){
+var ll=l.getLatLng();
+if(Math.abs(ll.lat-lat)<0.0001&&Math.abs(ll.lng-lng)<0.0001){
+l.openPopup();
+}
+}
+});
+},400);
 }
 </script>
 </body>
