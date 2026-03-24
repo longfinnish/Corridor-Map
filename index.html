@@ -287,16 +287,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 </style>
 </head>
 <body>
-<div id="auth-gate" style="display:none;position:fixed;inset:0;background:#1B2B3A;z-index:9999;align-items:center;justify-content:center;flex-direction:column">
-<div style="text-align:center">
-<div style="font-size:22px;font-weight:700;letter-spacing:5px;color:#F0EDE8;margin-bottom:6px">CO<span style="color:#C4854C">RR</span>IDOR</div>
-<div style="font-size:11px;color:rgba(240,237,232,0.4);letter-spacing:2px;margin-bottom:30px">INFRASTRUCTURE INTELLIGENCE</div>
-<input type="password" id="auth-pw" placeholder="Access code" style="padding:10px 16px;background:#253545;border:1px solid rgba(196,133,76,0.3);border-radius:6px;color:#F0EDE8;font-family:DM Sans,sans-serif;font-size:13px;width:220px;text-align:center;outline:none" onkeydown="if(event.key==='Enter')checkMapAuth()">
-<div style="margin-top:10px"><button onclick="checkMapAuth()" style="background:#C4854C;color:#1B2B3A;border:none;padding:8px 24px;border-radius:6px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer">Enter</button></div>
-<div id="auth-error" style="color:#EF5350;font-size:12px;margin-top:10px;display:none">Invalid access code</div>
-<div style="font-size:9px;color:rgba(240,237,232,0.2);margin-top:24px;letter-spacing:1px">BETA</div>
-</div>
-</div>
 <div id="main-app">
 <div id="beta-badge" style="position:fixed;bottom:8px;left:50%;transform:translateX(calc(-50% + 40px));z-index:1000;background:rgba(196,133,76,0.9);color:#1B2B3A;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;pointer-events:none">BETA</div>
 <div id="layer-panel">
@@ -1741,7 +1731,7 @@ var shade=document.getElementById('intel-shade');
 var frame=document.getElementById('intel-frame');
 var loading=document.getElementById('intel-loading');
 var countyEl=document.getElementById('intel-bar-county');
-var url='https://corridor-intel.pages.dev?key=corr1dor2026';
+var url='https://corridor-intel.pages.dev';
 if(_miCounty&&_miState){
 url+='&state='+_miState+'&county='+encodeURIComponent(_miCounty);
 countyEl.textContent=_miCounty+(_miState==='LA'?' Parish, ':' County, ')+_miState;
@@ -1784,10 +1774,10 @@ var customColorIdx=0;
 // Persist custom layers to KV
 function saveCustomLayers(){
 var data=customLayers.map(function(c){return{id:c.id,name:c.name,color:c.color,visible:c.visible,geojson:c.geojson}});
-fetch('/api/custom-layers?key=corr1dor2026',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({layers:data})});
+fetch('/api/custom-layers',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({layers:data})});
 }
 function loadCustomLayers(){
-fetch('/api/custom-layers?key=corr1dor2026').then(function(r){return r.json()}).then(function(data){
+fetch('/api/custom-layers').then(function(r){return r.json()}).then(function(data){
 if(!data||!data.layers)return;
 data.layers.forEach(function(c){
 restoreCustomLayer(c.id,c.name,c.geojson,c.color,c.visible);
@@ -1939,7 +1929,7 @@ var STAGE_COLORS={identified:'#42A5F5',researching:'#FFB74D',outreach:'#AB47BC',
 var plLoaded=false;
 
 function plAPI(method,body){
-var url='/api/pipeline?key=corr1dor2026';
+var url='/api/pipeline';
 var opts={method:method,headers:{'Content-Type':'application/json'}};
 if(body)opts.body=JSON.stringify(body);
 return fetch(url,opts).then(function(r){return r.json()});
@@ -3876,53 +3866,6 @@ console.log('Corridor Map v4.2.0 loaded');
 </div>
 </div><!-- end main-app -->
 <script>
-async function checkMapAuth(){
-var pw=document.getElementById('auth-pw').value;
-if(!pw)return;
-try{
-var resp=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-var data=await resp.json();
-if(data.valid){
-sessionStorage.setItem('corridor_auth_token',data.token);
-document.getElementById('auth-gate').style.display='none';
-document.getElementById('main-app').style.display='block';
-}else{
-document.getElementById('auth-error').style.display='block';
-document.getElementById('auth-pw').value='';
-}
-}catch(e){
-document.getElementById('auth-error').style.display='block';
-document.getElementById('auth-pw').value='';
-}
-}
-async function checkKeyParam(key){
-try{
-var resp=await fetch('/api/auth?key='+encodeURIComponent(key));
-var data=await resp.json();
-if(data.valid){
-sessionStorage.setItem('corridor_auth_token',data.token);
-return true;
-}
-}catch(e){}
-return false;
-}
-(async function(){
-var token=sessionStorage.getItem('corridor_auth_token');
-var _p=new URLSearchParams(window.location.search);
-var keyParam=_p.get('key');
-if(token){
-document.getElementById('auth-gate').style.display='none';
-document.getElementById('main-app').style.display='block';
-}else if(keyParam){
-var ok=await checkKeyParam(keyParam);
-if(ok){document.getElementById('auth-gate').style.display='none';document.getElementById('main-app').style.display='block'}
-else{document.getElementById('auth-gate').style.display='flex';document.getElementById('main-app').style.display='none'}
-}else{
-document.getElementById('auth-gate').style.display='flex';
-document.getElementById('main-app').style.display='none';
-}
-})();
-
 // ============================================================
 // SITE SEARCH — Draw + Regrid API + Infrastructure Scoring
 // ============================================================
@@ -4433,7 +4376,7 @@ var EIA_PIPE_MAP={
 'northwest pipeline':'Northwest','northwest pipeline llc':'Northwest',
 'gulfstream natural gas':'Gulfstream ENB',
 // TC Energy
-'anr pipeline':'ANR Pipeline','anr pipeline company':'ANR Pipeline',
+'anr pipeline':'ANR','anr pipeline company':'ANR',
 'columbia gas transmission':'Columbia Gas','columbia gas':'Columbia Gas',
 'columbia gulf':'Columbia Gulf','columbia gulf transmission':'Columbia Gulf',
 'great lakes gas transmission':'Great Lakes','great lakes':'Great Lakes',
@@ -4448,7 +4391,7 @@ var EIA_PIPE_MAP={
 'southern natural gas':'Southern Natural','southern natural':'Southern Natural',
 'colorado interstate gas':'Colorado Interstate','colorado interstate':'Colorado Interstate',
 // Berkshire Hathaway
-'northern natural gas':'NNG','northern natural':'NNG',
+'northern natural gas':'Northern Natural','northern natural':'Northern Natural',
 // CenterPoint
 'centerpoint energy':'CenterPoint EGT','enable gas':'CenterPoint EGT',
 // WBI
@@ -4461,7 +4404,60 @@ var EIA_PIPE_MAP={
 'maritimes & northeast':'Maritimes NE','maritimes':'Maritimes NE',
 'southeast supply header':'Southeast Supply Header',
 'texas eastern transmission':'Texas Eastern','texas eastern':'Texas Eastern',
-'national fuel gas supply':'National Fuel Gas',
+'national fuel gas supply':'National Fuel Gas','national fuel gas':'National Fuel Gas',
+// KM additions
+'wyoming interstate':'WIC','wyoming interstate pipeline':'WIC',
+'transcolorado':'TransColorado','transcolorado gas':'TransColorado',
+'cheyenne plains':'Cheyenne Plains','cheyenne plains gas':'Cheyenne Plains',
+'mojave pipeline':'Mojave','mojave':'Mojave',
+'sierrita gas pipeline':'Sierrita','sierrita':'Sierrita',
+'elba express':'Elba Express','elba express company':'Elba Express',
+'stagecoach pipeline':'Stagecoach','stagecoach':'Stagecoach',
+'kinder morgan louisiana':'KM Louisiana',
+'km illinois':'KM Illinois','kinder morgan illinois':'KM Illinois',
+'kinder morgan texas':'KM Texas',
+'kinder morgan tejas':'KM Tejas',
+'kinder morgan north texas':'KM North Texas',
+'gulf coast express':'GCX','gulf coast express pipeline':'GCX',
+'permian highway':'PHP','permian highway pipeline':'PHP',
+'kinder morgan border':'KM Border',
+'net mexico':'NET Mexico','net mexico pipeline':'NET Mexico',
+'eagle ford midstream':'Eagle Ford',
+'arlington storage':'Arlington Storage',
+'young gas storage':'Young Gas Storage',
+'twin tier':'Twin Tier','twin tier pipeline':'Twin Tier',
+// ET additions
+'transwestern pipeline':'Transwestern','transwestern':'Transwestern',
+'tiger pipeline':'Tiger',
+'sea robin pipeline':'Sea Robin','sea robin':'Sea Robin',
+'enable mississippi':'Enable MRT','enable mrt':'Enable MRT',
+// TC Energy additional
+'millennium pipeline':'Millennium','millennium':'Millennium',
+'bison pipeline':'Bison','bison':'Bison',
+'crossroads pipeline':'Crossroads','crossroads':'Crossroads',
+'hardy storage':'Hardy Storage',
+'tc louisiana':'TC Louisiana',
+// Gasquest
+'gulf south pipeline':'Gulf South','gulf south':'Gulf South',
+'texas gas transmission':'Texas Gas','texas gas':'Texas Gas',
+// Williams MountainWest
+'mountainwest pipeline':'MountainWest','mountainwest':'MountainWest','questar':'MountainWest',
+'mountainwest overthrust':'MountainWest Overthrust','overthrust':'MountainWest Overthrust',
+// BBT/Quorum
+'alatenn':'AlaTenn','american midstream alatenn':'AlaTenn',
+'midla pipeline':'Midla','american midstream midla':'Midla',
+'trans-union':'Trans-Union','trans-union interstate':'Trans-Union',
+'ozark gas transmission':'Ozark Gas','ozark gas':'Ozark Gas',
+// EQT
+'equitrans':'Equitrans',
+'mountain valley pipeline':'Mountain Valley','mountain valley':'Mountain Valley',
+// Tallgrass
+'rockies express':'REX','rockies express pipeline':'REX','rex pipeline':'REX',
+'tallgrass interstate':'TIGT','tallgrass interstate gas':'TIGT',
+'cheyenne connector':'Cheyenne Connector',
+'trailblazer pipeline':'Trailblazer','trailblazer':'Trailblazer',
+// Southern Star
+'southern star':'Southern Star','southern star central':'Southern Star',
 };
 
 function matchEiaPipeline(operatorName){

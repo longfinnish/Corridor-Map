@@ -17,14 +17,6 @@ export async function onRequest(context) {
     });
   }
 
-  const url = new URL(context.request.url);
-  const key = url.searchParams.get('key');
-  if (key !== context.env.AUTH_PASSWORD) {
-    return new Response(JSON.stringify({error: 'unauthorized'}), {
-      status: 401, headers: {'Content-Type': 'application/json', ...corsHeaders}
-    });
-  }
-
   try {
     if (context.request.method === 'GET') {
       const data = await KV.get('custom_layers', 'json');

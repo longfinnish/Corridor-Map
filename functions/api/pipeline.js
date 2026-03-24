@@ -20,15 +20,6 @@ export async function onRequest(context) {
     });
   }
 
-  // Simple auth check
-  const url = new URL(context.request.url);
-  const key = url.searchParams.get('key');
-  if (key !== context.env.AUTH_PASSWORD) {
-    return new Response(JSON.stringify({error: 'unauthorized'}), {
-      status: 401, headers: {'Content-Type': 'application/json', ...corsHeaders}
-    });
-  }
-
   try {
     // GET — return full pipeline
     if (context.request.method === 'GET') {
