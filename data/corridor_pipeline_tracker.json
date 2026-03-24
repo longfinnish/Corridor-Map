@@ -1059,21 +1059,37 @@
       "regulation": "interstate",
       "hifld_points": 47,
       "ioc": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "custom",
-        "url": "https://informationalpostings.natfuel.com/supply/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "nfg_peoplesoft",
+        "url": "https://sbsprd2.natfuel.com/psc/sbsprd/NFSBS/SBSPRD/c/NFOM_INFORMATIONAL_POSTINGS.NFOC_IOC_INTRO.GBL",
+        "last_refreshed": "2026-03-24",
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true,
+        "contract_count": 118,
+        "shipper_count": 60
       },
       "unsub": {
-        "status": "exists_not_captured",
-        "access_method": "browser_export",
-        "platform": "custom",
-        "url": "https://informationalpostings.natfuel.com/supply/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": null
-      }
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "nfg_peoplesoft",
+        "url": "https://sbsprd2.natfuel.com/psc/sbsprd/NFSBS/SBSPRD/c/NFOM_INFORMATIONAL_POSTINGS.NFOC_UNSUBSCRIBED.GBL",
+        "last_refreshed": "2026-03-24",
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "nfg_peoplesoft",
+        "last_refreshed": "2026-03-24",
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true,
+        "cracked_points": 1059,
+        "geocoded_points": 949,
+        "geocode_method": "county_centroid"
+      },
+      "notes": "PeopleSoft portal. 118 IOC, 1059 locations, 80 unsub pts."
     },
     {
       "pipeline_name": "Iroquois Gas Transmission",
