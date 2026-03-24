@@ -1,10 +1,10 @@
 """
 TC Energy eConnects Infopost Data Fetcher
-11 pipelines at ebb.tceconnects.com/infopost/ — all public, no login needed.
+12 pipelines at ebb.tceconnects.com/infopost/ — all public, no login needed.
 
 Locations: SSRS ReportViewer CSV (direct download, 30-60s for large pipelines)
 IOC: S3-backed document store, TAB files in FERC H/D/A/P format
-OAC/Unsub: NOT available (behind eConnects Angular app login)
+OAC/Unsub: handled by companion script fetch_tce_oac_unsub.py
 
 Runs weekly via GitHub Actions (tce-refresh.yml).
 """
@@ -37,6 +37,7 @@ PIPELINES = [
     {'name': 'Columbia Gas Transmission', 'asset_id': 51, 'folder': 'tco', 'short': 'Columbia Gas', 'tracker_name': 'Columbia Gas Transmission', 'hifld_company': 'COLUMBIA GAS TRANSMISSION, LLC'},
     {'name': 'Columbia Gulf Transmission', 'asset_id': 14, 'folder': 'cgt', 'short': 'Columbia Gulf', 'tracker_name': 'Columbia Gulf Transmission', 'hifld_company': 'COLUMBIA GULF TRANSMISSION, LLC'},
     {'name': 'Crossroads Pipeline', 'asset_id': 44, 'folder': 'xrd', 'short': 'Crossroads', 'tracker_name': 'Crossroads Pipeline', 'hifld_company': 'CROSSROADS PIPELINE COMPANY'},
+    {'name': 'Eaton Rapids Gas Storage System', 'asset_id': 3012, 'folder': 'ergss', 'short': 'ERGSS', 'tracker_name': 'Eaton Rapids Gas Storage System', 'hifld_company': 'EATON RAPIDS GAS STORAGE SYSTEM'},
     {'name': 'Hardy Storage', 'asset_id': 465, 'folder': 'hrd', 'short': 'Hardy Storage', 'tracker_name': 'Hardy Storage', 'hifld_company': 'HARDY STORAGE COMPANY, LLC'},
     {'name': 'Millennium Pipeline', 'asset_id': 26, 'folder': 'mpl', 'short': 'Millennium', 'tracker_name': 'Millennium Pipeline', 'hifld_company': 'MILLENNIUM PIPELINE COMPANY, L.L.C.'},
     {'name': 'Northern Border Pipeline', 'asset_id': 3029, 'folder': 'nbpl', 'short': 'Northern Border', 'tracker_name': 'Northern Border Pipeline', 'hifld_company': 'NORTHERN BORDER PIPELINE COMPANY'},
@@ -530,14 +531,15 @@ def update_tracker(results):
                 'notes': 'IOC folder exists but TAB file empty or download failed',
             }
 
-        # Unsub — behind login
-        entry['unsub'] = {
-            'status': 'exists_not_captured',
-            'access_method': 'login_required',
-            'platform': 'tce_econnects_app',
-            'url': 'https://ebb.tceconnects.com/app/',
-            'notes': 'Behind TC eConnects Angular app login',
-        }
+        # Unsub — only set if not already captured (fetch_tce_oac_unsub.py handles this)
+        if entry.get('unsub', {}).get('status') != 'captured':
+            entry['unsub'] = {
+                'status': 'exists_not_captured',
+                'access_method': 'weekly_auto',
+                'platform': 'tc_energy_ssrs',
+                'url': 'https://ebb.tceconnects.com/infopost/',
+                'notes': 'Handled by fetch_tce_oac_unsub.py',
+            }
 
         # Locations
         if r['loc_data']:

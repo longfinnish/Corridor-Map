@@ -23,11 +23,14 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Fetch TC Energy pipeline data
+      - name: Fetch TC Energy IOC + Locations
         run: python scripts/fetch_tce_data.py
+
+      - name: Fetch TC Energy OAC + Unsub
+        run: python scripts/fetch_tce_oac_unsub.py
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "TC Energy refresh ${{ github.event.schedule && '(auto)' || '(manual)' }}"
-          file_pattern: 'data/gas_interconnects.json data/corridor_pipeline_tracker.json data/gas_county_coords.json'
+          file_pattern: 'data/gas_interconnects.json data/corridor_pipeline_tracker.json data/gas_county_coords.json data/gas_interconnects/*'
