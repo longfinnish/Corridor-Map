@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "Corridor Gas Pipeline Data Tracker — operational scoreboard",
+    "description": "Corridor Gas Pipeline Data Tracker \u2014 operational scoreboard",
     "version": "1.0.0",
     "created": "2026-03-20",
     "last_audit": "2026-03-20",
@@ -436,7 +436,7 @@
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 601,
@@ -446,8 +446,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=3005",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -482,7 +482,7 @@
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 490,
@@ -492,8 +492,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=51",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -528,7 +528,7 @@
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 82,
@@ -538,8 +538,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=14",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -574,7 +574,7 @@
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 197,
@@ -584,8 +584,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=3029",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -955,7 +955,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "Agent confirmed: ET iPost. May overlap with existing Enable MRT entry — verify."
+      "notes": "Agent confirmed: ET iPost. May overlap with existing Enable MRT entry \u2014 verify."
     },
     {
       "pipeline_name": "Great Lakes Gas Transmission",
@@ -1025,7 +1025,7 @@
         "last_refreshed": null,
         "refresh_frequency_days": null
       },
-      "notes": "BHE GT&S portal — same as Dominion/EGTS."
+      "notes": "BHE GT&S portal \u2014 same as Dominion/EGTS."
     },
     {
       "pipeline_name": "TransColorado",
@@ -1240,7 +1240,7 @@
         "url": "https://dtmidstream.trellisenergy.com/ptms/public/infopost/viewInfoPostingReportTable.do?reportType=16&globalTSP=9",
         "last_refreshed": null,
         "refresh_frequency_days": null,
-        "notes": "No login required. Data visible in browser. API needs JS session state — server returns 400/500 from curl. Needs Puppeteer/Playwright."
+        "notes": "No login required. Data visible in browser. API needs JS session state \u2014 server returns 400/500 from curl. Needs Puppeteer/Playwright."
       },
       "unsub": {
         "status": "exists_not_captured",
@@ -1390,7 +1390,7 @@
         "cloud_accessible": true,
         "point_count": 90
       },
-      "notes": "Complex ownership: Questar → Dominion → Southwest Gas → Williams. Now MountainWest Pipeline."
+      "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
     },
     {
       "pipeline_name": "MountainWest Overthrust Pipeline",
@@ -1915,7 +1915,7 @@
         "geocoded_points": 69,
         "geocode_method": "county_centroid"
       },
-      "notes": "~850 miles WY to CO. 34 pipeline interconnects, 21 gas plants, 6 pooling points, 4 storage. Major Cheyenne Hub feeder. KM portal code=WIC. 9.4M Dth/d total contracted — heavily utilized."
+      "notes": "~850 miles WY to CO. 34 pipeline interconnects, 21 gas plants, 6 pooling points, 4 storage. Major Cheyenne Hub feeder. KM portal code=WIC. 9.4M Dth/d total contracted \u2014 heavily utilized."
     },
     {
       "pipeline_name": "Cheyenne Plains Gas Pipeline",
@@ -2652,8 +2652,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=3009",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -2694,8 +2694,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=3031",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -2736,8 +2736,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=3014",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -2771,7 +2771,7 @@
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 6,
@@ -2781,8 +2781,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=44",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -2813,20 +2813,19 @@
       "regulation": "interstate",
       "hifld_points": 0,
       "ioc": {
-        "status": "captured",
+        "status": "attempted",
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "notes": "IOC folder exists but TAB file empty or download failed"
       },
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=3012",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -2843,8 +2842,9 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
-        "last_refreshed": null,
-        "refresh_frequency_days": 7,
+        "cracked_points": 7,
+        "geocoded_points": 7,
+        "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
       "notes": "Asset 3012, folder ergss. SSRS OAC/Unsub + IOC TAB + Locations CSV."
@@ -2866,8 +2866,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=465",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -2901,7 +2901,7 @@
         "access_method": "weekly_auto",
         "platform": "tce_infopost",
         "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 53,
@@ -2911,8 +2911,8 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=26",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -2957,13 +2957,13 @@
         "geocode_method": "county_centroid",
         "cloud_accessible": true
       },
-      "notes": "Asset 3119, folder tcli. Intrastate — Locations CSV only, no IOC available.",
+      "notes": "Asset 3119, folder tcli. Intrastate \u2014 Locations CSV only, no IOC available.",
       "unsub": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "tc_energy_ssrs",
-        "url": "https://ebb.tceconnects.com/infopost/",
-        "last_refreshed": null,
+        "url": "https://ebb.tceconnects.com/infopost/ReportViewer.aspx?/InfoPost/UnsubscribedCapacity&AssetNbr=3119",
+        "last_refreshed": "2026-03-24",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
