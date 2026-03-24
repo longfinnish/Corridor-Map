@@ -32,6 +32,9 @@ jobs:
         continue-on-error: true
         run: python scripts/fetch_ioc_data.py
 
+      - name: Pull latest before commit
+        run: git pull --rebase origin main
+
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
