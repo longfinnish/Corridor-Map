@@ -3,16 +3,28 @@ Gas Interconnect Data Fetcher
 Pulls EBB capacity and IOC contract data from pipeline operator portals.
 Runs daily via GitHub Actions to build 30-day rolling averages.
 
-Platforms:
-  - Kinder Morgan pipeline2 (El Paso, Tennessee Gas, NGPL, MEP, Southern Natural)
+Daily-fetched platforms:
+  - Kinder Morgan pipeline2 (26 pipelines — El Paso, TGP, NGPL, CIG, WIC, etc.)
   - Williams 1line (Transco)
   - Enbridge rtba (Texas Eastern, Algonquin, Maritimes NE, East Tennessee)
-  - Enbridge IOC CSV (Texas Eastern, Algonquin, East Tennessee, Maritimes NE)
+  - Enbridge IOC CSV (12 IOC-only pipelines)
   - Northwest Pipeline (Williams) — IOC via Excel, OAC via HTML parse
-  - Energy Transfer CSV (CenterPoint/EGT) — OAC via direct CSV download
+  - Energy Transfer iPost (Panhandle Eastern, Trunkline, Rover, Transwestern, Tiger, Sea Robin, Enable MRT)
+  - CenterPoint/EGT — OAC via direct CSV download
   - TC Plus tcplus.com (Great Lakes, GTN, Tuscarora, North Baja) — IOC + Unsub
   - WBI Energy Transmission (ASP.NET ViewState POST) — IOC + OAC + Unsub
   - ONEOK API (OkTex Pipeline) — IOC + OAC + Unsub via REST JSON
+
+Cross-script merge (weekly scripts, carried forward between daily runs):
+  - TC Energy (12 pipelines via fetch_tce_data.py)
+  - Gasquest (Gulf South, Texas Gas via fetch_gasquest_data.py)
+  - Williams MountainWest (MWP, Overthrust via fetch_williams_data.py)
+  - BBT/Quorum (AlaTenn, Midla, Trans-Union, Ozark Gas via fetch_bbt_data.py)
+  - Northern Natural Gas (fetch_nng_data.py)
+  - EQT (Equitrans, Mountain Valley via fetch_eqt_data.py)
+  - National Fuel Gas (fetch_nfg_data.py)
+  - Tallgrass (REX, TIGT, Cheyenne Connector, East Cheyenne, Trailblazer)
+  - Southern Star
 """
 
 import requests
@@ -43,6 +55,7 @@ TODAY_MMDDYYYY = datetime.now().strftime('%m/%d/%Y')
 # ============================================================
 
 KM_PIPELINES = [
+    # Original 7
     {'code': 'EPNG', 'name': 'El Paso Natural Gas Company', 'short': 'El Paso'},
     {'code': 'TGP', 'name': 'Tennessee Gas Pipeline Company', 'short': 'Tennessee Gas'},
     {'code': 'NGPL', 'name': 'Natural Gas Pipeline Company of America', 'short': 'NGPL'},
@@ -50,6 +63,28 @@ KM_PIPELINES = [
     {'code': 'SNG', 'name': 'Southern Natural Gas Company, LLC', 'short': 'Southern Natural'},
     {'code': 'FGT', 'name': 'Florida Gas Transmission Company, LLC', 'short': 'Florida Gas'},
     {'code': 'CIG', 'name': 'Colorado Interstate Gas Company, LLC', 'short': 'Colorado Interstate'},
+    # Interstate additions (11)
+    {'code': 'KMLP', 'name': 'Kinder Morgan Louisiana Pipeline', 'short': 'KM Louisiana'},
+    {'code': 'KMIL', 'name': 'KM Illinois Pipeline', 'short': 'KM Illinois'},
+    {'code': 'WIC', 'name': 'Wyoming Interstate Pipeline', 'short': 'WIC'},
+    {'code': 'TCP', 'name': 'TransColorado Gas Transmission', 'short': 'TransColorado'},
+    {'code': 'CP', 'name': 'Cheyenne Plains Gas Pipeline', 'short': 'Cheyenne Plains'},
+    {'code': 'MOPC', 'name': 'Mojave Pipeline', 'short': 'Mojave'},
+    {'code': 'SGP', 'name': 'Sierrita Gas Pipeline', 'short': 'Sierrita'},
+    {'code': 'EEC', 'name': 'Elba Express Company', 'short': 'Elba Express'},
+    {'code': 'STAG', 'name': 'Stagecoach Pipeline & Storage', 'short': 'Stagecoach'},
+    {'code': 'ARLS', 'name': 'Arlington Storage Company', 'short': 'Arlington Storage'},
+    {'code': 'YGS', 'name': 'Young Gas Storage', 'short': 'Young Gas Storage'},
+    {'code': 'TTP', 'name': 'Twin Tier Pipeline', 'short': 'Twin Tier'},
+    # Intrastate additions (8)
+    {'code': 'KMTP', 'name': 'Kinder Morgan Texas Pipeline', 'short': 'KM Texas'},
+    {'code': 'KMTJ', 'name': 'Kinder Morgan Tejas Pipeline', 'short': 'KM Tejas'},
+    {'code': 'KMNT', 'name': 'Kinder Morgan North Texas Pipeline', 'short': 'KM North Texas'},
+    {'code': 'GCX', 'name': 'Gulf Coast Express Pipeline', 'short': 'GCX'},
+    {'code': 'PHP', 'name': 'Permian Highway Pipeline', 'short': 'PHP'},
+    {'code': 'KMBP', 'name': 'Kinder Morgan Border Pipeline', 'short': 'KM Border'},
+    {'code': 'NETM', 'name': 'NET Mexico Pipeline', 'short': 'NET Mexico'},
+    {'code': 'KMEF', 'name': 'Eagle Ford Midstream', 'short': 'Eagle Ford'},
 ]
 
 def fetch_km_capacity(code):
@@ -429,6 +464,10 @@ ET_PIPELINES = [
     {'base': 'peplmessenger', 'asset': 'PEPL', 'name': 'Panhandle Eastern Pipe Line Company', 'short': 'Panhandle Eastern'},
     {'base': 'tgcmessenger', 'asset': 'TGC', 'name': 'Trunkline Gas Company, LLC', 'short': 'Trunkline'},
     {'base': 'rovermessenger', 'asset': 'ROVER', 'name': 'Rover Pipeline LLC', 'short': 'Rover'},
+    {'base': 'twtransfer', 'asset': 'TW', 'name': 'Transwestern Pipeline Company, LLC', 'short': 'Transwestern'},
+    {'base': 'pipelines', 'asset': 'TGR', 'name': 'Tiger Pipeline, LLC', 'short': 'Tiger'},
+    {'base': 'spcmessenger', 'asset': 'SPC', 'name': 'Sea Robin Pipeline Company', 'short': 'Sea Robin'},
+    {'base': 'pipelines', 'asset': 'MRT', 'name': 'Enable Mississippi River Transmission, LLC', 'short': 'Enable MRT'},
 ]
 
 def fetch_et_capacity(base_domain, asset):
@@ -1081,7 +1120,7 @@ def fetch_oneok_locations(pipeline):
 # ============================================================
 
 TC_PIPELINES = [
-    {'asset': 3005, 'report': 'OperationallyAvailableCapacityANR', 'name': 'ANR Pipeline Company', 'short': 'ANR Pipeline'},
+    {'asset': 3005, 'report': 'OperationallyAvailableCapacityANR', 'name': 'ANR Pipeline Company', 'short': 'ANR'},
     {'asset': 51, 'report': 'OperationallyAvailableCapacity', 'name': 'Columbia Gas Transmission, LLC', 'short': 'Columbia Gas'},
     {'asset': 14, 'report': 'OperationallyAvailableCapacity', 'name': 'Columbia Gulf Transmission, LLC', 'short': 'Columbia Gulf'},
     {'asset': 3029, 'report': 'OperationallyAvailableCapacity', 'name': 'Northern Border Pipeline Company', 'short': 'Northern Border'},
@@ -1993,6 +2032,26 @@ def fetch_all_capacity():
             print(f"  ERROR {pl['short']}: {e}")
         time.sleep(2)
 
+    # ── Cross-script merge ──────────────────────────────────────
+    # Weekly scripts (TCE, Gasquest, Williams, BBT, NNG, EQT, NFG)
+    # write their own pipelines to gas_interconnects.json on their
+    # schedule. Preserve those entries between daily runs so they
+    # stay in the output until the next weekly refresh.
+    fetched_shorts = {p['short'] for p in pipelines}
+    if os.path.exists(OUTPUT_FILE):
+        try:
+            with open(OUTPUT_FILE) as f:
+                prev = json.load(f)
+            carried = 0
+            for pl in prev.get('pipelines', []):
+                if pl.get('short') not in fetched_shorts:
+                    pipelines.append(pl)
+                    carried += 1
+            if carried:
+                print(f"\nCarried forward {carried} pipelines from weekly scripts")
+        except Exception as e:
+            print(f"\nCould not read previous output for merge: {e}")
+
     return pipelines
 
 
@@ -2410,6 +2469,58 @@ TRACKER_NAME_MAP = {
     'Nautilus Pipeline': 'Nautilus Pipeline',
     # ET iPost CSV
     'Lake Charles LNG': 'Lake Charles LNG',
+    # KM additions (20)
+    'KM Louisiana': 'Kinder Morgan Louisiana Pipeline',
+    'KM Illinois': 'KM Illinois Pipeline',
+    'WIC': 'Wyoming Interstate',
+    'TransColorado': 'TransColorado',
+    'Cheyenne Plains': 'Cheyenne Plains',
+    'Mojave': 'Mojave Pipeline',
+    'Sierrita': 'Sierrita Gas Pipeline',
+    'Elba Express': 'Elba Express',
+    'Stagecoach': 'Stagecoach Pipeline & Storage',
+    'Arlington Storage': 'Arlington Storage',
+    'Young Gas Storage': 'Young Gas Storage',
+    'Twin Tier': 'Twin Tier Pipeline',
+    'KM Texas': 'Kinder Morgan Texas Pipeline',
+    'KM Tejas': 'Kinder Morgan Tejas Pipeline',
+    'KM North Texas': 'Kinder Morgan North Texas Pipeline',
+    'GCX': 'Gulf Coast Express Pipeline (GCX)',
+    'PHP': 'Permian Highway Pipeline (PHP)',
+    'KM Border': 'Kinder Morgan Border Pipeline',
+    'NET Mexico': 'NET Mexico Pipeline',
+    'Eagle Ford': 'Eagle Ford Midstream',
+    # Cross-script weekly pipelines
+    'ANR': 'ANR Pipeline',
+    'ANR Storage': 'ANR Storage',
+    'Bison': 'Bison Pipeline',
+    'Blue Lake': 'Blue Lake Gas Storage',
+    'Columbia Gas': 'Columbia Gas Transmission',
+    'Columbia Gulf': 'Columbia Gulf Transmission',
+    'Crossroads': 'Crossroads Pipeline',
+    'ERGSS': 'Eaton Rapids Gas Storage System',
+    'Hardy Storage': 'Hardy Storage',
+    'Millennium': 'Millennium Pipeline',
+    'Northern Border': 'Northern Border Pipeline',
+    'TC Louisiana': 'TC Louisiana Intrastate',
+    'Gulf South': 'Gulf South',
+    'Texas Gas': 'Texas Gas Transmission',
+    'MountainWest': 'Questar/MountainWest Pipeline',
+    'MountainWest Overthrust': 'MountainWest Overthrust Pipeline',
+    'Gulfstream': 'Gulfstream Natural Gas',
+    'Northern Natural': 'Northern Natural Gas (NNG)',
+    'AlaTenn': 'American Midstream (AlaTenn)',
+    'Midla': 'American Midstream (Midla)',
+    'Trans-Union': 'Trans-Union Interstate Pipeline',
+    'Ozark Gas': 'Ozark Gas Transmission',
+    'Equitrans': 'Equitrans',
+    'Mountain Valley': 'Mountain Valley Pipeline',
+    'National Fuel Gas': 'National Fuel Gas Supply',
+    'REX': 'Rockies Express Pipeline (REX)',
+    'TIGT': 'Tallgrass Interstate Gas Transmission',
+    'Cheyenne Connector': 'Cheyenne Connector',
+    'East Cheyenne': 'East Cheyenne Gas Storage',
+    'Trailblazer': 'Trailblazer Pipeline',
 }
 
 
