@@ -2796,6 +2796,48 @@
         "url": "https://ebb.tceconnects.com/app/",
         "notes": "Behind TC eConnects Angular app login"
       }
+    },
+    {
+      "pipeline_name": "National Fuel Gas Supply",
+      "hifld_company": "NATIONAL FUEL GAS SUPPLY CORPORATION",
+      "operator": "National Fuel Gas",
+      "regulation": "interstate",
+      "hifld_points": 47,
+      "ioc": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "nfg_peoplesoft",
+        "url": "https://sbsprd2.natfuel.com/psc/sbsprd/NFSBS/SBSPRD/c/NFOM_INFORMATIONAL_POSTINGS.NFOC_IOC_INTRO.GBL",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "unsub": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "nfg_peoplesoft",
+        "url": "https://sbsprd2.natfuel.com/psc/sbsprd/NFSBS/SBSPRD/c/NFOM_INFORMATIONAL_POSTINGS.NFOC_UNSUBSCRIBED.GBL",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "capacity": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "nfg_peoplesoft",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "locations": {
+        "status": "captured",
+        "access_method": "weekly_auto",
+        "platform": "nfg_peoplesoft",
+        "last_refreshed": null,
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true
+      },
+      "notes": "PeopleSoft portal. 166 IOC contracts, 1060 locations. IOC TSV, Locations CSV, Unsub HTML, OAC CSV."
     }
   ],
   "staleness_rules": {
@@ -2812,12 +2854,12 @@
     }
   },
   "_summary": {
-    "total_pipelines": 86,
-    "total_hifld_points_covered": 9722,
-    "ioc_captured": 36,
+    "total_pipelines": 87,
+    "total_hifld_points_covered": 9769,
+    "ioc_captured": 37,
     "ioc_exists_not_captured": 16,
     "ioc_unknown": 3,
-    "unsub_captured": 13,
+    "unsub_captured": 14,
     "login_required_portals": 8,
     "platforms": {
       "et_ipost": 11,
@@ -2829,6 +2871,7 @@
       "gasquest": 2,
       "dt_midstream_trellis": 3,
       "bhe_gts": 2,
+      "nfg_peoplesoft": 1,
       "other": 14
     }
   }
