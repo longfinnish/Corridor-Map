@@ -32,11 +32,12 @@ jobs:
         continue-on-error: true
         run: python scripts/fetch_ioc_data.py
 
-      - name: Pull latest before commit
-        run: git pull --rebase origin main
-
-      - name: Commit and push
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Daily refresh ${{ github.event.schedule && '(auto)' || '(manual)' }}"
-          file_pattern: 'data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ioc_contracts.json data/corridor_pipeline_tracker.json'
+      - name: Commit and push data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ioc_contracts.json data/corridor_pipeline_tracker.json
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Daily gas refresh (auto)"
+          git pull --rebase origin main
+          git push origin main
