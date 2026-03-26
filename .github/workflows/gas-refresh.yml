@@ -36,7 +36,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/gas_interconnects.json data/gas_history.json data/gas_county_coords.json data/gas_hifld_points.json data/ioc_contracts.json data/corridor_pipeline_tracker.json
+          git add -A data/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "Daily gas refresh (auto)"
           git pull --rebase origin main
