@@ -730,7 +730,7 @@
         "access_method": "weekly_auto",
         "platform": "gasquest_rest_api",
         "url": "https://www.gasquest.com/informational-posting",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 0,
