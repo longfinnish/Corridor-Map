@@ -772,11 +772,11 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=16",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "contract_count": 0,
-        "shipper_count": 0
+        "contract_count": 8,
+        "shipper_count": 8
       },
       "unsub": {
         "status": "attempted",
@@ -1484,11 +1484,11 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=6",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "contract_count": 0,
-        "shipper_count": 0
+        "contract_count": 5,
+        "shipper_count": 4
       },
       "unsub": {
         "status": "attempted",
@@ -1574,11 +1574,11 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=3",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "contract_count": 0,
-        "shipper_count": 0
+        "contract_count": 24,
+        "shipper_count": 22
       },
       "unsub": {
         "status": "attempted",
@@ -1616,11 +1616,11 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/IndexOfCust?tspno=12",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "contract_count": 0,
-        "shipper_count": 0
+        "contract_count": 4,
+        "shipper_count": 4
       },
       "unsub": {
         "status": "attempted",
