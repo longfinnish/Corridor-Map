@@ -793,9 +793,10 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=16",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 58
       },
       "locations": {
         "status": "captured",
@@ -1509,9 +1510,10 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=6",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 16
       },
       "locations": {
         "status": "captured",
@@ -1603,9 +1605,10 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=3",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 64
       },
       "locations": {
         "status": "captured",
@@ -1649,9 +1652,10 @@
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
         "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/OpAvailPosting?tspno=12",
-        "last_refreshed": null,
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
-        "cloud_accessible": true
+        "cloud_accessible": true,
+        "point_count": 6
       },
       "locations": {
         "status": "captured",
