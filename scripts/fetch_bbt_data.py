@@ -8,7 +8,8 @@ BBT/Quorum Pipeline Data Fetcher
 - Ozark Gas Transmission (tspno=16)
 
 Locations: direct CSV download
-IOC/OAC/Unsub: HTML table scrape
+IOC: JSON API (GetPipelines → GetShippers → GetLocations)
+OAC/Unsub: HTML table scrape
 
 Runs weekly via GitHub Actions (bbt-refresh.yml).
 """
@@ -136,67 +137,98 @@ def parse_locations_csv(content):
 
 
 def fetch_ioc(tspno):
-    """Fetch IOC HTML page."""
+    """Fetch IOC data via Quorum JSON API (3-step: GetPipelines → detail page → GetShippers + GetLocations).
+
+    The old HTML scrape approach returned empty Kendo grid shells.
+    The actual data is loaded via AJAX POST endpoints.
+    """
     s = make_session()
-    url = f'{BASE_URL}/IndexOfCust?tspno={tspno}'
-    r = s.get(url, timeout=TIMEOUT)
-    if r.status_code != 200:
-        print(f"    IOC returned {r.status_code}")
+
+    # Step 1: Get IocHdrId for this pipeline
+    url1 = f'{BASE_URL}/IndexOfCust/GetPipelines?tspno={tspno}'
+    r1 = s.post(url1, timeout=TIMEOUT)
+    if r1.status_code != 200:
+        print(f"    GetPipelines returned {r1.status_code}")
         return None
-    print(f"    IOC: {len(r.text):,} bytes")
-    return r.text
+    pipelines_data = r1.json()
+    if not pipelines_data.get('Data'):
+        print(f"    GetPipelines: no data")
+        return None
+    ioc_hdr_id = pipelines_data['Data'][0].get('IocHdrId')
+    expected_count = pipelines_data.get('Count', 0)
+    print(f"    GetPipelines: IocHdrId={ioc_hdr_id}, expected={expected_count} contracts")
+
+    # Step 2: Load detail page to set session context
+    url2 = f'{BASE_URL}/IndexOfCust?tspno={tspno}&IocHdrId={ioc_hdr_id}'
+    s.get(url2, timeout=TIMEOUT)
+
+    # Step 3a: Get shipper/contract data
+    url3 = f'{BASE_URL}/IndexOfCust/GetShippers?tspno={tspno}'
+    r3 = s.post(url3, timeout=TIMEOUT)
+    if r3.status_code != 200:
+        print(f"    GetShippers returned {r3.status_code}")
+        return None
+    shippers_data = r3.json()
+    print(f"    GetShippers: {len(shippers_data.get('Data', []))} total rows (all pipelines)")
+
+    # Step 3b: Get point-level IOC
+    url4 = f'{BASE_URL}/IndexOfCust/GetLocations?tspno={tspno}'
+    r4 = s.post(url4, timeout=TIMEOUT)
+    locations_data = []
+    if r4.status_code == 200:
+        locations_data = r4.json().get('Data', [])
+        print(f"    GetLocations: {len(locations_data)} total rows (all pipelines)")
+    else:
+        print(f"    GetLocations returned {r4.status_code}")
+
+    return {
+        'ioc_hdr_id': ioc_hdr_id,
+        'shippers': shippers_data.get('Data', []),
+        'locations': locations_data,
+    }
 
 
-def parse_ioc_html(html):
-    """Parse IOC HTML table.
+def parse_ioc_json(ioc_raw):
+    """Parse IOC JSON from Quorum API.
 
-    Standard FERC IOC columns in HTML table rows.
+    Filters by IocHdrId to isolate this pipeline's contracts (the API
+    returns contracts for ALL pipelines in a single response).
     Returns dict with contracts, by_point aggregates, and totals.
     """
+    if not ioc_raw:
+        return {
+            'contracts': [], 'by_point': {}, 'total_mdq': 0,
+            'num_contracts': 0, 'num_shippers': 0,
+        }
+
+    ioc_hdr_id = ioc_raw['ioc_hdr_id']
     cutoff = datetime.now() + timedelta(days=730)
-    rows = extract_table_rows(html)
+
+    # Filter shippers to this pipeline's IocHdrId
+    my_shippers = [s for s in ioc_raw['shippers'] if s.get('IocHdrId') == ioc_hdr_id]
+    my_locations = [l for l in ioc_raw['locations'] if l.get('IocHdrId') == ioc_hdr_id]
 
     contracts = {}
-    by_point = defaultdict(lambda: {'firm_mdq': 0, 'expiring_2yr': 0, 'num_contracts': 0, 'shippers': set()})
     all_shippers = set()
     total_mdq = 0
 
-    for cells in rows:
-        if len(cells) < 10:
+    for row in my_shippers:
+        shipper = (row.get('ShipperNm') or '').strip()
+        if not shipper:
             continue
 
-        # Try to identify IOC columns — typical order:
-        # Shipper, Affiliate, Rate Sched, K#, Amend, Begin, End, Nego Rate, MDQ, MSQ,
-        # Pt ID, Pt Name, Zone, Pt MDQ, ...
-        shipper = cells[0].strip()
-        if not shipper or shipper.lower() in ('shipper', 'shipper name', 'k holder name', ''):
-            continue
-
-        rate = cells[2].strip() if len(cells) > 2 else ''
-        contract_id = cells[3].strip() if len(cells) > 3 else ''
-        begin_date = cells[5].strip() if len(cells) > 5 else ''
-        end_date = cells[6].strip() if len(cells) > 6 else ''
-
-        # Find MDQ — typically around index 8-9
+        contract_id = (row.get('CtrNo') or '').strip()
+        rate = (row.get('RateSchd') or '').strip()
+        begin_date = (row.get('CtrEffFromDate') or '').strip()
+        end_date = (row.get('CtrTermDate') or '').strip()
         mdq = 0
-        for i in [8, 9, 7]:
-            if i < len(cells):
-                val = parse_int_safe(cells[i])
-                if val > 0:
-                    mdq = val
-                    break
+        try:
+            mdq = int(float(row.get('CtrMdq', 0)))
+        except (ValueError, TypeError):
+            pass
 
-        if mdq == 0:
+        if mdq <= 0:
             continue
-
-        # Find point ID — typically around index 10-11
-        point_id = ''
-        point_name = ''
-        for i in [10, 11]:
-            if i < len(cells) and cells[i].strip() and any(c.isdigit() for c in cells[i]):
-                point_id = cells[i].strip()
-                point_name = cells[i + 1].strip() if i + 1 < len(cells) else ''
-                break
 
         all_shippers.add(shipper)
         total_mdq += mdq
@@ -205,7 +237,7 @@ def parse_ioc_html(html):
         is_expiring = False
         if end_date:
             try:
-                ed = datetime.strptime(end_date.strip()[:10], '%m/%d/%Y')
+                ed = datetime.strptime(end_date[:10], '%Y-%m-%d')
                 if ed <= cutoff:
                     is_expiring = True
             except (ValueError, IndexError):
@@ -216,18 +248,39 @@ def parse_ioc_html(html):
                 'shipper': shipper,
                 'rate_schedule': rate,
                 'contract_id': contract_id,
-                'begin_date': begin_date,
-                'end_date': end_date,
+                'begin_date': begin_date[:10] if begin_date else '',
+                'end_date': end_date[:10] if end_date else '',
                 'mdq_dth': mdq,
+                'is_firm': is_firm,
+                'is_expiring': is_expiring,
             }
 
-        if point_id:
-            by_point[point_id]['num_contracts'] += 1
+    # Build by_point from GetLocations data
+    by_point = defaultdict(lambda: {'firm_mdq': 0, 'expiring_2yr': 0, 'num_contracts': 0, 'shippers': set()})
+
+    for loc in my_locations:
+        point_id = (loc.get('PointIdentificationCode') or '').strip()
+        contract_id = (loc.get('CtrNo') or '').strip()
+        point_mdq = 0
+        try:
+            point_mdq = int(float(loc.get('PointMdq', 0)))
+        except (ValueError, TypeError):
+            pass
+
+        if not point_id or point_mdq <= 0:
+            continue
+
+        # Look up contract info for firm/expiring status
+        ctr = contracts.get(contract_id, {})
+        shipper = ctr.get('shipper', loc.get('ShipperNm', ''))
+
+        by_point[point_id]['num_contracts'] += 1
+        if shipper:
             by_point[point_id]['shippers'].add(shipper)
-            if is_firm:
-                by_point[point_id]['firm_mdq'] += mdq
-            if is_expiring:
-                by_point[point_id]['expiring_2yr'] += mdq
+        if ctr.get('is_firm', False):
+            by_point[point_id]['firm_mdq'] += point_mdq
+        if ctr.get('is_expiring', False):
+            by_point[point_id]['expiring_2yr'] += point_mdq
 
     by_point_out = {}
     for loc_id, info in by_point.items():
@@ -501,12 +554,10 @@ def process_pipeline(pl, county_coords):
     loc_data = parse_locations_csv(loc_content) if loc_content else {}
     print(f"    Locations: {len(loc_data)} points")
 
-    # IOC
+    # IOC (via JSON API)
     print("  Fetching IOC...")
-    ioc_html = fetch_ioc(tspno)
-    ioc_data = parse_ioc_html(ioc_html) if ioc_html else {
-        'contracts': [], 'by_point': {}, 'total_mdq': 0, 'num_contracts': 0, 'num_shippers': 0
-    }
+    ioc_raw = fetch_ioc(tspno)
+    ioc_data = parse_ioc_json(ioc_raw)
     print(f"    IOC: {ioc_data['num_contracts']} contracts, {ioc_data['num_shippers']} shippers, {ioc_data['total_mdq']:,} MDQ")
 
     # OAC
