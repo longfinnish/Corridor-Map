@@ -353,6 +353,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#0668E1"></span>Meta</span><label class="tg"><input type="checkbox" id="t-hs-meta" onchange="togHSSub()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#7FBA00"></span>Microsoft</span><label class="tg"><input type="checkbox" id="t-hs-msft" onchange="togHSSub()"><span class="ts"></span></label></div>
 </div>
+<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>DC Pipeline — Planned (657)</span><label class="tg"><input type="checkbox" id="t-dcpp" onchange="tog('dcpp')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#8B6B4A"></span>DC Pipeline — Operating (511)</span><label class="tg"><input type="checkbox" id="t-dcpo" onchange="tog('dcpo')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#E85D3A"></span>Planned Gas Generation (122)</span><label class="tg"><input type="checkbox" id="t-pgas" onchange="tog('pgas')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (Colo)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
 </div>
 </div>
@@ -524,6 +527,9 @@ cty:{on:false,mz:0,ly:null},
 
 st:{on:true,mz:0,ly:null},
 hs:{on:false,mz:0,g:L.layerGroup(),ld:false,ac:null},
+dcpp:{g:L.layerGroup(),ld:false},
+dcpo:{g:L.layerGroup(),ld:false},
+pgas:{g:L.layerGroup(),ld:false},
 rrc:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null}
 };
 
@@ -539,6 +545,8 @@ else{map.removeLayer(s.g);s.g.clearLayers()}
 uLeg();return;
 }
 if(n==='gas'){if(s.on){ldGas()}else{if(eiaGasLayer)map.removeLayer(eiaGasLayer)}uLeg();return}
+if(n==='dcpp'||n==='dcpo'){if(s.on){s.g.addTo(map);ldDCPipeline()}else{map.removeLayer(s.g)}uLeg();return}
+if(n==='pgas'){if(s.on){s.g.addTo(map);ldPGas()}else{map.removeLayer(s.g)}uLeg();return}
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
 else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}if(n==='cty'&&ctyLabels){map.removeLayer(ctyLabels)}}
 uLeg();
@@ -557,7 +565,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='wtr'){rWtr();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='cty')ldCty();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='dcpp'||n==='dcpo')ldDCPipeline();else if(n==='pgas')ldPGas();else if(n==='cty')ldCty();
 }
 
 function bboxEnv(){
@@ -952,26 +960,37 @@ dcLoaded=true;s.ld=false;
 var hsColors={AWS:"#FF9800",Google:"#4285F4",Meta:"#0668E1",Microsoft:"#7FBA00"};
 var hsLoaded=false;
 var hsData=null;
-var hsGroups={AWS:L.layerGroup(),Google:L.layerGroup(),Meta:L.layerGroup(),Microsoft:L.layerGroup()};
+var hsGroups={AWS:L.layerGroup(),Google:L.layerGroup(),Meta:L.layerGroup(),Microsoft:L.layerGroup(),Other:L.layerGroup()};
+function formatMW(mw){if(!mw)return'';if(mw>=1000)return(mw/1000).toFixed(1).replace(/\.0$/,'')+ ' GW';return mw.toLocaleString()+' MW'}
+function formatCurrency(val){if(!val)return'';if(typeof val==='string')return val;if(val>=1e9)return'$'+(val/1e9).toFixed(1).replace(/\.0$/,'')+'B';if(val>=1e6)return'$'+(val/1e6).toFixed(0)+'M';return'$'+val.toLocaleString()}
+function formatNumber(val){if(!val)return'';return val.toLocaleString()}
+function formatDate(isoStr){if(!isoStr)return'';var d=new Date(isoStr);var m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return m[d.getUTCMonth()]+' '+d.getUTCFullYear()}
 function ldHS(){
 if(hsLoaded)return;
-fetch("data/datacenters.json").then(function(r){return r.json()}).then(function(data){
-hsData=data.filter(function(f){return f.source!=='Colo'});
+fetch("data/hyperscalers.json").then(function(r){return r.json()}).then(function(data){
+hsData=data;
 hsData.forEach(function(f){
-var col=hsColors[f.source]||"#78909C";
+var op=f.operator||'';
+var col=hsColors[op]||"#78909C";
 var mw=parseFloat(f.mw)||0;
 var sz=mw>50?9:mw>10?7:5;
 var m=L.circleMarker([f.lat,f.lng],{radius:sz,fillColor:col,fillOpacity:0.95,color:'#fff',weight:2});
-var popup="<b style='font-size:13px'>"+f.name+"</b><br>";
-popup+="<b>Operator:</b> "+f.source+"<br>";
-if(f.subcategory)popup+="<b>Type:</b> "+f.subcategory+"<br>";
-if(mw>0)popup+="<b>IT Load:</b> "+mw+" MW<br>";
-if(f.year&&f.year!=='0')popup+="<b>Year:</b> "+f.year+"<br>";
-if(f.address)popup+="<b>Address:</b> "+f.address+"<br>";
-popup+="<b>State:</b> "+f.state;
-if(f.airport)popup+=" ("+f.airport+")";
+var popup="<div style='min-width:240px;max-width:320px;font-family:DM Sans,sans-serif'>";
+popup+="<div style='font-weight:700;font-size:14px;margin-bottom:6px'>"+f.name+"</div>";
+popup+="<div style='font-size:12px;line-height:1.6'>";
+popup+="<b>Operator:</b> "+op+"<br>";
+if(f.status)popup+="<b>Status:</b> "+f.status+"<br>";
+if(mw>0)popup+="<b>Capacity:</b> "+formatMW(mw)+"<br>";
+if(f.investment)popup+="<b>Investment:</b> "+f.investment+"<br>";
+if(f.county||f.state)popup+="<b>Location:</b> "+(f.county||'')+(f.county&&f.state?', ':'')+(f.state||'')+"<br>";
+if(f.iso)popup+="<b>ISO:</b> "+f.iso+"<br>";
+if(f.notes)popup+="<b>Notes:</b> "+f.notes+"<br>";
+popup+="</div>";
+if(f.cleanview_id)popup+="<div style='font-size:10px;color:#888;margin-top:4px'>Source: Cleanview · ID "+f.cleanview_id+"</div>";
+popup+="</div>";
 m.bindPopup(popup);
-if(hsGroups[f.source])hsGroups[f.source].addLayer(m);
+if(hsGroups[op])hsGroups[op].addLayer(m);
+else{hsGroups.Other.addLayer(m)}
 });
 hsLoaded=true;
 togHSSub();
@@ -980,7 +999,7 @@ togHSSub();
 function togHSAll(on){
 document.getElementById('hs-subs').style.display=on?'block':'none';
 ['aws','google','meta','msft'].forEach(function(k){document.getElementById('t-hs-'+k).checked=on});
-if(on){ldHS();togHSSub()}else{
+if(on){ldHS();hsGroups.Other.addTo(map);togHSSub()}else{
 Object.values(hsGroups).forEach(function(g){map.removeLayer(g)});
 }
 uLeg();
@@ -997,6 +1016,70 @@ var anyOn=['aws','google','meta','msft'].some(function(k){return document.getEle
 document.getElementById('t-hs').checked=anyOn;
 document.getElementById('hs-subs').style.display=anyOn||document.getElementById('t-hs').checked?'block':'none';
 uLeg();
+}
+
+var dcpLoaded=false;
+function ldDCPipeline(){
+if(dcpLoaded)return;dcpLoaded=true;
+fetch('data/dc-pipeline-others.geojson').then(function(r){return r.json()}).then(function(gj){
+var pp=LS.dcpp,po=LS.dcpo;
+gj.features.forEach(function(feat){
+var p=feat.properties;
+var coords=feat.geometry.coordinates;
+var planned=(p.status||'').toLowerCase().indexOf('planned')>=0;
+var col=planned?'#C4854C':'#8B6B4A';
+var rad=planned?5:4;
+var opac=planned?0.75:0.7;
+var wt=planned?1.5:1;
+var m=L.circleMarker([coords[1],coords[0]],{radius:rad,fillColor:col,fillOpacity:opac,color:'#fff',weight:wt});
+var popup="<div style='min-width:260px;max-width:340px'>";
+popup+="<div style='font-weight:700;font-size:14px;margin-bottom:6px;font-family:DM Sans,sans-serif'>"+(p.project_name||'Unknown Project')+"</div>";
+popup+="<div style='font-size:12px;line-height:1.6;font-family:DM Sans,sans-serif'>";
+if(p.developer)popup+="<b>Developer:</b> "+p.developer+"<br>";
+popup+="<b>Status:</b> "+(p.status||'Unknown');
+if(p.operating_year)popup+=" ("+p.operating_year+")";
+popup+="<br>";
+if(p.capacity_mw)popup+="<b>Capacity:</b> "+formatMW(p.capacity_mw)+"<br>";
+if(p.cap_ex)popup+="<b>CapEx:</b> "+formatCurrency(p.cap_ex)+"<br>";
+if(p.land_acres)popup+="<b>Land:</b> "+formatNumber(p.land_acres)+" acres<br>";
+if(p.building_square_footage)popup+="<b>Building:</b> "+formatNumber(p.building_square_footage)+" sqft<br>";
+var loc='';if(p.county)loc+=p.county;if(p.county&&p.state)loc+=', ';if(p.state)loc+=p.state;
+if(loc)popup+="<b>Location:</b> "+loc+"<br>";
+if(p.source_1)popup+="<a href='"+p.source_1+"' target='_blank' rel='noopener' style='color:#C4854C'>Source</a>";
+if(p.source_2)popup+=" &middot; <a href='"+p.source_2+"' target='_blank' rel='noopener' style='color:#C4854C'>Source 2</a>";
+popup+="</div>";
+popup+="<div style='font-size:10px;color:#888;margin-top:4px'>Source: Cleanview</div></div>";
+m.bindPopup(popup);
+if(planned)pp.g.addLayer(m);else po.g.addLayer(m);
+});
+}).catch(function(e){console.error('DC Pipeline error:',e);dcpLoaded=false});
+}
+
+var pgasLoaded=false;
+function ldPGas(){
+if(pgasLoaded)return;pgasLoaded=true;
+fetch('data/planned-gas-generation.geojson').then(function(r){return r.json()}).then(function(gj){
+var s=LS.pgas;
+gj.features.forEach(function(feat){
+var p=feat.properties;
+var coords=feat.geometry.coordinates;
+var m=L.circleMarker([coords[1],coords[0]],{radius:5,fillColor:'#E85D3A',fillOpacity:0.75,color:'#fff',weight:1.5});
+var popup="<div style='min-width:240px;max-width:320px'>";
+popup+="<div style='font-weight:700;font-size:14px;margin-bottom:6px;font-family:DM Sans,sans-serif'>"+(p.project_name||'Unknown')+"</div>";
+popup+="<div style='font-size:12px;line-height:1.6;font-family:DM Sans,sans-serif'>";
+if(p.developer_name)popup+="<b>Developer:</b> "+p.developer_name+"<br>";
+if(p.capacity_mw)popup+="<b>Capacity:</b> "+formatMW(p.capacity_mw)+"<br>";
+if(p.operating_date)popup+="<b>Target Date:</b> "+formatDate(p.operating_date)+"<br>";
+var loc='';if(p.county)loc+=p.county;if(p.state)loc+=(loc?', ':'')+p.state;
+if(loc)popup+="<b>Location:</b> "+loc+"<br>";
+if(p.balancing_authority)popup+="<b>ISO:</b> "+p.balancing_authority+"<br>";
+if(p.source_table||p.source_id)popup+="<b>Queue:</b> "+(p.source_table||'')+(p.source_table&&p.source_id?' &middot; ':'')+( p.source_id||'')+"<br>";
+popup+="</div>";
+popup+="<div style='font-size:10px;color:#888;margin-top:4px'>Source: Cleanview / EIA / ISO Queue</div></div>";
+m.bindPopup(popup);
+s.g.addLayer(m);
+});
+}).catch(function(e){console.error('Planned Gas error:',e);pgasLoaded=false});
 }
 
 var ctyLoaded=false;
@@ -3761,7 +3844,7 @@ else map.setView([res[0].lat,res[0].lon],11);
 }
 });
 }
-console.log('Corridor Map v4.2.0 loaded');
+console.log('Corridor Map v4.3.0 loaded');
 </script>
 <div id="pl-shade" onclick="closePipeline()" style="position:fixed;inset:0;background:rgba(0,0,0,0);transition:background 0.4s ease;pointer-events:none;z-index:1499"></div>
 <div id="pl-panel">
