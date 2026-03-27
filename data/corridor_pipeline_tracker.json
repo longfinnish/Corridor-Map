@@ -888,7 +888,7 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 232,
@@ -898,7 +898,7 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "point_count": 606
@@ -907,7 +907,7 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "point_count": 586
@@ -1380,19 +1380,19 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "point_count": 46
+        "point_count": 42
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "point_count": 90
+        "point_count": 88
       },
       "notes": "Complex ownership: Questar \u2192 Dominion \u2192 Southwest Gas \u2192 Williams. Now MountainWest Pipeline."
     },
@@ -1415,19 +1415,19 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "point_count": 46
+        "point_count": 42
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-23",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "point_count": 90
+        "point_count": 88
       }
     },
     {
