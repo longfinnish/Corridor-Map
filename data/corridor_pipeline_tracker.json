@@ -1111,7 +1111,7 @@
         "access_method": "weekly_auto",
         "platform": "nfg_peoplesoft",
         "url": "https://sbsprd2.natfuel.com/psc/sbsprd/NFSBS/SBSPRD/c/NFOM_INFORMATIONAL_POSTINGS.NFOC_IOC_INTRO.GBL",
-        "last_refreshed": "2026-03-24",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 118,
@@ -1122,7 +1122,7 @@
         "access_method": "weekly_auto",
         "platform": "nfg_peoplesoft",
         "url": "https://sbsprd2.natfuel.com/psc/sbsprd/NFSBS/SBSPRD/c/NFOM_INFORMATIONAL_POSTINGS.NFOC_UNSUBSCRIBED.GBL",
-        "last_refreshed": "2026-03-24",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true
       },
@@ -1130,14 +1130,14 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "nfg_peoplesoft",
-        "last_refreshed": "2026-03-24",
+        "last_refreshed": "2026-03-27",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "cracked_points": 1059,
         "geocoded_points": 949,
         "geocode_method": "county_centroid"
       },
-      "notes": "PeopleSoft portal. 118 IOC, 1059 locations, 80 unsub pts."
+      "notes": "PeopleSoft portal. 118 IOC, 1059 locations, 86 unsub pts."
     },
     {
       "pipeline_name": "Iroquois Gas Transmission",
