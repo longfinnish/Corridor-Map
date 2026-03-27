@@ -9,7 +9,8 @@ BBT/Quorum Pipeline Data Fetcher
 
 Locations: direct CSV download
 IOC: JSON API (GetPipelines → GetShippers → GetLocations)
-OAC/Unsub: HTML table scrape
+OAC: JSON API (GetOperationallyAvailableCapacity)
+Unsub: JSON API (GetUnsubscribedCapacity)
 
 Runs weekly via GitHub Actions (bbt-refresh.yml).
 """
@@ -301,62 +302,54 @@ def parse_ioc_json(ioc_raw):
 
 
 def fetch_oac(tspno):
-    """Fetch OAC HTML page."""
+    """Fetch OAC data via Quorum JSON API."""
     s = make_session()
-    url = f'{BASE_URL}/OpAvailPosting?tspno={tspno}'
-    r = s.get(url, timeout=TIMEOUT)
+    # Load page for session context
+    s.get(f'{BASE_URL}/OpAvailPosting?tspno={tspno}', timeout=TIMEOUT)
+    # POST to JSON endpoint
+    url = f'{BASE_URL}/OpAvailPosting/GetOperationallyAvailableCapacity?tspno={tspno}'
+    r = s.post(url, timeout=120)
     if r.status_code != 200:
         print(f"    OAC returned {r.status_code}")
-        return None
-    print(f"    OAC: {len(r.text):,} bytes")
-    return r.text
+        return []
+    data = r.json()
+    items = data.get('Data', [])
+    print(f"    OAC: {len(items):,} raw rows")
+    return items
 
 
-def parse_oac_html(html):
-    """Parse OAC HTML table. Returns dict indexed by Loc ID."""
-    rows = extract_table_rows(html)
+def parse_oac_json(items):
+    """Parse OAC JSON from Quorum API.
+
+    Aggregates daily time series to latest date per location.
+    Returns dict indexed by Loc ID with design/scheduled/available.
+    """
+    if not items:
+        return {}
+
+    # Group by Loc, keep latest effective date per location
+    latest = {}
+    for item in items:
+        loc = (item.get('Loc') or '').strip()
+        if not loc:
+            continue
+        eff = item.get('Eff9amOn', '') or ''
+        if loc not in latest or eff > latest[loc]['eff']:
+            latest[loc] = {
+                'eff': eff,
+                'design': item.get('DesignCap', 0) or 0,
+                'operating': item.get('OpCap', 0) or 0,
+                'scheduled': item.get('SchedQty', 0) or 0,
+                'available': item.get('OACap', 0) or 0,
+            }
+
     oac = {}
-
-    for cells in rows:
-        if len(cells) < 6:
-            continue
-
-        # Find loc ID — look for a numeric cell in the first few positions
-        loc_id = ''
-        for i in range(min(4, len(cells))):
-            c = cells[i].strip()
-            if c and any(ch.isdigit() for ch in c) and len(c) < 15:
-                loc_id = c
-                break
-
-        if not loc_id:
-            continue
-
-        # Skip header rows
-        if loc_id.lower() in ('loc', 'location', 'loc prop'):
-            continue
-
-        # Find capacity values from numeric columns
-        nums = []
-        for c in cells[3:]:
-            nums.append(parse_int_safe(c))
-
-        # Standard OAC columns after location info: Design Cap, Operating Cap, Scheduled, Available
-        design = 0
-        scheduled = 0
-        available = 0
-        for i, n in enumerate(nums):
-            if n > 0 and design == 0:
-                design = n
-            elif n >= 0 and design > 0 and scheduled == 0 and i > 0:
-                scheduled = n
-                # Available is typically right after scheduled
-                if i + 1 < len(nums):
-                    available = nums[i + 1]
-                break
-
+    for loc, info in latest.items():
+        design = int(float(info.get('design', 0)))
+        scheduled = int(float(info.get('scheduled', 0)))
+        available = int(float(info.get('available', 0)))
         if design > 0 or available > 0:
-            oac[loc_id] = {
+            oac[loc] = {
                 'design': design,
                 'scheduled': scheduled,
                 'available': available,
@@ -366,62 +359,55 @@ def parse_oac_html(html):
 
 
 def fetch_unsub(tspno):
-    """Fetch Unsub HTML page."""
+    """Fetch Unsub data via Quorum JSON API."""
     s = make_session()
-    url = f'{BASE_URL}/UnsubscribedCapacity?tspno={tspno}'
-    r = s.get(url, timeout=TIMEOUT)
+    # Load page for session context
+    s.get(f'{BASE_URL}/UnsubscribedCapacity?tspno={tspno}', timeout=TIMEOUT)
+    # POST to JSON endpoint
+    url = f'{BASE_URL}/UnsubscribedCapacity/GetUnsubscribedCapacity?tspno={tspno}'
+    r = s.post(url, timeout=120)
     if r.status_code != 200:
         print(f"    Unsub returned {r.status_code}")
-        return None
-    print(f"    Unsub: {len(r.text):,} bytes")
-    return r.text
+        return []
+    data = r.json()
+    items = data.get('Data', [])
+    print(f"    Unsub: {len(items):,} raw rows")
+    return items
 
 
-def parse_unsub_html(html):
-    """Parse Unsub HTML table."""
-    rows = extract_table_rows(html)
+def parse_unsub_json(items):
+    """Parse Unsub JSON from Quorum API.
+
+    Aggregates daily time series to latest date per location.
+    Returns list of dicts matching the existing unsub_points format.
+    """
+    if not items:
+        return []
+
+    # Group by Loc, keep latest Eff9amOn per location
+    latest = {}
+    for item in items:
+        loc = (item.get('Loc') or '').strip()
+        if not loc:
+            continue
+        eff = item.get('Eff9amOn', '') or ''
+        if loc not in latest or eff > latest[loc]['eff']:
+            latest[loc] = {
+                'eff': eff,
+                'unsub': item.get('UnsubCap', 0) or 0,
+                'name': item.get('LocNm', ''),
+                'purp': item.get('LocPurpDescr', ''),
+            }
+
     result = []
-    seen_locs = set()
-
-    for cells in rows:
-        if len(cells) < 4:
-            continue
-
-        # Find loc ID and unsub capacity
-        loc_id = ''
-        loc_name = ''
-        for i in range(min(4, len(cells))):
-            c = cells[i].strip()
-            if c and any(ch.isdigit() for ch in c) and len(c) < 15:
-                loc_id = c
-                loc_name = cells[i + 1].strip() if i + 1 < len(cells) else ''
-                break
-
-        if not loc_id or loc_id.lower() in ('loc', 'location', 'loc prop'):
-            continue
-
-        # Find unsub capacity — last significant numeric value
-        unsub_val = 0
-        for i in range(len(cells) - 1, 2, -1):
-            val = parse_int_safe(cells[i])
-            if val > 0:
-                unsub_val = val
-                break
-
-        if unsub_val > 0:
-            if loc_id not in seen_locs:
-                result.append({
-                    'Loc': loc_id,
-                    'Loc_Name': loc_name[:50],
-                    'Loc_Purp_Desc': '',
-                    'Unsubscribed_Capacity': unsub_val,
-                })
-                seen_locs.add(loc_id)
-            else:
-                for existing in result:
-                    if existing['Loc'] == loc_id:
-                        existing['Unsubscribed_Capacity'] += unsub_val
-                        break
+    for loc, info in latest.items():
+        if info['unsub'] > 0:
+            result.append({
+                'Loc': loc,
+                'Loc_Name': info['name'][:50],
+                'Loc_Purp_Desc': info['purp'],
+                'Unsubscribed_Capacity': info['unsub'],
+            })
 
     return result
 
@@ -560,16 +546,16 @@ def process_pipeline(pl, county_coords):
     ioc_data = parse_ioc_json(ioc_raw)
     print(f"    IOC: {ioc_data['num_contracts']} contracts, {ioc_data['num_shippers']} shippers, {ioc_data['total_mdq']:,} MDQ")
 
-    # OAC
+    # OAC (via JSON API)
     print("  Fetching OAC...")
-    oac_html = fetch_oac(tspno)
-    oac_data = parse_oac_html(oac_html) if oac_html else {}
+    oac_raw = fetch_oac(tspno)
+    oac_data = parse_oac_json(oac_raw)
     print(f"    OAC: {len(oac_data)} points")
 
-    # Unsub
+    # Unsub (via JSON API)
     print("  Fetching Unsub...")
-    unsub_html = fetch_unsub(tspno)
-    unsub_data = parse_unsub_html(unsub_html) if unsub_html else []
+    unsub_raw = fetch_unsub(tspno)
+    unsub_data = parse_unsub_json(unsub_raw)
     print(f"    Unsub: {len(unsub_data)} points")
 
     # Build points
