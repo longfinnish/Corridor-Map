@@ -779,10 +779,14 @@
         "shipper_count": 8
       },
       "unsub": {
-        "status": "attempted",
+        "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "cloud_accessible": true
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=16",
+        "last_refreshed": "2026-03-27",
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true,
+        "point_count": 56
       },
       "capacity": {
         "status": "captured",
@@ -1491,10 +1495,14 @@
         "shipper_count": 4
       },
       "unsub": {
-        "status": "attempted",
+        "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "cloud_accessible": true
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=6",
+        "last_refreshed": "2026-03-27",
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true,
+        "point_count": 12
       },
       "capacity": {
         "status": "captured",
@@ -1581,10 +1589,14 @@
         "shipper_count": 22
       },
       "unsub": {
-        "status": "attempted",
+        "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "cloud_accessible": true
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=3",
+        "last_refreshed": "2026-03-27",
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true,
+        "point_count": 58
       },
       "capacity": {
         "status": "captured",
@@ -1623,10 +1635,14 @@
         "shipper_count": 4
       },
       "unsub": {
-        "status": "attempted",
+        "status": "captured",
         "access_method": "weekly_auto",
         "platform": "quorum_cloud",
-        "cloud_accessible": true
+        "url": "https://web-prd.myquorumcloud.com/BBTPA1IPWS/UnsubscribedCapacity?tspno=12",
+        "last_refreshed": "2026-03-27",
+        "refresh_frequency_days": 7,
+        "cloud_accessible": true,
+        "point_count": 5
       },
       "capacity": {
         "status": "captured",
