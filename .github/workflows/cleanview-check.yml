@@ -1,0 +1,154 @@
+name: Cleanview DC Data Check
+
+on:
+  schedule:
+    # 1st and 15th of each month at 14:00 UTC (9am CT)
+    - cron: '0 14 1,15 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-cleanview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Check Cleanview DC stats
+        id: check
+        run: |
+          # Fetch current stats from Cleanview
+          STATS=$(curl -sf "https://backend.cleanview.co/data-centers/stats" \
+            -H "Accept: application/json" \
+            -H "Origin: https://cleanview.co" \
+            --max-time 30 2>/dev/null || echo "FETCH_FAILED")
+
+          if [ "$STATS" = "FETCH_FAILED" ]; then
+            echo "status=api_down" >> $GITHUB_OUTPUT
+            echo "::warning::Cleanview API unreachable"
+            exit 0
+          fi
+
+          # Parse stats
+          TOTAL=$(echo "$STATS" | jq -r '.total_count // 0')
+          PLANNED=$(echo "$STATS" | jq -r '.planned_count // 0')
+          OPERATING=$(echo "$STATS" | jq -r '.operating_count // 0')
+          DEVELOPERS=$(echo "$STATS" | jq -r '.unique_developers // "0"')
+          TOTAL_MW=$(echo "$STATS" | jq -r '.total_capacity_mw // 0')
+
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "planned=$PLANNED" >> $GITHUB_OUTPUT
+          echo "operating=$OPERATING" >> $GITHUB_OUTPUT
+          echo "developers=$DEVELOPERS" >> $GITHUB_OUTPUT
+          echo "total_mw=$TOTAL_MW" >> $GITHUB_OUTPUT
+
+          # Count records in our committed data files
+          LOCAL_HS=$(cat data/hyperscalers.json | jq 'length')
+          # Count features in GeoJSON
+          LOCAL_DC=$(cat data/dc-pipeline-others.geojson | jq '.features | length')
+          LOCAL_TOTAL=$((LOCAL_HS + LOCAL_DC))
+
+          echo "local_hs=$LOCAL_HS" >> $GITHUB_OUTPUT
+          echo "local_dc=$LOCAL_DC" >> $GITHUB_OUTPUT
+          echo "local_total=$LOCAL_TOTAL" >> $GITHUB_OUTPUT
+
+          # Calculate delta
+          # Our local data excludes ~96 records with no coords, so adjust
+          REMOTE_COMPARABLE=$((TOTAL - 96))
+          if [ "$LOCAL_TOTAL" -gt 0 ]; then
+            DELTA=$((REMOTE_COMPARABLE - LOCAL_TOTAL))
+            PCT=$(( (DELTA * 100) / LOCAL_TOTAL ))
+          else
+            DELTA=$REMOTE_COMPARABLE
+            PCT=100
+          fi
+
+          echo "delta=$DELTA" >> $GITHUB_OUTPUT
+          echo "pct=$PCT" >> $GITHUB_OUTPUT
+
+          # Determine if refresh needed (>3% change or >20 new projects)
+          if [ "$DELTA" -gt 20 ] || [ "$PCT" -gt 3 ] || [ "$PCT" -lt -3 ]; then
+            echo "status=stale" >> $GITHUB_OUTPUT
+          else
+            echo "status=fresh" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check projects-mt endpoint
+        id: check_mt
+        run: |
+          # Quick check if the staging URL still works
+          MT_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+            "https://backend-691372582735.us-central1.run.app/capacity-trends/projects-mt?columns=source_table&limit=1" \
+            -H "Origin: https://cleanview.co" \
+            --max-time 30 2>/dev/null || echo "000")
+          echo "mt_status=$MT_STATUS" >> $GITHUB_OUTPUT
+
+      - name: Open issue if stale or API changed
+        if: steps.check.outputs.status == 'stale' || steps.check.outputs.status == 'api_down' || steps.check_mt.outputs.mt_status != '200'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.check.outputs.status }}';
+            const mtStatus = '${{ steps.check_mt.outputs.mt_status }}';
+            const total = '${{ steps.check.outputs.total }}';
+            const planned = '${{ steps.check.outputs.planned }}';
+            const operating = '${{ steps.check.outputs.operating }}';
+            const developers = '${{ steps.check.outputs.developers }}';
+            const totalMW = '${{ steps.check.outputs.total_mw }}';
+            const localTotal = '${{ steps.check.outputs.local_total }}';
+            const delta = '${{ steps.check.outputs.delta }}';
+            const pct = '${{ steps.check.outputs.pct }}';
+
+            let title, body;
+
+            if (status === 'api_down') {
+              title = '⚠️ Cleanview API unreachable';
+              body = `The Cleanview DC projects API at \`backend.cleanview.co/data-centers/stats\` failed to respond.\n\nThis could be temporary downtime or they may have locked down the endpoint.\n\nSee \`corridor_cleanview_access_reference.md\` in project files for alternative access paths.`;
+            } else if (mtStatus !== '200') {
+              title = '⚠️ Cleanview projects-mt staging URL may have changed';
+              body = `The generation projects endpoint returned HTTP ${mtStatus} instead of 200.\n\n**URL tested:** \`backend-691372582735.us-central1.run.app/capacity-trends/projects-mt\`\n\nThis is the staging URL that could break on redeployment. The DC projects API is still ${status === 'stale' ? 'working but stale' : 'working and fresh'}.\n\n**To find the new URL:** Check cleanview.co's JS bundle (\`/assets/index-*.js\`) and search for \`backend-\` or \`us-central1.run.app\`.\n\nSee \`corridor_cleanview_access_reference.md\` for full details.`;
+            } else {
+              title = `🔄 Cleanview DC data refresh needed — ${delta} new projects detected`;
+              body = `**Cleanview API stats (live):**\n- Total projects: ${total} (was ~${localTotal} in our data)\n- Planned: ${planned}\n- Operating: ${operating}\n- Developers: ${developers}\n- Total capacity: ${Math.round(totalMW / 1000)} GW\n\n**Delta: ${delta} projects (${pct}% change)**\n\n**To refresh:**\n1. Pull fresh data from \`backend.cleanview.co/data-centers/projects\`\n2. Rebuild hyperscalers_merged.json and dc-pipeline-others.geojson\n3. Optionally refresh planned-gas-generation.geojson from projects-mt\n\nSee \`corridor_cleanview_access_reference.md\` for curl commands and rebuild steps.`;
+            }
+
+            // Check for existing open issues to avoid duplicates
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'cleanview-check'
+            });
+
+            if (existing.data.length > 0) {
+              // Update existing issue instead of creating new one
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body: `**Updated check (${new Date().toISOString().split('T')[0]}):**\n\n${body}`
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['cleanview-check', 'data-refresh']
+              });
+            }
+
+      - name: Summary
+        run: |
+          echo "## Cleanview Check Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| DC API Status | ${{ steps.check.outputs.status }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Remote total | ${{ steps.check.outputs.total }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Local total | ${{ steps.check.outputs.local_total }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Delta | ${{ steps.check.outputs.delta }} (${{ steps.check.outputs.pct }}%) |" >> $GITHUB_STEP_SUMMARY
+          echo "| projects-mt endpoint | HTTP ${{ steps.check_mt.outputs.mt_status }} |" >> $GITHUB_STEP_SUMMARY
