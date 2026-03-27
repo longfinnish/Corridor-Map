@@ -307,8 +307,8 @@ def fetch_oac(tspno):
     # Load page for session context
     s.get(f'{BASE_URL}/OpAvailPosting?tspno={tspno}', timeout=TIMEOUT)
     # POST to JSON endpoint
-    url = f'{BASE_URL}/OpAvailPosting/GetOperationallyAvailableCapacity?tspno={tspno}'
-    r = s.post(url, timeout=120)
+    url = f'{BASE_URL}/OpAvailPosting/GetOpAvailPostings?tspno={tspno}'
+    r = s.post(url, timeout=180)
     if r.status_code != 200:
         print(f"    OAC returned {r.status_code}")
         return []
@@ -327,20 +327,20 @@ def parse_oac_json(items):
     if not items:
         return {}
 
-    # Group by Loc, keep latest effective date per location
+    # Group by LocId, keep latest EffDate per location
     latest = {}
     for item in items:
-        loc = (item.get('Loc') or '').strip()
+        loc = (item.get('LocId') or '').strip()
         if not loc:
             continue
-        eff = item.get('Eff9amOn', '') or ''
+        eff = item.get('EffDate', '') or ''
         if loc not in latest or eff > latest[loc]['eff']:
             latest[loc] = {
                 'eff': eff,
-                'design': item.get('DesignCap', 0) or 0,
-                'operating': item.get('OpCap', 0) or 0,
-                'scheduled': item.get('SchedQty', 0) or 0,
-                'available': item.get('OACap', 0) or 0,
+                'design': item.get('DesignCapQty', 0) or 0,
+                'operating': item.get('OprCapQty', 0) or 0,
+                'scheduled': item.get('TotalSchdQty', 0) or 0,
+                'available': item.get('OprAvailCapQty', 0) or 0,
             }
 
     oac = {}
