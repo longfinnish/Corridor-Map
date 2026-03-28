@@ -1,31 +1,117 @@
 {
-  "current_date": "2026-03-21",
-  "previous_date": "2026-03-14",
+  "current_date": "2026-03-28",
+  "previous_date": "2026-03-21",
   "summary": {
-    "total_added": 11,
-    "total_added_mw": 0.0,
+    "total_added": 9,
+    "total_added_mw": 2026.0,
     "total_dropped": 0,
     "total_dropped_mw": 0,
-    "total_status_changes": 225
+    "total_status_changes": 163
   },
   "iso_breakdown": {
+    "SPP": {
+      "added": 8,
+      "added_mw": 1826.0,
+      "dropped": 0,
+      "dropped_mw": 0
+    },
     "MISO": {
-      "added": 11,
-      "added_mw": 0.0,
+      "added": 1,
+      "added_mw": 200.0,
       "dropped": 0,
       "dropped_mw": 0
     }
   },
   "additions": [
     {
-      "id": "R5089",
+      "id": "GEN-2026-SR8",
+      "name": null,
+      "developer": null,
+      "county": "Elgin",
+      "state": "OK",
+      "sub": "Cimmarron to Lawton 345 kV Line",
+      "tx_owner": "AEP",
+      "mw": 500.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "2/5/2026",
+      "proposed_completion": "11/30/2028",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "GEN-2026-SR11",
+      "name": null,
+      "developer": null,
+      "county": "Mill Creek",
+      "state": "OK",
+      "sub": "Johnson County 345kV Substation",
+      "tx_owner": "OGE",
+      "mw": 258.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "1/26/2026",
+      "proposed_completion": "10/1/2028",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "GEN-2026-SR9",
+      "name": null,
+      "developer": null,
+      "county": "Wright",
+      "state": "KS",
+      "sub": "Spearville to Clark County 345 kV line",
+      "tx_owner": "ITCGP",
+      "mw": 252.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "12/18/2025",
+      "proposed_completion": "12/1/2027",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "GEN-2026-SR13",
+      "name": null,
+      "developer": null,
+      "county": "Gruver",
+      "state": "TX",
+      "sub": "Hitchland 345kV",
+      "tx_owner": "SPS",
+      "mw": 208.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "1/17/2026",
+      "proposed_completion": "4/28/2027",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "GEN-2026-SR15",
+      "name": null,
+      "developer": null,
+      "county": "Balko",
+      "state": "OK",
+      "sub": "Beaver County - Woodward EHV Dbl Ckt (Badger) 345kV",
+      "tx_owner": "OGE",
+      "mw": 200.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "1/19/2026",
+      "proposed_completion": "2/14/2029",
+      "withdrawn_date": "",
+      "iso": "SPP"
+    },
+    {
+      "id": "S1140",
       "name": null,
       "developer": "",
-      "county": "",
+      "county": "Clinton",
       "state": "",
-      "sub": "",
-      "tx_owner": "NORTHERN STATES POWER COMPANY",
-      "mw": 0.0,
+      "sub": "Calamus East",
+      "tx_owner": "GREAT RIVER ENERGY",
+      "mw": 200.0,
       "fuel": "",
       "status": "Active",
       "queue_date": "nan",
@@ -34,164 +120,52 @@
       "iso": "MISO"
     },
     {
-      "id": "R5090",
+      "id": "GEN-2026-SR14",
       "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "NORTHERN STATES POWER COMPANY",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
+      "developer": null,
+      "county": "Panhandle",
+      "state": "TX",
+      "sub": "Martin 115 kV Substation",
+      "tx_owner": "SPS",
+      "mw": 158.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "1/16/2026",
+      "proposed_completion": "12/29/2028",
       "withdrawn_date": "",
-      "iso": "MISO"
+      "iso": "SPP"
     },
     {
-      "id": "J4213",
+      "id": "GEN-2026-SR10",
       "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "ENTERGY ARKANSAS, LLC",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
+      "developer": null,
+      "county": "Spearman",
+      "state": "TX",
+      "sub": "Hitchland 345kV",
+      "tx_owner": "SPS",
+      "mw": 150.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "1/14/2026",
+      "proposed_completion": "12/31/2027",
       "withdrawn_date": "",
-      "iso": "MISO"
+      "iso": "SPP"
     },
     {
-      "id": "J4214",
+      "id": "GEN-2026-SR12",
       "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "ENTERGY ARKANSAS, LLC",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
+      "developer": null,
+      "county": "Balko",
+      "state": "OK",
+      "sub": "Bull Creek 115 kV substation",
+      "tx_owner": "SPS",
+      "mw": 100.0,
+      "fuel": "Battery/Storage",
+      "status": NaN,
+      "queue_date": "1/18/2026",
+      "proposed_completion": "12/2/2029",
       "withdrawn_date": "",
-      "iso": "MISO"
-    },
-    {
-      "id": "J4215",
-      "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "ENTERGY ARKANSAS, LLC",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
-      "withdrawn_date": "",
-      "iso": "MISO"
-    },
-    {
-      "id": "J4216",
-      "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
-      "withdrawn_date": "",
-      "iso": "MISO"
-    },
-    {
-      "id": "J4217",
-      "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
-      "withdrawn_date": "",
-      "iso": "MISO"
-    },
-    {
-      "id": "J4218",
-      "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
-      "withdrawn_date": "",
-      "iso": "MISO"
-    },
-    {
-      "id": "J4219",
-      "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
-      "withdrawn_date": "",
-      "iso": "MISO"
-    },
-    {
-      "id": "J4220",
-      "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "CLECO POWER LLC",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
-      "withdrawn_date": "",
-      "iso": "MISO"
-    },
-    {
-      "id": "J4221",
-      "name": null,
-      "developer": "",
-      "county": "",
-      "state": "",
-      "sub": "",
-      "tx_owner": "ENTERGY ARKANSAS, LLC",
-      "mw": 0.0,
-      "fuel": "",
-      "status": "Active",
-      "queue_date": "nan",
-      "proposed_completion": "",
-      "withdrawn_date": "",
-      "iso": "MISO"
+      "iso": "SPP"
     }
   ],
   "withdrawals": [],
@@ -698,26 +672,6 @@
     },
     {
       "project": {
-        "id": "GEN-2025-SR18",
-        "name": null,
-        "developer": null,
-        "county": "Indepedence",
-        "state": "MO",
-        "sub": "Blue Valley 161kV Substation",
-        "tx_owner": "INDN",
-        "mw": 50.0,
-        "fuel": "Thermal",
-        "status": "Active",
-        "queue_date": "6/12/2025",
-        "proposed_completion": "11/30/2029",
-        "withdrawn_date": "",
-        "iso": "SPP"
-      },
-      "old_status": NaN,
-      "new_status": "Active"
-    },
-    {
-      "project": {
         "id": "GEN-2025-SR16",
         "name": null,
         "developer": null,
@@ -795,19 +749,36 @@
       },
       "old_status": NaN,
       "new_status": NaN
+    },
+    {
+      "project": {
+        "id": "GEN-2025-SR12",
+        "name": null,
+        "developer": null,
+        "county": "Red Rock",
+        "state": "OK",
+        "sub": "Sooner 138 kV Substation",
+        "tx_owner": "OG&E",
+        "mw": 116.0,
+        "fuel": "Battery/Storage",
+        "status": NaN,
+        "queue_date": "5/31/2025",
+        "proposed_completion": "5/1/2030",
+        "withdrawn_date": "",
+        "iso": "SPP"
+      },
+      "old_status": NaN,
+      "new_status": NaN
     }
   ],
   "developer_activity": {
     "most_active_adders": [
       [
-        "",
+        null,
         {
-          "count": 11,
-          "mw": 0.0,
+          "count": 8,
+          "mw": 1826.0,
           "projects": [
-            null,
-            null,
-            null,
             null,
             null,
             null,
@@ -818,6 +789,16 @@
             null
           ]
         }
+      ],
+      [
+        "",
+        {
+          "count": 1,
+          "mw": 200.0,
+          "projects": [
+            null
+          ]
+        }
       ]
     ],
     "most_active_droppers": []
@@ -825,15 +806,64 @@
   "substation_activity": {
     "hottest_subs": [
       [
-        "",
+        "Cimmarron to Lawton 345 kV Line",
         {
-          "count": 11,
-          "mw": 0.0
+          "count": 1,
+          "mw": 500.0
+        }
+      ],
+      [
+        "Hitchland 345kV",
+        {
+          "count": 2,
+          "mw": 358.0
+        }
+      ],
+      [
+        "Johnson County 345kV Substation",
+        {
+          "count": 1,
+          "mw": 258.0
+        }
+      ],
+      [
+        "Spearville to Clark County 345 kV line",
+        {
+          "count": 1,
+          "mw": 252.0
+        }
+      ],
+      [
+        "Beaver County - Woodward EHV Dbl Ckt (Badger) 345kV",
+        {
+          "count": 1,
+          "mw": 200.0
+        }
+      ],
+      [
+        "Calamus East",
+        {
+          "count": 1,
+          "mw": 200.0
+        }
+      ],
+      [
+        "Martin 115 kV Substation",
+        {
+          "count": 1,
+          "mw": 158.0
+        }
+      ],
+      [
+        "Bull Creek 115 kV substation",
+        {
+          "count": 1,
+          "mw": 100.0
         }
       ]
     ],
     "clearing_subs": []
   },
   "narrative": "",
-  "total_projects": 8400
+  "total_projects": 8409
 }
