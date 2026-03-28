@@ -33,5 +33,21 @@ jobs:
           git add -A data/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "National Fuel Gas refresh (auto)"
-          git pull --rebase origin main
-          git push origin main
+
+          # Retry push up to 3 times with pull-and-rerun on conflict
+          for attempt in 1 2 3; do
+            if git push origin main; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "Push failed (attempt $attempt), pulling and re-running..."
+            git reset --soft HEAD~1
+            git stash
+            git pull origin main
+            git stash pop || true
+            git add -A data/
+            git diff --cached --quiet && echo "No changes after merge" && exit 0
+            git commit -m "National Fuel Gas refresh (auto)"
+          done
+          echo "Failed after 3 attempts"
+          exit 1
