@@ -354,8 +354,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#0668E1"></span>Meta</span><label class="tg"><input type="checkbox" id="t-hs-meta" onchange="togHSSub()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#7FBA00"></span>Microsoft</span><label class="tg"><input type="checkbox" id="t-hs-msft" onchange="togHSSub()"><span class="ts"></span></label></div>
 </div>
-<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>DC Pipeline — Planned (657)</span><label class="tg"><input type="checkbox" id="t-dcpp" onchange="tog('dcpp')"><span class="ts"></span></label></div>
-<div class="li"><span class="ll"><span class="ld" style="background:#8B6B4A"></span>DC Pipeline — Operating (511)</span><label class="tg"><input type="checkbox" id="t-dcpo" onchange="tog('dcpo')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#C4854C"></span>DC Pipeline — Planned (982)</span><label class="tg"><input type="checkbox" id="t-dcpp" onchange="tog('dcpp')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#8B6B4A"></span>DC Pipeline — Operating (808)</span><label class="tg"><input type="checkbox" id="t-dcpo" onchange="tog('dcpo')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#FF7043"></span>DC Pipeline — Construction (210)</span><label class="tg"><input type="checkbox" id="t-dccon" onchange="tog('dccon')"><span class="ts"></span></label></div>
+<div class="li"><span class="ll"><span class="ld" style="background:#7E57C2"></span>DC Land Banks (101)</span><label class="tg"><input type="checkbox" id="t-dclb" onchange="tog('dclb')"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#AB47BC"></span>Data Centers (Colo)</span><label class="tg"><input type="checkbox" id="t-dc" onchange="tog('dc')"><span class="ts"></span></label></div>
 </div>
 </div>
@@ -529,6 +531,8 @@ st:{on:true,mz:0,ly:null},
 hs:{on:false,mz:0,g:L.layerGroup(),ld:false,ac:null},
 dcpp:{g:L.layerGroup(),ld:false},
 dcpo:{g:L.layerGroup(),ld:false},
+dccon:{g:L.layerGroup(),ld:false},
+dclb:{g:L.layerGroup(),ld:false},
 pgas:{g:L.layerGroup(),ld:false},
 rrc:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null}
 };
@@ -545,7 +549,7 @@ else{map.removeLayer(s.g);s.g.clearLayers()}
 uLeg();return;
 }
 if(n==='gas'){if(s.on){ldGas()}else{if(eiaGasLayer)map.removeLayer(eiaGasLayer)}uLeg();return}
-if(n==='dcpp'||n==='dcpo'){if(s.on){s.g.addTo(map);ldDCPipeline()}else{map.removeLayer(s.g)}uLeg();return}
+if(n==='dcpp'||n==='dcpo'||n==='dccon'||n==='dclb'){if(s.on){s.g.addTo(map);ldDCPipeline()}else{map.removeLayer(s.g)}uLeg();return}
 if(n==='pgas'){if(s.on){s.g.addTo(map);ldPGas()}else{map.removeLayer(s.g)}uLeg();return}
 if(s.on){if(s.g)s.g.addTo(map);if(s.ly)s.ly.addTo(map);rl(n)}
 else{if(s.g){map.removeLayer(s.g);s.g.clearLayers()}if(s.ly){map.removeLayer(s.ly);if(n!=='cty'&&n!=='st')s.ly=null}if(n==='cty'&&ctyLabels){map.removeLayer(ctyLabels)}}
@@ -565,7 +569,7 @@ function rl(n){
 var s=LS[n];if(!s.on)return;var z=map.getZoom();
 if(n==='wtr'){rWtr();return}
 if(z<s.mz){if(s.g)s.g.clearLayers();return}
-if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='dcpp'||n==='dcpo')ldDCPipeline();else if(n==='pgas')ldPGas();else if(n==='cty')ldCty();
+if(n==='tx')ldTx();else if(n==='sub')ldSub();else if(n==='gas')ldGas();else if(n==='osmpipe')ldOSMPipe();else if(n==='gi')loadGI();else if(n==='dc')ldDC();else if(n==='hs')ldHS();else if(n==='dcpp'||n==='dcpo'||n==='dccon'||n==='dclb')ldDCPipeline();else if(n==='pgas')ldPGas();else if(n==='cty')ldCty();
 }
 
 function bboxEnv(){
@@ -1048,11 +1052,48 @@ if(loc)popup+="<b>Location:</b> "+loc+"<br>";
 if(p.source_1)popup+="<a href='"+p.source_1+"' target='_blank' rel='noopener' style='color:#C4854C'>Source</a>";
 if(p.source_2)popup+=" &middot; <a href='"+p.source_2+"' target='_blank' rel='noopener' style='color:#C4854C'>Source 2</a>";
 popup+="</div>";
-popup+="<div style='font-size:10px;color:#888;margin-top:4px'>Source: Cleanview</div></div>";
+var src=p.source==='baxtel'?'Baxtel':'Cleanview';
+popup+="<div style='font-size:10px;color:#888;margin-top:4px'>Source: "+src+"</div></div>";
 m.bindPopup(popup);
 if(planned)pp.g.addLayer(m);else po.g.addLayer(m);
 });
 }).catch(function(e){console.error('DC Pipeline error:',e);dcpLoaded=false});
+fetch('data/dc-construction.geojson').then(function(r){return r.json()}).then(function(gj){
+var con=LS.dccon;
+gj.features.forEach(function(feat){
+var p=feat.properties;
+var coords=feat.geometry.coordinates;
+var m=L.circleMarker([coords[1],coords[0]],{radius:5,fillColor:'#FF7043',fillOpacity:0.8,color:'#fff',weight:1.5});
+var popup="<div style='min-width:260px;max-width:340px'>";
+popup+="<div style='font-weight:700;font-size:14px;margin-bottom:6px;font-family:DM Sans,sans-serif'>"+(p.project_name||'Unknown Project')+"</div>";
+popup+="<div style='font-size:12px;line-height:1.6;font-family:DM Sans,sans-serif'>";
+if(p.developer)popup+="<b>Developer:</b> "+p.developer+"<br>";
+popup+="<b>Status:</b> Under Construction<br>";
+if(p.capacity_mw)popup+="<b>Capacity:</b> "+formatMW(p.capacity_mw)+"<br>";
+popup+="</div>";
+popup+="<div style='font-size:10px;color:#888;margin-top:4px'>Source: Baxtel</div></div>";
+m.bindPopup(popup);
+con.g.addLayer(m);
+});
+}).catch(function(e){console.error('DC Construction error:',e)});
+fetch('data/dc-land-banks.geojson').then(function(r){return r.json()}).then(function(gj){
+var lb=LS.dclb;
+gj.features.forEach(function(feat){
+var p=feat.properties;
+var coords=feat.geometry.coordinates;
+var m=L.circleMarker([coords[1],coords[0]],{radius:6,fillColor:'#7E57C2',fillOpacity:0.8,color:'#fff',weight:1.5});
+var popup="<div style='min-width:260px;max-width:340px'>";
+popup+="<div style='font-weight:700;font-size:14px;margin-bottom:6px;font-family:DM Sans,sans-serif'>"+(p.project_name||'Unknown Project')+"</div>";
+popup+="<div style='font-size:12px;line-height:1.6;font-family:DM Sans,sans-serif'>";
+if(p.developer)popup+="<b>Developer:</b> "+p.developer+"<br>";
+popup+="<b>Status:</b> Land Bank<br>";
+if(p.capacity_mw)popup+="<b>Capacity:</b> "+formatMW(p.capacity_mw)+"<br>";
+popup+="</div>";
+popup+="<div style='font-size:10px;color:#888;margin-top:4px'>Source: Baxtel</div></div>";
+m.bindPopup(popup);
+lb.g.addLayer(m);
+});
+}).catch(function(e){console.error('DC Land Banks error:',e)});
 }
 
 var pgasLoaded=false;
@@ -3819,6 +3860,11 @@ if(LS.gi.types.gproc)h+='<div class="lgi"><span class="ld" style="background:#00
 if(LS.gi.types.gstor)h+='<div class="lgi"><span class="ld" style="background:#5C6BC0"></span>Storage</div>';
 if(LS.gi.types.gicon)h+='<div class="lgi"><span class="ld" style="background:#EC407A"></span>Interconnect</div>';
 }
+if(LS.dcpp.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#C4854C"></span>DC Planned</div>'}
+if(LS.dcpo.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#8B6B4A"></span>DC Operating</div>'}
+if(LS.dccon.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF7043"></span>DC Construction</div>'}
+if(LS.dclb.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#7E57C2"></span>DC Land Bank</div>'}
+if(LS.pgas.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#E85D3A"></span>Planned Gas Gen</div>'}
 if(LS.dc.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#AB47BC"></span>Data Center</div>'}
 if(LS.hs.on){has=true;h+='<div class="lgi"><span class="ld" style="background:#FF9800"></span>AWS</div><div class="lgi"><span class="ld" style="background:#4285F4"></span>Google</div><div class="lgi"><span class="ld" style="background:#0668E1"></span>Meta</div><div class="lgi"><span class="ld" style="background:#7FBA00"></span>Microsoft</div><div class="lgi"><span class="ld" style="background:#EF5350"></span>xAI</div><div class="lgi"><span class="ld" style="background:#26A69A"></span>OpenAI/Oracle</div><div class="lgi"><span class="ld" style="background:#78909C"></span>Colo/Wholesale</div>'}if(LS.cty.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#F0EDE8"></span>County lines</div>'}
 var anyParcels=regridLayer?true:false;for(var _ps in PARCEL_URLS){if(parcelEnabled[_ps])anyParcels=true}
