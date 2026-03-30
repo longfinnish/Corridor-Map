@@ -913,7 +913,7 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-27",
+        "last_refreshed": "2026-03-30",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "contract_count": 232,
@@ -923,7 +923,7 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-27",
+        "last_refreshed": "2026-03-30",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "point_count": 606
@@ -932,7 +932,7 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_nwp",
-        "last_refreshed": "2026-03-27",
+        "last_refreshed": "2026-03-30",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "point_count": 586
@@ -1413,16 +1413,16 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-27",
+        "last_refreshed": "2026-03-30",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "point_count": 42
+        "point_count": 43
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-27",
+        "last_refreshed": "2026-03-30",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "point_count": 88
@@ -1448,16 +1448,16 @@
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-27",
+        "last_refreshed": "2026-03-30",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
-        "point_count": 42
+        "point_count": 43
       },
       "capacity": {
         "status": "captured",
         "access_method": "weekly_auto",
         "platform": "williams_mwpipe",
-        "last_refreshed": "2026-03-27",
+        "last_refreshed": "2026-03-30",
         "refresh_frequency_days": 7,
         "cloud_accessible": true,
         "point_count": 88
