@@ -1,0 +1,9 @@
+﻿TSP,TSP Prop,TSP Name,TSP FERC CID,Loc,Loc Name,Eff Date,Inact Date,Loc Stat Ind,Loc Type Ind,Dir Flo,Loc Zone,Loc Cnty,Loc St Abbrev,Up/Dn Ind,Up/Dn FERC CID Ind,Up/Dn Name,Up/Dn ID,Up/Dn ID Prop,Up/Dn FERC CID,Up/Dn Loc,Up/Dn Loc Name,PipelineSegmentCd,MarketArea,OpArea,GathTransInd,ProcessType,EGMFlag,AggAreaCd,Update D/T
+119380552,,TC Louisiana Intrastate Pipeline LLC,,610001  ,Beauregard,20250728,,A,INT,R,,BEAUREGARD,LA,Y,N,New Generation Gas Gathering LLC,,4233243,,,,EastLat,TCLISub,,T,,Y,,20260213 09:24
+119380552,,TC Louisiana Intrastate Pipeline LLC,,610002  ,Al Cormier Rd,20240201,,A,INT,R,,BEAUREGARD,LA,Y,N,"DTM LEAP Gas Gathering, LLC",117222931,,,,,EastLat,TCLISub,,T,,Y,,20251111 11:02
+119380552,,TC Louisiana Intrastate Pipeline LLC,,610003  ,Little Marsh,20240228,,A,INT,R,,BEAUREGARD,LA,Y,N,Louisiana Energy Gateway LLC,119217989,,,,,EastLat,TCLISub,,T,,Y,,20251111 11:02
+119380552,,TC Louisiana Intrastate Pipeline LLC,,620001  ,S. Main Rd,20240201,,A,INT,D,,JEFFERSON DAVIS,LA,Y,N,Targa Midstream Services LLC,801475463,,,,,EastLat,TCLISub,,T,,Y,,20251111 11:03
+119380552,,TC Louisiana Intrastate Pipeline LLC,,620002  ,Broadmore Rd,20240201,,A,INT,D,,JEFFERSON DAVIS,LA,Y,Y,"Columbia Gulf Transmission, LLC",007854581,,C000307,4315,BROADMORE RD.,EastLat,TCLISub,,T,,Y,,20251111 11:04
+119380552,,TC Louisiana Intrastate Pipeline LLC,,620003  ,Dugas Rd,20240201,,A,INT,D,,JEFFERSON DAVIS,LA,Y,Y,ANR Pipeline Company,006958581,,C000623,513142,DUGAS RD REC,EastLat,TCLISub,,T,,Y,,20260102 11:36
+119380552,,TC Louisiana Intrastate Pipeline LLC,,ADM     ,Admin Point,20240201,,A,VIR,B,,BEAUREGARD,LA,N,N,,,,,,,EastLat,TCLISub,,T,,N,,20240206 22:26
+119380552,,TC Louisiana Intrastate Pipeline LLC,,OBA     ,OPERATIONAL BALANCING,20240201,,A,VIR,B,,BEAUREGARD,LA,N,N,,,,,,,EastLat,TCLISub,,T,,N,,20240206 22:26

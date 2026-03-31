@@ -1,0 +1,8 @@
+﻿TSP,TSP Prop,TSP Name,TSP FERC CID,Loc,Loc Name,Eff Date,Inact Date,Loc Stat Ind,Loc Type Ind,Dir Flo,Loc Zone,Loc Cnty,Loc St Abbrev,Up/Dn Ind,Up/Dn FERC CID Ind,Up/Dn Name,Up/Dn ID,Up/Dn ID Prop,Up/Dn FERC CID,Up/Dn Loc,Up/Dn Loc Name,PipelineSegmentCd,MarketArea,OpArea,GathTransInd,ProcessType,EGMFlag,AggAreaCd,Update D/T
+933722159,,Eaton Rapids Gas Storage System,,ADM     ,Admin Point,20081101,,A,VIR,B,,JACKSON,MI,N,N,,,,,,,ERGSSSeg,ERGSSSub,,T,,N,,20220928 22:15
+933722159,,Eaton Rapids Gas Storage System,,BATTLEC ,Battle Creek,20081101,,A,INT,B,,MECOSTA,MI,Y,N,Semco Pipeline Company,006113384,,,,,ERGSSSeg,ERGSSSub,,T,,Y,,20220928 22:15
+933722159,,Eaton Rapids Gas Storage System,,FOWLER  ,Fowler,20081101,,A,INT,B,,JACKSON,MI,Y,N,Consumers Energy Company,006959803,,,,,ERGSSSeg,ERGSSSub,,T,,Y,,20260327 12:52
+933722159,,Eaton Rapids Gas Storage System,,HANOVER ,Hanover,20081101,,A,INT,B,,JACKSON,MI,N,N,,,,,,,ERGSSSeg,ERGSSSub,,T,,Y,,20251001 15:26
+933722159,,Eaton Rapids Gas Storage System,,INV     ,Inventory Admin Point,20081101,,A,VIR,B,,JACKSON,MI,N,N,,,,,,,ERGSSSeg,ERGSSSub,,T,,N,,20260330 10:24
+933722159,,Eaton Rapids Gas Storage System,,MATTHEWS,Matthews,20081101,,A,INT,B,,JACKSON,MI,N,N,,,,,,,ERGSSSeg,ERGSSSub,,T,,Y,,20250128 09:22
+933722159,,Eaton Rapids Gas Storage System,,OBA     ,OPERATIONAL BALANCING,20081101,,A,VIR,B,,JACKSON,MI,N,N,,,,,,,ERGSSSeg,ERGSSSub,,T,,N,,20220928 22:15

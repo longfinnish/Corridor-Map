@@ -1,0 +1,594 @@
+{
+  "total_points": 18236,
+  "geocoding_quality_breakdown": {
+    "operator_confirmed_county": 9161,
+    "suspect_unfixed": 2159,
+    "operator_county_no_ref": 19,
+    "hifld_exact": 795,
+    "county_dispersed": 206,
+    "original": 5865,
+    "operator_county_hifld_snap": 30,
+    "operator_county_state_snap": 1
+  },
+  "operator_data_summary": {
+    "total_operator_locations_pulled": 18646,
+    "sources": {
+      "kinder_morgan": 4144,
+      "northern_natural": 2532,
+      "energy_transfer": 1779
+    }
+  },
+  "matching_stats": {
+    "total_points": 18236,
+    "already_good": 6660,
+    "matched_by_id": 9907,
+    "matched_by_name": 0,
+    "county_improved": 9856,
+    "hifld_county_snap": 30,
+    "suspect_unfixed": 1484,
+    "operator_location_files": [
+      {
+        "pipeline": "CenterPoint EGT",
+        "pipeline_code": "EGT",
+        "source": "energy_transfer",
+        "points_in_file": 1779,
+        "matched_to_map": 1676,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Tennessee Gas",
+        "pipeline_code": "TGP",
+        "source": "kinder_morgan",
+        "points_in_file": 1039,
+        "matched_to_map": 1000,
+        "coordinates_improved": 9
+      },
+      {
+        "pipeline": "NGPL",
+        "pipeline_code": "NGPL",
+        "source": "kinder_morgan",
+        "points_in_file": 724,
+        "matched_to_map": 610,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "El Paso",
+        "pipeline_code": "EPNG",
+        "source": "kinder_morgan",
+        "points_in_file": 1275,
+        "matched_to_map": 1260,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Southern Natural",
+        "pipeline_code": "SNG",
+        "source": "kinder_morgan",
+        "points_in_file": 461,
+        "matched_to_map": 450,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Colorado Interstate",
+        "pipeline_code": "CIG",
+        "source": "kinder_morgan",
+        "points_in_file": 295,
+        "matched_to_map": 279,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Midcontinent Express",
+        "pipeline_code": "MEP",
+        "source": "kinder_morgan",
+        "points_in_file": 30,
+        "matched_to_map": 30,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "KM Louisiana",
+        "pipeline_code": "KMLP",
+        "source": "kinder_morgan",
+        "points_in_file": 19,
+        "matched_to_map": 19,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "KM Illinois",
+        "pipeline_code": "KMIL",
+        "source": "kinder_morgan",
+        "points_in_file": 4,
+        "matched_to_map": 4,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "WIC",
+        "pipeline_code": "WIC",
+        "source": "kinder_morgan",
+        "points_in_file": 75,
+        "matched_to_map": 73,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "TransColorado",
+        "pipeline_code": "TCP",
+        "source": "kinder_morgan",
+        "points_in_file": 28,
+        "matched_to_map": 27,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Cheyenne Plains",
+        "pipeline_code": "CP",
+        "source": "kinder_morgan",
+        "points_in_file": 77,
+        "matched_to_map": 74,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Mojave",
+        "pipeline_code": "MOPC",
+        "source": "kinder_morgan",
+        "points_in_file": 66,
+        "matched_to_map": 66,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Sierrita",
+        "pipeline_code": "SGP",
+        "source": "kinder_morgan",
+        "points_in_file": 2,
+        "matched_to_map": 2,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Elba Express",
+        "pipeline_code": "EEC",
+        "source": "kinder_morgan",
+        "points_in_file": 17,
+        "matched_to_map": 17,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Stagecoach",
+        "pipeline_code": "STAG",
+        "source": "kinder_morgan",
+        "points_in_file": 15,
+        "matched_to_map": 13,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Arlington Storage",
+        "pipeline_code": "ARLS",
+        "source": "kinder_morgan",
+        "points_in_file": 15,
+        "matched_to_map": 15,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Young Gas Storage",
+        "pipeline_code": "YGS",
+        "source": "kinder_morgan",
+        "points_in_file": 2,
+        "matched_to_map": 2,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Northern Natural",
+        "pipeline_code": "NNG",
+        "source": "northern_natural",
+        "points_in_file": 2532,
+        "matched_to_map": 505,
+        "coordinates_improved": 6
+      },
+      {
+        "pipeline": "AlaTenn",
+        "pipeline_code": "ALTN",
+        "source": "bbt_quorum",
+        "points_in_file": 897,
+        "matched_to_map": 3,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Midla",
+        "pipeline_code": "MIDL",
+        "source": "bbt_quorum",
+        "points_in_file": 897,
+        "matched_to_map": 1,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Trans-Union",
+        "pipeline_code": "TRUN",
+        "source": "bbt_quorum",
+        "points_in_file": 897,
+        "matched_to_map": 0,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Ozark Gas",
+        "pipeline_code": "OZRK",
+        "source": "bbt_quorum",
+        "points_in_file": 897,
+        "matched_to_map": 4,
+        "coordinates_improved": 4
+      },
+      {
+        "pipeline": "ANR",
+        "pipeline_code": "ANR",
+        "source": "tc_energy",
+        "points_in_file": 737,
+        "matched_to_map": 620,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "ANR Storage",
+        "pipeline_code": "ANRS",
+        "source": "tc_energy",
+        "points_in_file": 4,
+        "matched_to_map": 4,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Bison",
+        "pipeline_code": "BISN",
+        "source": "tc_energy",
+        "points_in_file": 7,
+        "matched_to_map": 7,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Blue Lake",
+        "pipeline_code": "BGLK",
+        "source": "tc_energy",
+        "points_in_file": 4,
+        "matched_to_map": 4,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Columbia Gas",
+        "pipeline_code": "CGTC",
+        "source": "tc_energy",
+        "points_in_file": 4307,
+        "matched_to_map": 1271,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Columbia Gulf",
+        "pipeline_code": "CGUL",
+        "source": "tc_energy",
+        "points_in_file": 907,
+        "matched_to_map": 900,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Crossroads",
+        "pipeline_code": "CRPK",
+        "source": "tc_energy",
+        "points_in_file": 19,
+        "matched_to_map": 14,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "ERGSS",
+        "pipeline_code": "ERGS",
+        "source": "tc_energy",
+        "points_in_file": 7,
+        "matched_to_map": 7,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Hardy Storage",
+        "pipeline_code": "HRDY",
+        "source": "tc_energy",
+        "points_in_file": 6,
+        "matched_to_map": 6,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Millennium",
+        "pipeline_code": "MILL",
+        "source": "tc_energy",
+        "points_in_file": 309,
+        "matched_to_map": 53,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "Northern Border",
+        "pipeline_code": "NBRD",
+        "source": "tc_energy",
+        "points_in_file": 288,
+        "matched_to_map": 286,
+        "coordinates_improved": 0
+      },
+      {
+        "pipeline": "TC Louisiana",
+        "pipeline_code": "TCLP",
+        "source": "tc_energy",
+        "points_in_file": 8,
+        "matched_to_map": 8,
+        "coordinates_improved": 0
+      }
+    ]
+  },
+  "operator_location_files": [
+    {
+      "pipeline": "CenterPoint EGT",
+      "pipeline_code": "EGT",
+      "source": "energy_transfer",
+      "points_in_file": 1779,
+      "matched_to_map": 1676,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Tennessee Gas",
+      "pipeline_code": "TGP",
+      "source": "kinder_morgan",
+      "points_in_file": 1039,
+      "matched_to_map": 1000,
+      "coordinates_improved": 9
+    },
+    {
+      "pipeline": "NGPL",
+      "pipeline_code": "NGPL",
+      "source": "kinder_morgan",
+      "points_in_file": 724,
+      "matched_to_map": 610,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "El Paso",
+      "pipeline_code": "EPNG",
+      "source": "kinder_morgan",
+      "points_in_file": 1275,
+      "matched_to_map": 1260,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Southern Natural",
+      "pipeline_code": "SNG",
+      "source": "kinder_morgan",
+      "points_in_file": 461,
+      "matched_to_map": 450,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Colorado Interstate",
+      "pipeline_code": "CIG",
+      "source": "kinder_morgan",
+      "points_in_file": 295,
+      "matched_to_map": 279,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Midcontinent Express",
+      "pipeline_code": "MEP",
+      "source": "kinder_morgan",
+      "points_in_file": 30,
+      "matched_to_map": 30,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "KM Louisiana",
+      "pipeline_code": "KMLP",
+      "source": "kinder_morgan",
+      "points_in_file": 19,
+      "matched_to_map": 19,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "KM Illinois",
+      "pipeline_code": "KMIL",
+      "source": "kinder_morgan",
+      "points_in_file": 4,
+      "matched_to_map": 4,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "WIC",
+      "pipeline_code": "WIC",
+      "source": "kinder_morgan",
+      "points_in_file": 75,
+      "matched_to_map": 73,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "TransColorado",
+      "pipeline_code": "TCP",
+      "source": "kinder_morgan",
+      "points_in_file": 28,
+      "matched_to_map": 27,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Cheyenne Plains",
+      "pipeline_code": "CP",
+      "source": "kinder_morgan",
+      "points_in_file": 77,
+      "matched_to_map": 74,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Mojave",
+      "pipeline_code": "MOPC",
+      "source": "kinder_morgan",
+      "points_in_file": 66,
+      "matched_to_map": 66,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Sierrita",
+      "pipeline_code": "SGP",
+      "source": "kinder_morgan",
+      "points_in_file": 2,
+      "matched_to_map": 2,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Elba Express",
+      "pipeline_code": "EEC",
+      "source": "kinder_morgan",
+      "points_in_file": 17,
+      "matched_to_map": 17,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Stagecoach",
+      "pipeline_code": "STAG",
+      "source": "kinder_morgan",
+      "points_in_file": 15,
+      "matched_to_map": 13,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Arlington Storage",
+      "pipeline_code": "ARLS",
+      "source": "kinder_morgan",
+      "points_in_file": 15,
+      "matched_to_map": 15,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Young Gas Storage",
+      "pipeline_code": "YGS",
+      "source": "kinder_morgan",
+      "points_in_file": 2,
+      "matched_to_map": 2,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Northern Natural",
+      "pipeline_code": "NNG",
+      "source": "northern_natural",
+      "points_in_file": 2532,
+      "matched_to_map": 505,
+      "coordinates_improved": 6
+    },
+    {
+      "pipeline": "AlaTenn",
+      "pipeline_code": "ALTN",
+      "source": "bbt_quorum",
+      "points_in_file": 897,
+      "matched_to_map": 3,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Midla",
+      "pipeline_code": "MIDL",
+      "source": "bbt_quorum",
+      "points_in_file": 897,
+      "matched_to_map": 1,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Trans-Union",
+      "pipeline_code": "TRUN",
+      "source": "bbt_quorum",
+      "points_in_file": 897,
+      "matched_to_map": 0,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Ozark Gas",
+      "pipeline_code": "OZRK",
+      "source": "bbt_quorum",
+      "points_in_file": 897,
+      "matched_to_map": 4,
+      "coordinates_improved": 4
+    },
+    {
+      "pipeline": "ANR",
+      "pipeline_code": "ANR",
+      "source": "tc_energy",
+      "points_in_file": 737,
+      "matched_to_map": 620,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "ANR Storage",
+      "pipeline_code": "ANRS",
+      "source": "tc_energy",
+      "points_in_file": 4,
+      "matched_to_map": 4,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Bison",
+      "pipeline_code": "BISN",
+      "source": "tc_energy",
+      "points_in_file": 7,
+      "matched_to_map": 7,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Blue Lake",
+      "pipeline_code": "BGLK",
+      "source": "tc_energy",
+      "points_in_file": 4,
+      "matched_to_map": 4,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Columbia Gas",
+      "pipeline_code": "CGTC",
+      "source": "tc_energy",
+      "points_in_file": 4307,
+      "matched_to_map": 1271,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Columbia Gulf",
+      "pipeline_code": "CGUL",
+      "source": "tc_energy",
+      "points_in_file": 907,
+      "matched_to_map": 900,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Crossroads",
+      "pipeline_code": "CRPK",
+      "source": "tc_energy",
+      "points_in_file": 19,
+      "matched_to_map": 14,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "ERGSS",
+      "pipeline_code": "ERGS",
+      "source": "tc_energy",
+      "points_in_file": 7,
+      "matched_to_map": 7,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Hardy Storage",
+      "pipeline_code": "HRDY",
+      "source": "tc_energy",
+      "points_in_file": 6,
+      "matched_to_map": 6,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Millennium",
+      "pipeline_code": "MILL",
+      "source": "tc_energy",
+      "points_in_file": 309,
+      "matched_to_map": 53,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "Northern Border",
+      "pipeline_code": "NBRD",
+      "source": "tc_energy",
+      "points_in_file": 288,
+      "matched_to_map": 286,
+      "coordinates_improved": 0
+    },
+    {
+      "pipeline": "TC Louisiana",
+      "pipeline_code": "TCLP",
+      "source": "tc_energy",
+      "points_in_file": 8,
+      "matched_to_map": 8,
+      "coordinates_improved": 0
+    }
+  ]
+}

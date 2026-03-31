@@ -1,0 +1,5 @@
+﻿TSP,TSP Prop,TSP Name,TSP FERC CID,Loc,Loc Name,Eff Date,Inact Date,Loc Stat Ind,Loc Type Ind,Dir Flo,Loc Zone,Loc Cnty,Loc St Abbrev,Up/Dn Ind,Up/Dn FERC CID Ind,Up/Dn Name,Up/Dn ID,Up/Dn ID Prop,Up/Dn FERC CID,Up/Dn Loc,Up/Dn Loc Name,PipelineSegmentCd,MarketArea,OpArea,GathTransInd,ProcessType,EGMFlag,AggAreaCd,Update D/T
+830186383,,Blue Lake Gas Storage Company,C000625,542526  ,Blue Lake,,20230524,I,INT,B,,OTSEGO,MI,Y,Y,ANR Pipeline Company,006958581,,C000623,542526,Blue Lake,BLGSCSeg,BLGSCSub,,T,,Y,,20230524 14:54
+830186383,,Blue Lake Gas Storage Company,C000625,ADM     ,Admin Point,20070314,,A,VIR,B,,OTSEGO,MI,N,N,,,,,,,BLGSCSeg,BLGSCSub,,T,,N,,20220928 22:15
+830186383,,Blue Lake Gas Storage Company,C000625,INV     ,Inventory Admin Point,20070314,,A,VIR,B,,OTSEGO,MI,N,N,,,,,,,BLGSCSeg,BLGSCSub,,T,,N,,20260323 16:24
+830186383,,Blue Lake Gas Storage Company,C000625,OBA     ,OPERATIONAL BALANCING,20070314,,A,VIR,B,,OTSEGO,MI,N,N,,,,,,,BLGSCSeg,BLGSCSub,,T,,N,,20220928 22:15

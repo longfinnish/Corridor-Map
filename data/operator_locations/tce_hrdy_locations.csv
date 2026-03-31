@@ -1,0 +1,7 @@
+﻿TSP,TSP Prop,TSP Name,TSP FERC CID,Loc,Loc Name,Eff Date,Inact Date,Loc Stat Ind,Loc Type Ind,Dir Flo,Loc Zone,Loc Cnty,Loc St Abbrev,Up/Dn Ind,Up/Dn FERC CID Ind,Up/Dn Name,Up/Dn ID,Up/Dn ID Prop,Up/Dn FERC CID,Up/Dn Loc,Up/Dn Loc Name,PipelineSegmentCd,MarketArea,OpArea,GathTransInd,ProcessType,EGMFlag,AggAreaCd,Update D/T
+,465,"Hardy Storage Company, LLC",C000310,853180  ,HAMPSHIRE                       ,19000101,,A,STR,B,HRD,HAMPSHIRE,WV,Y,Y,Hampshire Gas Company,,8539,C001977,853180,HAMPSHIRE,HRDSEG,HRDSUBSY,,T,,Y,,20170425 14:01
+,465,"Hardy Storage Company, LLC",C000310,ADM     ,Admin Point for RP,19000101,,A,VIR,B,HRD,HARDY,WV,N,N,,,,,,,HRDSEG,HRDSUBSY,,T,,N,,20180326 09:45
+,465,"Hardy Storage Company, LLC",C000310,INV     ,Inventory Admin Point,19000101,,A,VIR,B,HRD,HARDY,WV,N,N,,,,,,,HRDSEG,HRDSUBSY,,T,,N,,20180326 09:44
+,465,"Hardy Storage Company, LLC",C000310,LOSTRI  ,Lost River,19000101,,A,INT,B,HRD,HARDY,WV,Y,Y,"Columbia Gas Transmission, LLC",054748041,,C000306,LOSTRI,Lost River,HRDSEG,HRDSUBSY,,T,,Y,,20231017 15:12
+,465,"Hardy Storage Company, LLC",C000310,OBA     ,OPERATIONAL BALANCING,19000101,,A,VIR,B,HRD,HARDY,WV,N,N,,,,,,,HRDSEG,HRDSUBSY,,T,,N,,20160509 14:42
+,465,"Hardy Storage Company, LLC",C000310,STOR    ,Hardy Storage,19000101,,A,VIR,B,HRD,HARDY,WV,N,N,,,,,,,HRDSEG,HRDSUBSY,,T,,Y,,20251209 10:10

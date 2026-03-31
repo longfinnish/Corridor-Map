@@ -1,0 +1,5 @@
+﻿TSP,TSP Prop,TSP Name,TSP FERC CID,Loc,Loc Name,Eff Date,Inact Date,Loc Stat Ind,Loc Type Ind,Dir Flo,Loc Zone,Loc Cnty,Loc St Abbrev,Up/Dn Ind,Up/Dn FERC CID Ind,Up/Dn Name,Up/Dn ID,Up/Dn ID Prop,Up/Dn FERC CID,Up/Dn Loc,Up/Dn Loc Name,PipelineSegmentCd,MarketArea,OpArea,GathTransInd,ProcessType,EGMFlag,AggAreaCd,Update D/T
+092454453,,ANR Storage Company,C000624,40785   ,Deward,,20230524,I,INT,B,,CRAWFORD,MI,N,N,,,,,,,ANRSCSeg,ANRSCSub,,T,,Y,,20230524 14:55
+092454453,,ANR Storage Company,C000624,ADM     ,Admin Point,20220101,,A,VIR,B,,CRAWFORD,MI,N,N,,,,,,,ANRSCSeg,ANRSCSub,,T,,N,,20220928 22:15
+092454453,,ANR Storage Company,C000624,INV     ,Inventory Admin Point,20220101,,A,VIR,B,,CRAWFORD,MI,N,N,,,,,,,ANRSCSeg,ANRSCSub,,T,,N,,20260330 09:30
+092454453,,ANR Storage Company,C000624,OBA     ,OPERATIONAL BALANCING,20220101,,A,VIR,B,,CRAWFORD,MI,N,N,,,,,,,ANRSCSeg,ANRSCSub,,T,,N,,20220928 22:15
