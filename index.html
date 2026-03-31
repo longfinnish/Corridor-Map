@@ -1353,7 +1353,7 @@ h+='</div>';
 L.popup({maxWidth:340}).setLatLng(e.latlng).setContent(h).openOn(map);
 // Fire async owner search for same-owner adjacent parcels
 if(rgData&&rgData.owner){
-lookupOwnerParcels(rgData.owner,parseFloat(lat),parseFloat(lon),parseFloat(rgData.ll_gisacre||0),rgPath);
+lookupOwnerParcels(rgData.owner,parseFloat(lat),parseFloat(lon),parseFloat(rgData.ll_gisacre||0),rgPath,rgData.county||'',rgData.state2||'');
 }
 });
 }).catch(function(){
@@ -4458,16 +4458,14 @@ document.body.appendChild(ov);
 var _ownerGroupLayer=L.layerGroup();
 var _ownerGroupData=null; // {owner, totalAcres, parcelCount, parcels[], centroid}
 
-function lookupOwnerParcels(owner,lat,lon,clickedAcres,clickedPath){
+function lookupOwnerParcels(owner,lat,lon,clickedAcres,clickedPath,county,state2){
 _ownerGroupData=null;
 _ownerGroupLayer.clearLayers();
-// Build ~5 mile bbox around the clicked point
-var dLat=5/69; // ~5 miles in degrees lat
-var dLon=5/(69*Math.cos(lat*Math.PI/180));
-var bbox=(lon-dLon).toFixed(6)+','+(lat-dLat).toFixed(6)+','+(lon+dLon).toFixed(6)+','+(lat+dLat).toFixed(6);
+// Query by owner + county (fast indexed lookup) instead of bbox (slow, 504 timeout)
 var url='https://app.regrid.com/api/v2/parcels/query?token='+REGRID_TOKEN
 +'&fields[owner][ilike]='+encodeURIComponent(owner)
-+'&bbox='+bbox
++(county?'&fields[county][eq]='+encodeURIComponent(county):'')
++(state2?'&fields[state2][eq]='+encodeURIComponent(state2):'')
 +'&limit=50';
 fetch(url).then(function(r){return r.json()}).then(function(d){
 var features=(d.parcels?d.parcels.features:d.features)||[];
@@ -4511,7 +4509,7 @@ var el=document.getElementById('owner-group-info');
 if(el){
 el.innerHTML='<div style="background:rgba(102,187,106,0.08);border:1px solid rgba(102,187,106,0.2);border-radius:4px;padding:6px 10px">'
 +'<div style="font-size:12px;font-weight:700;color:#66BB6A">'+parcels.length+' parcels \u2022 '+totalAcres.toLocaleString()+' total acres</div>'
-+'<div style="font-size:11px;color:rgba(240,237,232,0.5);margin-top:2px">Same owner within 5 mi</div>'
++'<div style="font-size:11px;color:rgba(240,237,232,0.5);margin-top:2px">Same owner in county</div>'
 +'<a href="#" onclick="_showOwnerParcels();return false" style="font-size:11px;color:#42A5F5;text-decoration:none;font-weight:600">Show All on Map</a>'
 +'</div>';
 }
