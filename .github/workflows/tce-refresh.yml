@@ -23,6 +23,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
+      - name: Pull latest
+        run: git pull origin main
+
       - name: Fetch TC Energy IOC + Locations
         run: python scripts/fetch_tce_data.py
 
