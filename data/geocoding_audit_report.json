@@ -56829,9 +56829,9 @@
     }
   ],
   "regeocode_summary": {
-    "hifld_exact": 4180,
-    "county_dispersed": 7227,
-    "suspect_unfixed": 879,
+    "hifld_exact": 6660,
+    "county_dispersed": 9392,
+    "suspect_unfixed": 2184,
     "method": "Dispersed county-centroid points along corridor using HIFLD reference geometry as anchors"
   }
 }
