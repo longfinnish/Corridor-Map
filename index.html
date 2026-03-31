@@ -2041,6 +2041,13 @@ savePipeline();
 }
 }
 }catch(e){}
+// Normalize lon→lng for any saved sites
+var _migrated=false;
+plData.folders.forEach(function(f){f.sites.forEach(function(s){
+if(s.lon!==undefined&&s.lng===undefined){s.lng=s.lon;delete s.lon;_migrated=true}
+if(s.lng===undefined&&s.longitude!==undefined){s.lng=s.longitude;delete s.longitude;_migrated=true}
+})});
+if(_migrated)savePipeline();
 plLoaded=true;
 renderPlMarkers();
 return Promise.resolve();
@@ -4587,7 +4594,7 @@ owner:owner,
 totalAcres:Math.round(totalAcres),
 parcelCount:parcels.length,
 parcels:parcels,
-centroid:{lat:cLat,lon:cLon}
+centroid:{lat:cLat,lng:cLon}
 };
 // Update popup
 var el=document.getElementById('owner-group-info');
@@ -4650,7 +4657,7 @@ owner:r.owner,
 totalAcres:Math.round(r.acres),
 parcelCount:r.parcelCount,
 parcels:r.parcels,
-centroid:{lat:r.lat,lon:r.lon}
+centroid:{lat:r.lat,lng:r.lon}
 };
 }
 showSaveModal();
