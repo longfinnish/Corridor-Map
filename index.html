@@ -2009,24 +2009,37 @@ var STAGES=[{id:'identified',label:'Identified',cls:'pl-stage-identified'},{id:'
 var STAGE_COLORS={identified:'#42A5F5',researching:'#FFB74D',outreach:'#AB47BC',loi:'#FF8A65',contract:'#66BB6A'};
 var plLoaded=false;
 
-function plAPI(method,body){
-var url='/api/pipeline';
-var opts={method:method,headers:{'Content-Type':'application/json'}};
-if(body)opts.body=JSON.stringify(body);
-return fetch(url,opts).then(function(r){return r.json()});
-}
-
 function loadPipeline(){
 if(plLoaded)return Promise.resolve();
-return plAPI('GET').then(function(data){
+try{
+var raw=localStorage.getItem('corridor_pipeline_crm');
+var data=raw?JSON.parse(raw):null;
 plData=data&&data.folders?data:{folders:[]};
+}catch(e){plData={folders:[]};}
+// Migrate legacy flat array from old addToPipeline()
+try{
+var legacy=localStorage.getItem('corridor_pipeline');
+if(legacy){
+var arr=JSON.parse(legacy);
+if(Array.isArray(arr)&&arr.length>0){
+var migrated={id:'f_migrated',name:'Imported Sites',sites:arr.map(function(p,i){
+return {id:'s_m'+i,name:p.name||'Site',lat:p.lat,lng:p.lng,county:p.county||'',state:p.state||'',
+stage:'identified',notes:'',acreage:p.acres?String(p.acres):'',owner:p.address||'',
+zoning:p.zoning||'',created:Date.now(),updated:Date.now()};
+})};
+plData.folders.push(migrated);
+localStorage.removeItem('corridor_pipeline');
+savePipeline();
+}
+}
+}catch(e){}
 plLoaded=true;
 renderPlMarkers();
-});
+return Promise.resolve();
 }
 
 function savePipeline(){
-plAPI('PUT',plData);
+localStorage.setItem('corridor_pipeline_crm',JSON.stringify(plData));
 renderPlMarkers();
 }
 
@@ -2203,7 +2216,12 @@ var p=_pendingSite;
 var folderOpts=plData.folders.map(function(f){return '<option value="'+f.id+'">'+f.name+'</option>'}).join('');
 var latStr=Number(p.lat).toFixed(4);
 var lngStr=Number(p.lng).toFixed(4);
-var autoName=(p.county||'Site')+(p.state==='LA'?' Parish':' County')+' \u2014 '+latStr+', '+lngStr;
+var autoName;
+if(p._screenData&&p._screenData.owner){
+autoName=p._screenData.owner+' \u2014 '+(p._screenData.acres||'?')+' ac';
+}else{
+autoName=(p.county||'Site')+(p.state==='LA'?' Parish':' County')+' \u2014 '+latStr+', '+lngStr;
+}
 var h='<div class="pl-save-box">';
 h+='<div class="pl-save-title">SAVE TO PIPELINE</div>';
 h+='<input class="pl-save-input" id="pl-save-name" placeholder="Site name" value="'+autoName+'">';
@@ -2245,7 +2263,7 @@ folderId=nf.id;
 }
 var folder=plData.folders.find(function(f){return f.id===folderId});
 if(!folder){alert('Select a folder');return}
-folder.sites.push({
+var site={
 id:'s_'+Date.now(),
 name:name,
 lat:p.lat,
@@ -2256,9 +2274,24 @@ stage:'identified',
 notes:'',
 created:Date.now(),
 updated:Date.now()
-});
+};
+// Carry over screening data from search results
+if(p._screenData){
+var sd=p._screenData;
+if(sd.acres)site.acreage=String(sd.acres);
+if(sd.owner)site.owner=sd.owner;
+if(sd.zoning)site.zoning=sd.zoning;
+var notes=[];
+if(sd.txDist)notes.push('TX line: '+sd.txDist+(sd.txKV?' ('+sd.txKV+')':''));
+if(sd.subDist)notes.push('Substation: '+sd.subDist);
+if(sd.gasDist)notes.push('Gas: '+sd.gasDist+(sd.gasPipeline?' ('+sd.gasPipeline+')':''));
+if(sd.fiberDist)notes.push('Fiber: '+sd.fiberDist);
+if(notes.length)site.notes=notes.join('\n');
+}
+folder.sites.push(site);
 savePipeline();
 closeSaveModal();
+openPipeline();
 }
 
 // Render pipeline markers on map
@@ -4382,43 +4415,22 @@ document.body.appendChild(ov);
 function addToPipeline(i){
 var r=window._searchResults[i];
 if(!r)return;
-// Use existing pipeline CRM if available
-if(typeof openPipeline==='function')openPipeline();
-// Build pipeline entry from search result
-var entry={
-name:r.owner+' - '+Math.round(r.acres)+' ac',
-county:r.county,
-state:r.state,
-acres:Math.round(r.acres),
-lat:r.lat,
-lng:r.lon,
-address:r.address||'',
-zoning:r.zoning||'',
-txDist:r.txDist?r.txDist.toFixed(1)+'mi':'',
-txKV:r.txKV||'',
+// Check for duplicate across all pipeline folders
+loadPipeline().then(function(){
+var isDup=false;
+plData.folders.forEach(function(f){f.sites.forEach(function(s){
+if(Math.abs(s.lat-r.lat)<0.0001&&Math.abs(s.lng-r.lon)<0.0001)isDup=true;
+})});
+if(isDup){alert('Already in pipeline');return}
+// Set pending site with search screening data
+_pendingSite={lat:r.lat,lng:r.lon,county:r.county||'',state:r.state||'',
+_screenData:{acres:Math.round(r.acres),owner:r.owner||'',zoning:r.zoning||'',
+txDist:r.txDist?r.txDist.toFixed(1)+'mi':'',txKV:r.txKV||'',
 subDist:r.subDist?r.subDist.toFixed(1)+'mi':'',
 gasDist:r.gasDist<999?r.gasDist.toFixed(1)+'mi':'',
-gasPipeline:r.gasPipe||'',
-gasAvail:r.gasAvail||0,
-fiberDist:r.fiberDist<999?r.fiberDist.toFixed(1)+'mi':'',
-fema:r.fema||'',
-rough:r.rough||'',
-status:'Prospect',
-source:'Site Search',
-added:new Date().toISOString().split('T')[0]
-};
-// Add to pipeline storage
-var pipeline=JSON.parse(localStorage.getItem('corridor_pipeline')||'[]');
-// Check for duplicate
-var dup=pipeline.some(function(p){return p.lat===entry.lat&&p.lng===entry.lng});
-if(dup){alert('Already in pipeline');return}
-pipeline.push(entry);
-localStorage.setItem('corridor_pipeline',JSON.stringify(pipeline));
-// Add marker to map
-var m=L.marker([r.lat,r.lon],{icon:L.divIcon({className:'',html:'<div style="background:#C4854C;color:#1B2B3A;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px;white-space:nowrap;border:1px solid #fff">PIPELINE</div>',iconSize:[60,20],iconAnchor:[30,10]})});
-m.addTo(map);
-alert('Added to pipeline: '+entry.name);
-if(typeof refreshPipeline==='function')refreshPipeline();
+gasPipeline:r.gasPipe||'',fiberDist:r.fiberDist<999?r.fiberDist.toFixed(1)+'mi':''}};
+showSaveModal();
+});
 }
 
 // ============================================================
