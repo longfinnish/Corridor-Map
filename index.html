@@ -116,7 +116,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .pl-notes:focus{outline:none;border-color:#C4854C}
 .pl-field-input{background:#1B2B3A;color:#F0EDE8;border:1px solid rgba(196,133,76,0.2);border-radius:4px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:11px;width:120px;text-align:right}
 .pl-field-input:focus{outline:none;border-color:#C4854C}
-#pl-save-modal{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}
+#pl-save-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}
 .pl-save-box{background:#1B2B3A;border-radius:10px;padding:20px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
 .pl-save-title{font-size:13px;font-weight:700;color:#C4854C;margin-bottom:12px;letter-spacing:1px}
 .pl-save-input{width:100%;background:#0f1923;color:#F0EDE8;border:1px solid rgba(196,133,76,0.3);border-radius:6px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;margin-bottom:8px}
@@ -1169,7 +1169,7 @@ uLeg();
 var _rgLast=0;
 var _lastCounty=null;
 map.on('click',function(e){
-if(mOn)return;
+if(mOn||_saveModalOpen)return;
 if(!regridLayer||!map.hasLayer(regridLayer)||map.getZoom()<14)return;
 if(e.originalEvent&&e.originalEvent.target.closest('.leaflet-popup'))return;
 if(e.originalEvent&&e.originalEvent.target.closest('path'))return;
@@ -2228,6 +2228,7 @@ renderPipeline();
 
 // Save modal — shown from parcel popup
 var _pendingSite=null;
+var _saveModalOpen=false;
 function showSaveModal(lat,lng,county,state){
 if(arguments.length>=4){_pendingSite={lat:lat,lng:lng,county:county||'',state:state||''};}
 if(!_pendingSite)return;
@@ -2265,6 +2266,11 @@ h+='<button class="pl-save-btn primary" id="pl-save-confirm">Save</button>';
 h+='</div></div>';
 modal.innerHTML=h;
 modal.style.display='flex';
+_saveModalOpen=true;
+// Prevent Leaflet from capturing clicks on the modal
+L.DomEvent.disableClickPropagation(modal);
+// Close on backdrop click (outside the save box)
+modal.onclick=function(ev){if(ev.target===modal)closeSaveModal()};
 setTimeout(function(){var el=document.getElementById('pl-save-name');if(el)el.select()},100);
 });
 }
@@ -2272,6 +2278,7 @@ setTimeout(function(){var el=document.getElementById('pl-save-name');if(el)el.se
 function closeSaveModal(){
 document.getElementById('pl-save-modal').style.display='none';
 _pendingSite=null;
+_saveModalOpen=false;
 _ownerGroupLayer.clearLayers();
 }
 
@@ -3979,7 +3986,6 @@ console.log('Corridor Map v4.3.0 loaded');
 </div>
 </div>
 </div>
-<div id="pl-save-modal" style="display:none"></div>
 <div id="pf-shade" onclick="closePFPanel()"></div>
 <div id="pf-panel">
 <div id="pf-inner">
@@ -4273,7 +4279,68 @@ state:p.state2||''
 // Sort by acreage desc
 results.sort(function(a,b){return b.acres-a.acres});
 
-document.getElementById('srch-status').textContent=results.length+' parcels match all criteria (of '+parcels.length+' queried)';
+// Group adjacent parcels by same owner (exact match)
+var ownerGroups={};
+results.forEach(function(r){
+var key=r.owner;
+if(!ownerGroups[key])ownerGroups[key]=[];
+ownerGroups[key].push(r);
+});
+var grouped=[];
+Object.keys(ownerGroups).forEach(function(owner){
+var parcels=ownerGroups[owner];
+if(parcels.length===1){grouped.push(parcels[0]);return}
+// Cluster by adjacency (~1 mile between centroids)
+var clusters=[];
+parcels.forEach(function(p){
+var added=false;
+for(var ci=0;ci<clusters.length;ci++){
+for(var cj=0;cj<clusters[ci].length;cj++){
+if(haversine(p.lat,p.lon,clusters[ci][cj].lat,clusters[ci][cj].lon)<1){
+clusters[ci].push(p);added=true;break;
+}
+}
+if(added)break;
+}
+if(!added)clusters.push([p]);
+});
+clusters.forEach(function(cl){
+if(cl.length===1){grouped.push(cl[0]);return}
+// Merge cluster: use screening data from parcel with best infra proximity
+cl.sort(function(a,b){return (a.txDist+a.subDist+a.gasDist)-(b.txDist+b.subDist+b.gasDist)});
+var best=cl[0];
+var totalAcres=0;
+var allGeoms=[];
+var allParcels=[];
+cl.forEach(function(p){
+totalAcres+=parseFloat(p.acres)||0;
+if(p.geom)allGeoms.push(p.geom);
+allParcels.push({lat:p.lat,lon:p.lon,acres:Math.round(p.acres),path:p.path});
+});
+var cLat=0,cLon=0;
+cl.forEach(function(p){cLat+=p.lat;cLon+=p.lon});
+cLat/=cl.length;cLon/=cl.length;
+var merged={
+owner:best.owner,address:'',acres:totalAcres,
+txDist:best.txDist,txKV:best.txKV,subDist:best.subDist,
+gasDist:best.gasDist,gasName:best.gasName,gasPipe:best.gasPipe,gasAvail:best.gasAvail,
+fiberDist:best.fiberDist,fiberName:best.fiberName,
+fema:best.fema,rough:best.rough,
+elev_high:best.elev_high,elev_low:best.elev_low,
+zoning:best.zoning,zoning_type:best.zoning_type,
+bldg_count:0,lat:cLat,lon:cLon,
+geom:null,_groupGeoms:allGeoms,
+parcelCount:cl.length,parcels:allParcels,
+county:best.county,state:best.state,path:best.path
+};
+grouped.push(merged);
+});
+});
+// Re-sort grouped results by total acreage desc
+grouped.sort(function(a,b){return b.acres-a.acres});
+results=grouped;
+
+document.getElementById('srch-status').textContent=results.length+' results ('+parcels.length+' parcels queried)';
 document.getElementById('srch-go-btn').disabled=false;
 
 // Render results
@@ -4282,10 +4349,15 @@ results.forEach(function(r,i){
 var txBadge=r.txDist<1?'sr-badge-good':r.txDist<3?'sr-badge-warn':'sr-badge-bad';
 var gasBadge=r.gasDist<3?'sr-badge-good':r.gasDist<7?'sr-badge-warn':'sr-badge-bad';
 var femaBadge=r.fema.indexOf('Low')>=0?'sr-badge-good':r.fema.indexOf('Moderate')>=0?'sr-badge-warn':'sr-badge-bad';
+var isGroup=r.parcelCount&&r.parcelCount>1;
 
 html+='<div class="sr-item" onclick="zoomResult('+i+')">';
 html+='<div style="display:flex;justify-content:space-between;align-items:center"><div class="sr-item-name">'+r.owner+'</div><button class="sr-badge sr-badge-good" style="cursor:pointer;border:none;font-family:inherit" onclick="event.stopPropagation();addToPipeline('+i+')" title="Add to Pipeline">+ Pipeline</button></div>';
+if(isGroup){
+html+='<div class="sr-item-detail" style="color:#66BB6A;font-weight:600">'+r.parcelCount+' parcels &bull; '+Math.round(r.acres).toLocaleString()+' total acres</div>';
+}else{
 html+='<div class="sr-item-detail">'+Math.round(r.acres)+' acres'+(r.address?' &bull; '+r.address:'')+(r.zoning?' &bull; '+r.zoning:'')+'</div>';
+}
 html+='<div class="sr-item-badges">';
 html+='<span class="sr-badge '+txBadge+'">TX: '+r.txDist.toFixed(1)+'mi'+(r.txKV?' ('+r.txKV+'kV)':'')+'</span>';
 html+='<span class="sr-badge '+gasBadge+'">Gas: '+r.gasDist.toFixed(1)+'mi</span>';
@@ -4295,7 +4367,13 @@ if(r.fema)html+='<span class="sr-badge '+femaBadge+'">'+r.fema.replace('Relative
 html+='</div></div>';
 
 // Add to map
-if(r.geom){
+if(isGroup&&r._groupGeoms){
+r._groupGeoms.forEach(function(g){
+var style={color:'#66BB6A',weight:2,fillColor:'#66BB6A',fillOpacity:0.2};
+var gl=L.geoJSON(g,{style:style});
+searchResultsLayer.addLayer(gl);
+});
+}else if(r.geom){
 var style={color:'#C4854C',weight:2,fillColor:r.txDist<2?'#66BB6A':'#FF9800',fillOpacity:0.3};
 var gl=L.geoJSON(r.geom,{style:style});
 var popup='<b>'+r.owner+'</b><br>'+Math.round(r.acres)+' acres<br>';
@@ -4326,7 +4404,13 @@ console.error('Search error:',e);
 
 function zoomResult(i){
 var r=window._searchResults[i];
-if(r&&r.lat&&r.lon)map.setView([r.lat,r.lon],14);
+if(!r)return;
+if(r.parcels&&r.parcels.length>1){
+var bounds=L.latLngBounds(r.parcels.map(function(p){return [p.lat,p.lon]}));
+map.fitBounds(bounds.pad(0.3));
+}else if(r.lat&&r.lon){
+map.setView([r.lat,r.lon],14);
+}
 }
 
 function showParcelDetail(){
@@ -4559,6 +4643,16 @@ txDist:r.txDist?r.txDist.toFixed(1)+'mi':'',txKV:r.txKV||'',
 subDist:r.subDist?r.subDist.toFixed(1)+'mi':'',
 gasDist:r.gasDist<999?r.gasDist.toFixed(1)+'mi':'',
 gasPipeline:r.gasPipe||'',fiberDist:r.fiberDist<999?r.fiberDist.toFixed(1)+'mi':''}};
+// Carry owner group data from search grouping
+if(r.parcelCount&&r.parcelCount>1){
+_pendingSite._ownerGroup={
+owner:r.owner,
+totalAcres:Math.round(r.acres),
+parcelCount:r.parcelCount,
+parcels:r.parcels,
+centroid:{lat:r.lat,lon:r.lon}
+};
+}
 showSaveModal();
 });
 }
@@ -5014,6 +5108,7 @@ l.openPopup();
 },400);
 }
 </script>
+<div id="pl-save-modal" style="display:none"></div>
 </body>
 </html>
 
