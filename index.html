@@ -4466,7 +4466,7 @@ var dLat=5/69; // ~5 miles in degrees lat
 var dLon=5/(69*Math.cos(lat*Math.PI/180));
 var bbox=(lon-dLon).toFixed(6)+','+(lat-dLat).toFixed(6)+','+(lon+dLon).toFixed(6)+','+(lat+dLat).toFixed(6);
 var url='https://app.regrid.com/api/v2/parcels/query?token='+REGRID_TOKEN
-+'&owner='+encodeURIComponent(owner)
++'&fields[owner][ilike]='+encodeURIComponent(owner)
 +'&bbox='+bbox
 +'&limit=50';
 fetch(url).then(function(r){return r.json()}).then(function(d){
