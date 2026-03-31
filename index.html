@@ -116,7 +116,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 .pl-notes:focus{outline:none;border-color:#C4854C}
 .pl-field-input{background:#1B2B3A;color:#F0EDE8;border:1px solid rgba(196,133,76,0.2);border-radius:4px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:11px;width:120px;text-align:right}
 .pl-field-input:focus{outline:none;border-color:#C4854C}
-#pl-save-modal{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}
+#pl-save-modal{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center}
 .pl-save-box{background:#1B2B3A;border-radius:10px;padding:20px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
 .pl-save-title{font-size:13px;font-weight:700;color:#C4854C;margin-bottom:12px;letter-spacing:1px}
 .pl-save-input{width:100%;background:#0f1923;color:#F0EDE8;border:1px solid rgba(196,133,76,0.3);border-radius:6px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;margin-bottom:8px}
@@ -2253,15 +2253,15 @@ h+='<div class="pl-save-title">SAVE TO PIPELINE</div>';
 if(grp&&grp.parcelCount>1){
 h+='<div style="background:rgba(102,187,106,0.08);border:1px solid rgba(102,187,106,0.2);border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:#66BB6A;font-weight:600">'+grp.parcelCount+' parcels \u2022 '+grp.totalAcres.toLocaleString()+' total acres</div>';
 }
-h+='<input class="pl-save-input" id="pl-save-name" placeholder="Site name" value="'+autoName+'">';
+h+='<input class="pl-save-input" id="pl-save-name" placeholder="Site name" value="'+autoName.replace(/"/g,'&quot;')+'">';
 if(plData.folders.length){
 h+='<select class="pl-save-select" id="pl-save-folder">'+folderOpts+'</select>';
 }else{
 h+='<input class="pl-save-input" id="pl-save-newfolder" placeholder="Create folder (e.g. Wilson County, TX)">';
 }
 h+='<div class="pl-save-btns">';
-h+='<button class="pl-save-btn secondary" onclick="closeSaveModal()">Cancel</button>';
-h+='<button class="pl-save-btn primary" onclick="doSaveSite()">Save</button>';
+h+='<button class="pl-save-btn secondary" id="pl-save-cancel">Cancel</button>';
+h+='<button class="pl-save-btn primary" id="pl-save-confirm">Save</button>';
 h+='</div></div>';
 modal.innerHTML=h;
 modal.style.display='flex';
@@ -2353,12 +2353,13 @@ plMarkers.addLayer(marker);
 loadPipeline();
 loadCustomLayers();
 
-// Event delegation for popup save button (inline onclick doesn't work in Leaflet popups)
+// Event delegation for dynamically created buttons
 document.addEventListener('click',function(e){
-if(e.target&&e.target.id==='pl-save-trigger'){
-e.stopPropagation();
-showSaveModal();
-}
+if(!e.target)return;
+var id=e.target.id;
+if(id==='pl-save-trigger'){e.stopPropagation();showSaveModal()}
+else if(id==='pl-save-confirm'){e.stopPropagation();doSaveSite()}
+else if(id==='pl-save-cancel'){e.stopPropagation();closeSaveModal()}
 });
 
 // Power Flow Screening
