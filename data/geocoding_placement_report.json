@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-03-31T15:30:54.772Z",
+  "total_points": 18236,
+  "targets": 9367,
+  "hifld_matched": 4255,
+  "eia_geometry_placed": 3693,
+  "still_operator_confirmed": 1419,
+  "avg_move_km": null,
+  "median_move_km": 38.1,
+  "hifld_reference_points_available": 10264,
+  "eia_operators_available": 229,
+  "remaining_clusters_10plus": 55,
+  "final_quality_breakdown": {
+    "eia_geometry_placed": 3693,
+    "suspect_unfixed": 2159,
+    "operator_confirmed_county": 1388,
+    "hifld_matched": 4255,
+    "operator_county_no_ref": 19,
+    "hifld_exact": 795,
+    "county_dispersed": 31,
+    "original": 5865,
+    "operator_county_hifld_snap": 30,
+    "operator_county_state_snap": 1
+  }
+}
