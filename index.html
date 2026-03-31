@@ -1344,9 +1344,17 @@ h+='<a href="#" onclick="setMIContext(\''+ctyName+'\',\''+stAbbr+'\');openMarket
 }
 h+='<a href="https://www.google.com/maps/@'+lat+','+lon+',3a,75y,0h,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192" target="_blank" style="display:inline-block;background:#1B2B3A;color:#F0EDE8;padding:6px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:11px;border:1px solid rgba(240,237,232,0.25)">Street View</a>';
 h+='</div>';
+// Ownership group placeholder
+if(rgData&&rgData.owner){
+h+='<div id="owner-group-info" style="margin-top:5px;padding:5px 8px;font-size:11px;color:rgba(240,237,232,0.4);text-align:center"><span style="color:rgba(240,237,232,0.2)">Checking ownership\u2026</span></div>';
+}
 h+='<div style="margin-top:5px;text-align:center"><a href="#" onclick="showSaveModal();return false" style="display:inline-block;background:rgba(102,187,106,0.12);color:#66BB6A;padding:5px 14px;border-radius:4px;text-decoration:none;font-weight:600;font-size:12px;border:1px solid rgba(102,187,106,0.25)">+ Save to Pipeline</a></div>';
 h+='</div>';
 L.popup({maxWidth:340}).setLatLng(e.latlng).setContent(h).openOn(map);
+// Fire async owner search for same-owner adjacent parcels
+if(rgData&&rgData.owner){
+lookupOwnerParcels(rgData.owner,parseFloat(lat),parseFloat(lon),parseFloat(rgData.ll_gisacre||0),rgPath);
+}
 });
 }).catch(function(){
 // Fallback without county info
@@ -2120,7 +2128,19 @@ var folder=plData.folders.find(function(f){return f.id===fid});
 if(!folder)return;
 var site=folder.sites.find(function(s){return s.id===sid});
 if(!site)return;
+if(site.parcels&&site.parcels.length>1){
+var bounds=L.latLngBounds(site.parcels.map(function(pp){return [pp.lat,pp.lon||pp.lng]}));
+map.fitBounds(bounds.pad(0.3));
+_ownerGroupLayer.clearLayers();
+site.parcels.forEach(function(pp){
+var m=L.circleMarker([pp.lat,pp.lon||pp.lng],{radius:8,color:'#00E5FF',weight:2,fillColor:'#00E5FF',fillOpacity:0.15});
+m.bindTooltip((pp.acres?pp.acres.toLocaleString()+' ac':''),{permanent:false,direction:'top'});
+_ownerGroupLayer.addLayer(m);
+});
+_ownerGroupLayer.addTo(map);
+}else{
 map.setView([site.lat,site.lng],15);
+}
 var el=document.getElementById('pl-body');
 var stageOpts=STAGES.map(function(st){return '<option value="'+st.id+'"'+(st.id===site.stage?' selected':'')+'>'+st.label+'</option>'}).join('');
 var detail='<div class="pl-detail" id="pl-detail">';
@@ -2129,6 +2149,9 @@ detail+='<div class="pl-detail-row"><span class="pl-detail-label">Location</span
 detail+='<div class="pl-detail-row"><span class="pl-detail-label">County</span><span class="pl-detail-val">'+site.county+(site.state==='LA'?' Parish':' County')+', '+site.state+'</span></div>';
 detail+='<div class="pl-detail-row"><span class="pl-detail-label">Stage</span><select class="pl-stage-select" onchange="updateSiteStage(\''+fid+'\',\''+sid+'\',this.value)">'+stageOpts+'</select></div>';
 detail+='<div class="pl-detail-row"><span class="pl-detail-label">Saved</span><span class="pl-detail-val">'+new Date(site.created).toLocaleDateString()+'</span></div>';
+if(site.parcelCount&&site.parcelCount>1){
+detail+='<div style="background:rgba(102,187,106,0.08);border:1px solid rgba(102,187,106,0.2);border-radius:4px;padding:6px 10px;margin:8px 0;font-size:11px;color:#66BB6A;font-weight:600">'+site.parcelCount+' parcels \u2022 '+Number(site.acreage||0).toLocaleString()+' total acres</div>';
+}
 detail+='<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(240,237,232,0.06)">';
 detail+='<div style="font-size:9px;font-weight:700;color:#C4854C;letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase">Site Info</div>';
 detail+='<div class="pl-detail-row"><span class="pl-detail-label">Acreage</span><input class="pl-field-input" placeholder="\u2014" value="'+(site.acreage||'')+'" onchange="updateSiteField(\''+fid+'\',\''+sid+'\',\'acreage\',this.value)"></div>';
@@ -2217,13 +2240,19 @@ var folderOpts=plData.folders.map(function(f){return '<option value="'+f.id+'">'
 var latStr=Number(p.lat).toFixed(4);
 var lngStr=Number(p.lng).toFixed(4);
 var autoName;
-if(p._screenData&&p._screenData.owner){
+var grp=p._ownerGroup;
+if(grp&&grp.parcelCount>1){
+autoName=grp.owner+' \u2014 '+grp.totalAcres.toLocaleString()+' ac ('+grp.parcelCount+' parcels)';
+}else if(p._screenData&&p._screenData.owner){
 autoName=p._screenData.owner+' \u2014 '+(p._screenData.acres||'?')+' ac';
 }else{
 autoName=(p.county||'Site')+(p.state==='LA'?' Parish':' County')+' \u2014 '+latStr+', '+lngStr;
 }
 var h='<div class="pl-save-box">';
 h+='<div class="pl-save-title">SAVE TO PIPELINE</div>';
+if(grp&&grp.parcelCount>1){
+h+='<div style="background:rgba(102,187,106,0.08);border:1px solid rgba(102,187,106,0.2);border-radius:4px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:#66BB6A;font-weight:600">'+grp.parcelCount+' parcels \u2022 '+grp.totalAcres.toLocaleString()+' total acres</div>';
+}
 h+='<input class="pl-save-input" id="pl-save-name" placeholder="Site name" value="'+autoName+'">';
 if(plData.folders.length){
 h+='<select class="pl-save-select" id="pl-save-folder">'+folderOpts+'</select>';
@@ -2243,6 +2272,7 @@ setTimeout(function(){var el=document.getElementById('pl-save-name');if(el)el.se
 function closeSaveModal(){
 document.getElementById('pl-save-modal').style.display='none';
 _pendingSite=null;
+_ownerGroupLayer.clearLayers();
 }
 
 function doSaveSite(){
@@ -2287,6 +2317,16 @@ if(sd.subDist)notes.push('Substation: '+sd.subDist);
 if(sd.gasDist)notes.push('Gas: '+sd.gasDist+(sd.gasPipeline?' ('+sd.gasPipeline+')':''));
 if(sd.fiberDist)notes.push('Fiber: '+sd.fiberDist);
 if(notes.length)site.notes=notes.join('\n');
+}
+// Owner group data — use group centroid and store parcel details
+if(p._ownerGroup&&p._ownerGroup.parcelCount>1){
+var og=p._ownerGroup;
+site.lat=og.centroid.lat;
+site.lng=og.centroid.lng;
+site.acreage=String(og.totalAcres);
+site.owner=og.owner;
+site.parcelCount=og.parcelCount;
+site.parcels=og.parcels;
 }
 folder.sites.push(site);
 savePipeline();
@@ -4410,6 +4450,97 @@ h+='</div>';
 m.innerHTML=h;
 ov.appendChild(m);
 document.body.appendChild(ov);
+}
+
+// ============================================================
+// OWNER GROUP LOOKUP — find same-owner adjacent parcels
+// ============================================================
+var _ownerGroupLayer=L.layerGroup();
+var _ownerGroupData=null; // {owner, totalAcres, parcelCount, parcels[], centroid}
+
+function lookupOwnerParcels(owner,lat,lon,clickedAcres,clickedPath){
+_ownerGroupData=null;
+_ownerGroupLayer.clearLayers();
+// Build ~5 mile bbox around the clicked point
+var dLat=5/69; // ~5 miles in degrees lat
+var dLon=5/(69*Math.cos(lat*Math.PI/180));
+var bbox=(lon-dLon).toFixed(6)+','+(lat-dLat).toFixed(6)+','+(lon+dLon).toFixed(6)+','+(lat+dLat).toFixed(6);
+var url='https://app.regrid.com/api/v2/parcels/query?token='+REGRID_TOKEN
++'&owner='+encodeURIComponent(owner)
++'&bbox='+bbox
++'&limit=50';
+fetch(url).then(function(r){return r.json()}).then(function(d){
+var features=(d.parcels?d.parcels.features:d.features)||[];
+if(features.length<=1){
+// Single parcel or none — no group to show
+var el=document.getElementById('owner-group-info');
+if(el)el.style.display='none';
+return;
+}
+// Build parcel list
+var parcels=[];
+var totalAcres=0;
+features.forEach(function(f){
+var p=f.properties.fields||f.properties||{};
+var acres=parseFloat(p.ll_gisacre||0);
+totalAcres+=acres;
+// Get centroid from geometry
+var plat=0,plon=0,count=0;
+if(f.geometry&&f.geometry.coordinates){
+var flatCoords=[];
+function flatten(arr){if(typeof arr[0]==='number'){flatCoords.push(arr)}else{arr.forEach(flatten)}}
+flatten(f.geometry.coordinates);
+flatCoords.forEach(function(c){plon+=c[0];plat+=c[1];count++});
+if(count){plat/=count;plon/=count}
+}
+parcels.push({id:p.parcelnumb||p.ll_uuid||'',acres:Math.round(acres),lat:plat,lon:plon,path:f.properties.path||''});
+});
+// Compute centroid of all parcels
+var cLat=0,cLon=0;
+parcels.forEach(function(p){cLat+=p.lat;cLon+=p.lon});
+cLat/=parcels.length;cLon/=parcels.length;
+_ownerGroupData={
+owner:owner,
+totalAcres:Math.round(totalAcres),
+parcelCount:parcels.length,
+parcels:parcels,
+centroid:{lat:cLat,lon:cLon}
+};
+// Update popup
+var el=document.getElementById('owner-group-info');
+if(el){
+el.innerHTML='<div style="background:rgba(102,187,106,0.08);border:1px solid rgba(102,187,106,0.2);border-radius:4px;padding:6px 10px">'
++'<div style="font-size:12px;font-weight:700;color:#66BB6A">'+parcels.length+' parcels \u2022 '+totalAcres.toLocaleString()+' total acres</div>'
++'<div style="font-size:11px;color:rgba(240,237,232,0.5);margin-top:2px">Same owner within 5 mi</div>'
++'<a href="#" onclick="_showOwnerParcels();return false" style="font-size:11px;color:#42A5F5;text-decoration:none;font-weight:600">Show All on Map</a>'
++'</div>';
+}
+// Also update _pendingSite with group data
+if(_pendingSite){
+_pendingSite._ownerGroup=_ownerGroupData;
+}
+}).catch(function(e){
+// Silently fail — single parcel save works fine
+var el=document.getElementById('owner-group-info');
+if(el)el.style.display='none';
+});
+}
+
+function _showOwnerParcels(){
+if(!_ownerGroupData)return;
+_ownerGroupLayer.clearLayers();
+_ownerGroupLayer.addTo(map);
+var bounds=L.latLngBounds();
+_ownerGroupData.parcels.forEach(function(p){
+if(!p.lat||!p.lon)return;
+var m=L.circleMarker([p.lat,p.lon],{radius:8,fillColor:'#00E5FF',color:'#fff',weight:2,fillOpacity:0.7});
+m.bindTooltip(p.acres+' ac',{permanent:true,direction:'top',offset:[0,-10],className:'owner-parcel-tip'});
+_ownerGroupLayer.addLayer(m);
+bounds.extend([p.lat,p.lon]);
+});
+if(bounds.isValid())map.fitBounds(bounds.pad(0.3));
+// Auto-clear after 30s
+setTimeout(function(){_ownerGroupLayer.clearLayers()},30000);
 }
 
 function addToPipeline(i){
