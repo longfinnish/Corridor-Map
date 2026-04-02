@@ -315,6 +315,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;overflow:hidden}
 <div class="li"><span class="ll"><span class="ld" style="background:#00E676"></span>New Lines (166)</span><label class="tg"><input type="checkbox" id="t-plan-new" checked onchange="reRenderPlanned()"><span class="ts"></span></label></div>
 <div class="li"><span class="ll"><span class="ld" style="background:#78909C"></span>Substations & Other (352)</span><label class="tg"><input type="checkbox" id="t-plan-other" onchange="reRenderPlanned()"><span class="ts"></span></label></div>
 </div>
+<div class="li"><span class="ll"><span class="ld" style="background:linear-gradient(90deg,#42A5F5,#66BB6A,#FFA726)"></span>Utility Service Territories</span><label class="tg"><input type="checkbox" id="t-util" onchange="togUtilTerr()"><span class="ts"></span></label></div>
 </div>
 <div class="lg">
 <div class="lz" style="color:#C4854C;font-size:9px;letter-spacing:1px;margin-left:0;margin-bottom:3px">GAS INFRASTRUCTURE</div>
@@ -534,7 +535,8 @@ dcpo:{g:L.layerGroup(),ld:false},
 dccon:{g:L.layerGroup(),ld:false},
 dclb:{g:L.layerGroup(),ld:false},
 pgas:{g:L.layerGroup(),ld:false},
-rrc:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null}
+rrc:{on:false,mz:8,g:L.layerGroup(),ld:false,ac:null},
+util:{on:false}
 };
 
 function tog(n){
@@ -3930,6 +3932,65 @@ capLayer.addLayer(m);
 }
 map.on('moveend',function(){if(document.getElementById('t-cap').checked&&capLoaded)renderCapMap()});
 
+// Utility Service Territories (PMTiles polygon layer)
+var utilTileLayer=null;
+var UTIL_COLORS={'INVESTOR OWNED':'#42A5F5','COOPERATIVE':'#66BB6A','MUNICIPAL':'#FFA726','POLITICAL SUBDIVISION':'#CE93D8','STATE':'#26A69A','FEDERAL':'#EF5350','RETAIL POWER MARKETER':'#FF7043','BEHIND THE METER':'#78909C'};
+function utilTypeColor(t){return UTIL_COLORS[(t||'').toUpperCase()]||'#90A4AE'}
+function togUtilTerr(){
+LS.util.on=!LS.util.on;
+if(LS.util.on){
+if(!utilTileLayer){
+utilTileLayer=protomapsL.leafletLayer({
+url:R2_BASE+'/utility_territories.pmtiles',
+maxDataZoom:10,maxZoom:20,
+paintRules:[{dataLayer:'utility_territories',symbolizer:new protomapsL.PolygonSymbolizer({fill:function(z,f){var t=(f.props.type||'').toUpperCase();var c=UTIL_COLORS[t]||'#90A4AE';return c+'40'},stroke:function(z,f){var t=(f.props.type||'').toUpperCase();return UTIL_COLORS[t]||'#90A4AE'},width:1.5,opacity:0.8})}],
+labelRules:[],attribution:''
+});
+map.on('click',onUtilClick);
+}
+utilTileLayer.addTo(map);
+}else{if(utilTileLayer)map.removeLayer(utilTileLayer)}
+uLeg();
+}
+function onUtilClick(e){
+if(!LS.util.on||!utilTileLayer)return;
+var result=utilTileLayer.queryTileFeaturesDebug(e.latlng.lng,e.latlng.lat,16);
+var feats=[];result.forEach(function(v){feats=feats.concat(v)});
+var hit=null;
+for(var i=0;i<feats.length;i++){if(feats[i].layerName==='utility_territories'){hit=feats[i];break}}
+if(!hit)return;
+var p=hit.feature.props;
+var summer=p.summer_peak_mw?parseFloat(p.summer_peak_mw).toLocaleString()+' MW':'—';
+var winter=p.winter_peak_mw?parseFloat(p.winter_peak_mw).toLocaleString()+' MW':'—';
+var gen=p.net_generation_mwh?parseFloat(p.net_generation_mwh).toLocaleString()+' MWh':'—';
+var purch=p.total_purchases_mwh?parseFloat(p.total_purchases_mwh).toLocaleString()+' MWh':'—';
+var cust=p.total_customers?parseInt(p.total_customers).toLocaleString():'—';
+var profile='Net Purchaser';
+if(p.net_generation_mwh&&p.total_purchases_mwh&&parseFloat(p.net_generation_mwh)>parseFloat(p.total_purchases_mwh))profile='Net Generator';
+var tc=utilTypeColor(p.type);
+var html='<div style="font-family:DM Sans,sans-serif;min-width:260px">';
+html+='<div style="font-size:15px;font-weight:700;color:'+tc+';margin-bottom:2px">'+(p.name||'Unknown Utility')+'</div>';
+html+='<div style="font-size:11px;color:#8A9AAB;margin-bottom:8px">'+(p.type||'')+(p.state?' · '+p.state:'')+(p.holding_company?' · '+p.holding_company:'')+'</div>';
+html+='<table style="font-size:12px;border-collapse:collapse;width:100%">';
+html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">Summer Peak</td><td style="color:#F0EDE8;font-family:JetBrains Mono,monospace">'+summer+'</td></tr>';
+html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">Winter Peak</td><td style="color:#F0EDE8;font-family:JetBrains Mono,monospace">'+winter+'</td></tr>';
+html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">Net Generation</td><td style="color:#F0EDE8;font-family:JetBrains Mono,monospace">'+gen+'</td></tr>';
+html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">Purchases</td><td style="color:#F0EDE8;font-family:JetBrains Mono,monospace">'+purch+'</td></tr>';
+html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">Profile</td><td style="color:'+(profile==='Net Generator'?'#66BB6A':'#42A5F5')+';font-weight:600">'+profile+'</td></tr>';
+html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">Customers</td><td style="color:#F0EDE8;font-family:JetBrains Mono,monospace">'+cust+'</td></tr>';
+if(p.control_area)html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">BA / Control Area</td><td style="color:#F0EDE8">'+p.control_area+'</td></tr>';
+if(p.nerc_region)html+='<tr><td style="color:#8A9AAB;padding:2px 8px 2px 0">NERC Region</td><td style="color:#F0EDE8">'+p.nerc_region+'</td></tr>';
+html+='</table>';
+if(p.website||p.telephone){html+='<div style="margin-top:6px;font-size:11px;color:#8A9AAB">';
+if(p.website)html+='<a href="'+(p.website.indexOf('http')===0?p.website:'https://'+p.website)+'" target="_blank" style="color:#C4854C;text-decoration:none">Website</a>';
+if(p.website&&p.telephone)html+=' · ';
+if(p.telephone)html+=p.telephone;
+html+='</div>'}
+html+='<div style="margin-top:4px;font-size:9px;color:#5E7385">EIA 861 '+( p.data_year||'2022')+'</div>';
+html+='</div>';
+L.popup({className:'corridor-popup',maxWidth:340}).setLatLng(e.latlng).setContent(html).openOn(map);
+}
+
 // Legend
 function uLeg(){
 var lg=document.getElementById('lg');var h='<h3>Legend</h3>';var has=false;
@@ -3940,6 +4001,7 @@ if(plannedLayer){has=true;h+='<div class="lgi"><span class="lgl" style="backgrou
 if(LS.gas.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FFA726"></span>Interstate</div><div class="lgi"><span class="lgl" style="background:#FFD54F"></span>Intrastate</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>Gathering</div>'}
 if(LS.osmpipe.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E040FB"></span>30"+</div><div class="lgi"><span class="lgl" style="background:#CE93D8"></span>20-30"</div><div class="lgi"><span class="lgl" style="background:#BA68C8"></span>10-20"</div><div class="lgi"><span class="lgl" style="background:#9E9E9E"></span>&lt;10"</div>'}
 if(LS.rrc.on){has=true;h+='<div class="lgi"><span class="lgl" style="background:#E53935"></span>TX Intra 36"+</div><div class="lgi"><span class="lgl" style="background:#FF6D00"></span>TX Intra 24"+</div><div class="lgi"><span class="lgl" style="background:#FF8F00"></span>TX Intra 18"+</div><div class="lgi"><span class="lgl" style="background:#FFD600"></span>TX Intra 12"+</div>'}
+if(LS.util.on){has=true;h+='<div class="lgi"><span class="lgs" style="background:rgba(66,165,245,0.25);border:1px solid #42A5F5"></span>IOU</div><div class="lgi"><span class="lgs" style="background:rgba(102,187,106,0.25);border:1px solid #66BB6A"></span>Co-op</div><div class="lgi"><span class="lgs" style="background:rgba(255,167,38,0.25);border:1px solid #FFA726"></span>Municipal</div>'}
 if(fiberTileLayer||lumenTileLayer){has=true;h+='<div class="lgi"><span class="lgl" style="background:#FF6D00"></span>Fiber Routes</div>'}
 if(LS.gi.on){has=true;
 if(LS.gi.types.gcomp)h+='<div class="lgi"><span class="ld" style="background:#FF5722"></span>Compressor</div>';
