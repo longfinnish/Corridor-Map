@@ -1,1 +1,1823 @@
-{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-83.85315,38.96475]},"properties":{"project_name":" Big Pond Data Center","developer":"Unknown Company","status":"Land Bank","capacity_mw":2200,"source":"baxtel","baxtel_slug":"big-pond-data-center"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-119.24698,38.21553]},"properties":{"project_name":"Tract: Silver Springs ","developer":"Tract","status":"Land Bank","capacity_mw":1600,"source":"baxtel","baxtel_slug":"tract-silver-springs"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.77328,35.10755]},"properties":{"project_name":"Arizona Land: Tonopah Expansion","developer":"Arizona Land Consulting","status":"Land Bank","capacity_mw":1450,"source":"baxtel","baxtel_slug":"arizona-land-tonopah-expansion"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-104.47586,35.46067]},"properties":{"project_name":"Zenith: Roswell, New Mexico","developer":"Zenith Volts Corporation","status":"Land Bank","capacity_mw":1100,"source":"baxtel","baxtel_slug":"zenith-roswell-new-mexico"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-113.18665,54.49956]},"properties":{"project_name":"GLDC: Saskatchewan Phase-2","developer":"Greenlight Electricity Centre","status":"Land Bank","capacity_mw":830,"source":"baxtel","baxtel_slug":"gldc-saskatchewan-phase-2"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-98.53363,29.78583]},"properties":{"project_name":"Tract: Applewhite Tech Park ","developer":"Tract","status":"Land Bank","capacity_mw":720,"source":"baxtel","baxtel_slug":"tract-applewhite-tech-park"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.05698,45.10358]},"properties":{"project_name":"Project Hazelnut","developer":"Northpoint Development","status":"Land Bank","capacity_mw":720,"source":"baxtel","baxtel_slug":"project-hazelnut"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-93.5321,44.42299]},"properties":{"project_name":"Tract: Altoona Tech Park","developer":"Tract","status":"Land Bank","capacity_mw":700,"source":"baxtel","baxtel_slug":"tract-altoona-tech-park"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-114.25919,54.98155]},"properties":{"project_name":"Capital Power: Genesee DC2","developer":"Capital Power","status":"Land Bank","capacity_mw":500,"source":"baxtel","baxtel_slug":"capital-power-genesee-dc2"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-86.78787,39.69345]},"properties":{"project_name":"TeraWulf: Hawesville, KY","developer":"Terawulf","status":"Land Bank","capacity_mw":480,"source":"baxtel","baxtel_slug":"terawulf-hawesville-ky"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.47559,39.41816]},"properties":{"project_name":"PowerHouse 95 Campus","developer":"PowerHouse Data Centers","status":"Land Bank","capacity_mw":350,"source":"baxtel","baxtel_slug":"powerhouse-95-campus"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-96.35834,36.03466]},"properties":{"project_name":"Archer: Dallas, TX","developer":"Archer Datacenters","status":"Land Bank","capacity_mw":300,"source":"baxtel","baxtel_slug":"archer-dallas-tx"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-86.38824,44.04121]},"properties":{"project_name":"Benton Harbor (Proposed)","developer":"Unknown Company","status":"Land Bank","capacity_mw":300,"source":"baxtel","baxtel_slug":"benton-harbor-proposed"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-75.58868,37.58268]},"properties":{"project_name":"1547: Chester County, PA","developer":"1547 Critical Systems Realty (fifteenfortyseven)","status":"Land Bank","capacity_mw":290,"source":"baxtel","baxtel_slug":"1547-chester-county-pa"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-96.79916,35.80556]},"properties":{"project_name":"LightHouse: DFW01 Campus","developer":"LightHouse Data Centers","status":"Land Bank","capacity_mw":225,"source":"baxtel","baxtel_slug":"lighthouse-dfw01-campus"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.66617,48.0634]},"properties":{"project_name":"Sabey: Butte Expansion","developer":"Sabey Data Centers","status":"Land Bank","capacity_mw":200,"source":"baxtel","baxtel_slug":"sabey-butte-expansion"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.58377,35.23328]},"properties":{"project_name":"Arizona Land: Buckeye, AZ","developer":"Arizona Land Consulting","status":"Land Bank","capacity_mw":200,"source":"baxtel","baxtel_slug":"arizona-land-buckeye-az"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.47003,35.45843]},"properties":{"project_name":"Ryan: Florence Tech Park","developer":"Ryan Companies","status":"Land Bank","capacity_mw":200,"source":"baxtel","baxtel_slug":"ryan-florence-tech-park"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.02222,43.47186]},"properties":{"project_name":"APECS Data Center Campus","developer":"Viridian Partners","status":"Land Bank","capacity_mw":200,"source":"baxtel","baxtel_slug":"apecs-data-center-campus"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.52228,38.57072]},"properties":{"project_name":"SDC Capital: Twin Creeks","developer":"SDC Capital Partners","status":"Land Bank","capacity_mw":200,"source":"baxtel","baxtel_slug":"sdc-capital-twin-creeks"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.46014,38.18315]},"properties":{"project_name":"Prologis: Cincinnati, Ohio","developer":"Prologis","status":"Land Bank","capacity_mw":150,"source":"baxtel","baxtel_slug":"prologis-cincinnati-ohio"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.72043,28.56643]},"properties":{"project_name":"NextNRG: Jacksonville Expansion","developer":"NextNRG","status":"Land Bank","capacity_mw":150,"source":"baxtel","baxtel_slug":"nextnrg-jacksonville-expansion"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.83029,30.91401]},"properties":{"project_name":"DataCanopy: Auburndale, Florida","developer":"DataCanopy","status":"Land Bank","capacity_mw":140,"source":"baxtel","baxtel_slug":"datacanopy-auburndale-florida"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.78183,39.11088]},"properties":{"project_name":"Gigaland: Remington, VA","developer":"Gigaland","status":"Land Bank","capacity_mw":120,"source":"baxtel","baxtel_slug":"gigaland-remington-va"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.64856,35.25123]},"properties":{"project_name":"Edged Energy: Phoenix PHX11","developer":"Edged Energy","status":"Land Bank","capacity_mw":115.2,"source":"baxtel","baxtel_slug":"edged-energy-phoenix-phx11"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-104.55688,37.86076]},"properties":{"project_name":"Port Colorado: Aurora, CO","developer":"Port Colorado ","status":"Land Bank","capacity_mw":100,"source":"baxtel","baxtel_slug":"port-colorado-aurora-co"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-104.71619,37.82172]},"properties":{"project_name":"Hyde: HighPoint Elevated","developer":"Hyde Development","status":"Land Bank","capacity_mw":100,"source":"baxtel","baxtel_slug":"hyde-highpoint-elevated"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-72.74323,44.23044]},"properties":{"project_name":"Atlas Capital: Connecticut","developer":"Atlas Capital Group, LLC","status":"Land Bank","capacity_mw":100,"source":"baxtel","baxtel_slug":"atlas-capital-connecticut"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.88095,37.41053]},"properties":{"project_name":"Fairview Crossroads","developer":"Elysian Partners","status":"Land Bank","capacity_mw":80,"source":"baxtel","baxtel_slug":"fairview-crossroads"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-95.59753,42.5126]},"properties":{"project_name":"Geronimo Power: Nobles County, MN","developer":"Geronimo Power","status":"Land Bank","capacity_mw":75,"source":"baxtel","baxtel_slug":"geronimo-power-nobles-county-mn"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-63.04367,48.82133]},"properties":{"project_name":"Jet.AI: Maritime Canada","developer":"Jet.AI","status":"Land Bank","capacity_mw":60,"source":"baxtel","baxtel_slug":"jet-ai-maritime-canada"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.66617,48.0634]},"properties":{"project_name":"Sabey: Butte, Montana","developer":"Sabey Data Centers","status":"Land Bank","capacity_mw":50,"source":"baxtel","baxtel_slug":"sabey-butte-montana"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.70462,35.21084]},"properties":{"project_name":"Arizona Land: Buckeye 2 Expansion","developer":"Arizona Land Consulting","status":"Land Bank","capacity_mw":50,"source":"baxtel","baxtel_slug":"arizona-land-buckeye-2-expansion"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.76779,35.10755]},"properties":{"project_name":"Arizona Land: Tonopah Campus","developer":"Arizona Land Consulting","status":"Land Bank","capacity_mw":50,"source":"baxtel","baxtel_slug":"arizona-land-tonopah-campus"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-85.05615,35.6093]},"properties":{"project_name":"Thor Equities: LaGrange, GA","developer":"Thor Equities Group","status":"Land Bank","capacity_mw":50,"source":"baxtel","baxtel_slug":"thor-equities-lagrange-ga"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-81.72043,28.56643]},"properties":{"project_name":"NextNRG: Jacksonville, FL ","developer":"NextNRG","status":"Land Bank","capacity_mw":50,"source":"baxtel","baxtel_slug":"nextnrg-jacksonville-fl"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-87.85904,44.19107]},"properties":{"project_name":"Digital Realty: Franklin Park Expansion","developer":"Digital Realty Trust","status":"Land Bank","capacity_mw":40,"source":"baxtel","baxtel_slug":"digital-realty-franklin-park-expansion"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-119.39941,47.74856]},"properties":{"project_name":"Trammel Crow: Richland, WA","developer":"Trammell Crow Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"trammel-crow-richland-wa"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-119.51614,38.0589]},"properties":{"project_name":"Apple: 21755 Reno","developer":"Apple","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"apple-21755-reno"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-121.95923,40.19251]},"properties":{"project_name":"Vantage: Nortech Parkway","developer":"Vantage Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"vantage-nortech-parkway"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-121.95786,40.25228]},"properties":{"project_name":"EdgeConneX: 1600 Memorex","developer":"EdgeConneX","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"edgeconnex-1600-memorex"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-119.55597,38.07512]},"properties":{"project_name":"Apple: 21100 Interstate","developer":"Apple","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"apple-21100-interstate"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-119.53812,38.06323]},"properties":{"project_name":"Apple: 21675 Reno","developer":"Apple","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"apple-21675-reno"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-113.79913,49.10624]},"properties":{"project_name":"Crusoe: Myers Energy Park","developer":"Crusoe","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"crusoe-myers-energy-park"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-114.02573,50.06155]},"properties":{"project_name":"Crusoe: Crossfield Energy Park","developer":"Crusoe","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"crusoe-crossfield-energy-park"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-114.92386,32.23487]},"properties":{"project_name":"Novva: Apex Industrial Park","developer":"Novva Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"novva-apex-industrial-park"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.31186,35.18728]},"properties":{"project_name":"QTS: Hermosa Ranch","developer":"QTS Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"qts-hermosa-ranch"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.22122,35.05473]},"properties":{"project_name":"Aligned: Peoria Logistics Park","developer":"Aligned","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"aligned-peoria-logistics-park"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-112.04132,35.64837]},"properties":{"project_name":"W Holdings: Maricopa, AZ","developer":"W Holdings","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"w-holdings-maricopa-az"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.28738,36.07241]},"properties":{"project_name":"Beale: Pinal Airpark 1","developer":"Beale Infrastructure","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"beale-pinal-airpark-1"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.27777,36.07241]},"properties":{"project_name":"Beale: Pinal Airpark 2","developer":"Beale Infrastructure","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"beale-pinal-airpark-2"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-104.62692,37.84124]},"properties":{"project_name":"QTS: Watkins","developer":"QTS Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"qts-watkins"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-104.22455,29.09578]},"properties":{"project_name":"Open Origin: Presidio County, TX","developer":"Open Origin","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"open-origin-presidio-county-tx"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-100.72678,47.27178]},"properties":{"project_name":"Aurum: Bismarck, ND","developer":"Aurum Capital Ventures, Inc.","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"aurum-bismarck-nd"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-95.60577,32.21629]},"properties":{"project_name":"Beale: Project Mustang","developer":"Beale Infrastructure","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"beale-project-mustang"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-97.26471,35.9391]},"properties":{"project_name":"Black Mountain: Fort Worth, TX","developer":"Black Mountain ","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"black-mountain-fort-worth-tx"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-97.08893,36.1412]},"properties":{"project_name":"Logistic Land Investments: Venus, TX","developer":"Logistics Land Investment, LLC","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"logistic-land-investments-venus-tx"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-97.07245,36.15451]},"properties":{"project_name":"Stream: Midlothian DFWE","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-midlothian-dfwe"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-96.62338,36.01578]},"properties":{"project_name":"Cawley Partners: South Creek Ranch","developer":"Cawley Partners","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"cawley-partners-south-creek-ranch"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-98.63388,35.48304]},"properties":{"project_name":"Stream: Graham DFWF","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-graham-dfwf"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-97.2139,32.90611]},"properties":{"project_name":"Beltline Energy: Luther, Oklahoma","developer":"Beltline Energy","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"beltline-energy-luther-oklahoma"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-96.86096,36.09683]},"properties":{"project_name":"Stream: Waxahachie DFWD ","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-waxahachie-dfwd"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-99.14337,34.48392]},"properties":{"project_name":"Sabey: Oklaunion","developer":"Sabey Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"sabey-oklaunion"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-97.6561,28.57608]},"properties":{"project_name":"Switch: Round Rock East Campus","developer":"Switch","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"switch-round-rock-east-campus"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-90.42023,39.4468]},"properties":{"project_name":"CRG Clayco: Festus, MO","developer":"CRG Clayco","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"crg-clayco-festus-mo"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-94.87381,38.80868]},"properties":{"project_name":"QTS: New Century Commerce Center","developer":"QTS Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"qts-new-century-commerce-center"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-95.39841,32.90034]},"properties":{"project_name":"Stream: Tulsa, Muskogee","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-tulsa-muskogee"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-85.30609,34.34003]},"properties":{"project_name":"Coosa Data Center","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"coosa-data-center"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.94354,34.90283]},"properties":{"project_name":"Project Avemore","developer":"Atlas Development LLC","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"project-avemore"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-87.11197,33.99917]},"properties":{"project_name":"Stream: Trinity HSVA","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-trinity-hsva"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.73755,35.17381]},"properties":{"project_name":"Stream: Atlanta ATL-B","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-atlanta-atl-b"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.73343,35.11429]},"properties":{"project_name":"Stream: Atlanta ATL-C","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-atlanta-atl-c"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.93393,27.6592]},"properties":{"project_name":"QTS: Blakely, Georgia","developer":"QTS Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"qts-blakely-georgia"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.06149,37.12748]},"properties":{"project_name":"SunCap: McKees Rocks, PA ","developer":"SunCap Property Group","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"suncap-mckees-rocks-pa"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-83.11844,37.75986]},"properties":{"project_name":"Stream: Columbus","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-columbus"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-82.7504,37.49883]},"properties":{"project_name":"Karis Critical: New Albany, OH","developer":"Karis Critical","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"karis-critical-new-albany-oh"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-79.58359,37.21393]},"properties":{"project_name":"QTS: Salem Township, Pennsylvania","developer":"QTS Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"qts-salem-township-pennsylvania"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-82.73666,37.56744]},"properties":{"project_name":"DBT Data: 2214 Harrison Rd","developer":"DBT Data","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"dbt-data-2214-harrison-rd"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-82.7298,37.63272]},"properties":{"project_name":"Aligned: Pataskala","developer":"Aligned","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"aligned-pataskala"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-84.1333,36.79059]},"properties":{"project_name":"North Cole St Data Center","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"north-cole-st-data-center"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-82.71881,37.51735]},"properties":{"project_name":"EdgeConnex: Johnstown North Campus","developer":"EdgeConneX","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"edgeconnex-johnstown-north-campus"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-82.09808,33.98778]},"properties":{"project_name":"Project Moc-1","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"project-moc-1"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.01166,45.10261]},"properties":{"project_name":"West Hazleton Data Center","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"west-hazleton-data-center"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.66534,45.00462]},"properties":{"project_name":"Talen: Washingtonville, PA","developer":"Talen Energy","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"talen-washingtonville-pa"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.25449,40.11484]},"properties":{"project_name":"White Oak Technology Park 2","developer":"QTS Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"white-oak-technology-park-2"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.78046,40.17048]},"properties":{"project_name":"Upper Magnolia Green West","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"upper-magnolia-green-west"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.77908,38.95193]},"properties":{"project_name":"Maple Tree Farm","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"maple-tree-farm"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.51541,39.32367]},"properties":{"project_name":"Stack: Fredericksburg, VA","developer":"STACK INFRASTRUCTURE","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stack-fredericksburg-va"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.68845,40.12219]},"properties":{"project_name":"Watkins Centre","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"watkins-centre"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.60056,38.9092]},"properties":{"project_name":"Data Center Edge District","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"data-center-edge-district"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.80954,37.3898]},"properties":{"project_name":"Harrisburg I LLC: Harrisburg, PA","developer":"Harrisburg I, LLC","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"harrisburg-i-llc-harrisburg-pa"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.50168,38.56857]},"properties":{"project_name":"JK Land: Freedom Trail Rd","developer":"JK Land Holdings, LLC","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"jk-land-freedom-trail-rd"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.61179,38.38257]},"properties":{"project_name":"Mag Partners: Baltimore","developer":"Mag Partners","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"mag-partners-baltimore"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.26022,37.57506]},"properties":{"project_name":"Machine Investment: Lancaster 1","developer":"Machine Investment Group LP","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"machine-investment-lancaster-1"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.39456,39.36828]},"properties":{"project_name":"Forest Lane Data Center","developer":"Real Estate Pursuits 2 LC","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"forest-lane-data-center"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.33026,37.56417]},"properties":{"project_name":"Machine Investment: Lancaster 2","developer":"Machine Investment Group LP","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"machine-investment-lancaster-2"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.55386,39.59405]},"properties":{"project_name":"Stream: Woodford, VA","developer":"Stream Data Centers","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"stream-woodford-va"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.54013,38.69837]},"properties":{"project_name":"JK Land: Technology Park 3","developer":"JK Land Holdings, LLC","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"jk-land-technology-park-3"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-76.30005,40.76598]},"properties":{"project_name":"Globalinx: Portsmouth, VA","developer":"Globalinx Data Center LLC","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"globalinx-portsmouth-va"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.5264,38.84613]},"properties":{"project_name":"Aligned: Manassas, VA","developer":"Aligned","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"aligned-manassas-va"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-69.69589,42.16849]},"properties":{"project_name":"Maine Yankee Nuclear DC","developer":"Unknown Company","status":"Land Bank","capacity_mw":null,"source":"baxtel","baxtel_slug":"maine-yankee-nuclear-dc"}}]}
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -83.85349,
+          38.680367
+        ]
+      },
+      "properties": {
+        "project_name": " Big Pond Data Center",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": 2200,
+        "source": "baxtel",
+        "baxtel_slug": "big-pond-data-center"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.24702,
+          39.424804
+        ]
+      },
+      "properties": {
+        "project_name": "Tract: Silver Springs ",
+        "developer": "Tract",
+        "status": "Land Bank",
+        "capacity_mw": 1600,
+        "source": "baxtel",
+        "baxtel_slug": "tract-silver-springs"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.773077,
+          33.498713
+        ]
+      },
+      "properties": {
+        "project_name": "Arizona Land: Tonopah Expansion",
+        "developer": "Arizona Land Consulting",
+        "status": "Land Bank",
+        "capacity_mw": 1450,
+        "source": "baxtel",
+        "baxtel_slug": "arizona-land-tonopah-expansion"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.476015,
+          33.137622
+        ]
+      },
+      "properties": {
+        "project_name": "Zenith: Roswell, New Mexico",
+        "developer": "Zenith Volts Corporation",
+        "status": "Land Bank",
+        "capacity_mw": 1100,
+        "source": "baxtel",
+        "baxtel_slug": "zenith-roswell-new-mexico"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -113.18607,
+          53.822306
+        ]
+      },
+      "properties": {
+        "project_name": "GLDC: Saskatchewan Phase-2",
+        "developer": "Greenlight Electricity Centre",
+        "status": "Land Bank",
+        "capacity_mw": 830,
+        "source": "baxtel",
+        "baxtel_slug": "gldc-saskatchewan-phase-2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.533709,
+          29.284006
+        ]
+      },
+      "properties": {
+        "project_name": "Tract: Applewhite Tech Park ",
+        "developer": "Tract",
+        "status": "Land Bank",
+        "capacity_mw": 720,
+        "source": "baxtel",
+        "baxtel_slug": "tract-applewhite-tech-park"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.05684,
+          40.964339
+        ]
+      },
+      "properties": {
+        "project_name": "Project Hazelnut",
+        "developer": "Northpoint Development",
+        "status": "Land Bank",
+        "capacity_mw": 720,
+        "source": "baxtel",
+        "baxtel_slug": "project-hazelnut"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -93.531503,
+          41.684279
+        ]
+      },
+      "properties": {
+        "project_name": "Tract: Altoona Tech Park",
+        "developer": "Tract",
+        "status": "Land Bank",
+        "capacity_mw": 700,
+        "source": "baxtel",
+        "baxtel_slug": "tract-altoona-tech-park"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -114.259766,
+          53.326652
+        ]
+      },
+      "properties": {
+        "project_name": "Capital Power: Genesee DC2",
+        "developer": "Capital Power",
+        "status": "Land Bank",
+        "capacity_mw": 500,
+        "source": "baxtel",
+        "baxtel_slug": "capital-power-genesee-dc2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.78804,
+          37.94125
+        ]
+      },
+      "properties": {
+        "project_name": "TeraWulf: Hawesville, KY",
+        "developer": "Terawulf",
+        "status": "Land Bank",
+        "capacity_mw": 480,
+        "source": "baxtel",
+        "baxtel_slug": "terawulf-hawesville-ky"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.475487,
+          38.222345
+        ]
+      },
+      "properties": {
+        "project_name": "PowerHouse 95 Campus",
+        "developer": "PowerHouse Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": 350,
+        "source": "baxtel",
+        "baxtel_slug": "powerhouse-95-campus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -96.358468,
+          32.543161
+        ]
+      },
+      "properties": {
+        "project_name": "Archer: Dallas, TX",
+        "developer": "Archer Datacenters",
+        "status": "Land Bank",
+        "capacity_mw": 300,
+        "source": "baxtel",
+        "baxtel_slug": "archer-dallas-tx"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.387997,
+          42.081131
+        ]
+      },
+      "properties": {
+        "project_name": "Benton Harbor (Proposed)",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": 300,
+        "source": "baxtel",
+        "baxtel_slug": "benton-harbor-proposed"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.589082,
+          40.041666
+        ]
+      },
+      "properties": {
+        "project_name": "1547: Chester County, PA",
+        "developer": "1547 Critical Systems Realty (fifteenfortyseven)",
+        "status": "Land Bank",
+        "capacity_mw": 290,
+        "source": "baxtel",
+        "baxtel_slug": "1547-chester-county-pa"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -96.799759,
+          32.781339
+        ]
+      },
+      "properties": {
+        "project_name": "LightHouse: DFW01 Campus",
+        "developer": "LightHouse Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": 225,
+        "source": "baxtel",
+        "baxtel_slug": "lighthouse-dfw01-campus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.666171,
+          45.996923
+        ]
+      },
+      "properties": {
+        "project_name": "Sabey: Butte Expansion",
+        "developer": "Sabey Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": 200,
+        "source": "baxtel",
+        "baxtel_slug": "sabey-butte-expansion"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.583583,
+          33.370492
+        ]
+      },
+      "properties": {
+        "project_name": "Arizona Land: Buckeye, AZ",
+        "developer": "Arizona Land Consulting",
+        "status": "Land Bank",
+        "capacity_mw": 200,
+        "source": "baxtel",
+        "baxtel_slug": "arizona-land-buckeye-az"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.469433,
+          33.139997
+        ]
+      },
+      "properties": {
+        "project_name": "Ryan: Florence Tech Park",
+        "developer": "Ryan Companies",
+        "status": "Land Bank",
+        "capacity_mw": 200,
+        "source": "baxtel",
+        "baxtel_slug": "ryan-florence-tech-park"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.022225,
+          42.663423
+        ]
+      },
+      "properties": {
+        "project_name": "APECS Data Center Campus",
+        "developer": "Viridian Partners",
+        "status": "Land Bank",
+        "capacity_mw": 200,
+        "source": "baxtel",
+        "baxtel_slug": "apecs-data-center-campus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.522526,
+          39.073137
+        ]
+      },
+      "properties": {
+        "project_name": "SDC Capital: Twin Creeks",
+        "developer": "SDC Capital Partners",
+        "status": "Land Bank",
+        "capacity_mw": 200,
+        "source": "baxtel",
+        "baxtel_slug": "sdc-capital-twin-creeks"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.459632,
+          39.456602
+        ]
+      },
+      "properties": {
+        "project_name": "Prologis: Cincinnati, Ohio",
+        "developer": "Prologis",
+        "status": "Land Bank",
+        "capacity_mw": 150,
+        "source": "baxtel",
+        "baxtel_slug": "prologis-cincinnati-ohio"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.721104,
+          30.49453
+        ]
+      },
+      "properties": {
+        "project_name": "NextNRG: Jacksonville Expansion",
+        "developer": "NextNRG",
+        "status": "Land Bank",
+        "capacity_mw": 150,
+        "source": "baxtel",
+        "baxtel_slug": "nextnrg-jacksonville-expansion"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.8309,
+          28.137593
+        ]
+      },
+      "properties": {
+        "project_name": "DataCanopy: Auburndale, Florida",
+        "developer": "DataCanopy",
+        "status": "Land Bank",
+        "capacity_mw": 140,
+        "source": "baxtel",
+        "baxtel_slug": "datacanopy-auburndale-florida"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.782036,
+          38.533035
+        ]
+      },
+      "properties": {
+        "project_name": "Gigaland: Remington, VA",
+        "developer": "Gigaland",
+        "status": "Land Bank",
+        "capacity_mw": 120,
+        "source": "baxtel",
+        "baxtel_slug": "gigaland-remington-va"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.648887,
+          33.352323
+        ]
+      },
+      "properties": {
+        "project_name": "Edged Energy: Phoenix PHX11",
+        "developer": "Edged Energy",
+        "status": "Land Bank",
+        "capacity_mw": 115.2,
+        "source": "baxtel",
+        "baxtel_slug": "edged-energy-phoenix-phx11"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.557036,
+          39.771851
+        ]
+      },
+      "properties": {
+        "project_name": "Port Colorado: Aurora, CO",
+        "developer": "Port Colorado ",
+        "status": "Land Bank",
+        "capacity_mw": 100,
+        "source": "baxtel",
+        "baxtel_slug": "port-colorado-aurora-co"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.716609,
+          39.809978
+        ]
+      },
+      "properties": {
+        "project_name": "Hyde: HighPoint Elevated",
+        "developer": "Hyde Development",
+        "status": "Land Bank",
+        "capacity_mw": 100,
+        "source": "baxtel",
+        "baxtel_slug": "hyde-highpoint-elevated"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -72.74349,
+          41.884726
+        ]
+      },
+      "properties": {
+        "project_name": "Atlas Capital: Connecticut",
+        "developer": "Atlas Capital Group, LLC",
+        "status": "Land Bank",
+        "capacity_mw": 100,
+        "source": "baxtel",
+        "baxtel_slug": "atlas-capital-connecticut"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.881288,
+          40.20693
+        ]
+      },
+      "properties": {
+        "project_name": "Fairview Crossroads",
+        "developer": "Elysian Partners",
+        "status": "Land Bank",
+        "capacity_mw": 80,
+        "source": "baxtel",
+        "baxtel_slug": "fairview-crossroads"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -95.5974,
+          43.620304
+        ]
+      },
+      "properties": {
+        "project_name": "Geronimo Power: Nobles County, MN",
+        "developer": "Geronimo Power",
+        "status": "Land Bank",
+        "capacity_mw": 75,
+        "source": "baxtel",
+        "baxtel_slug": "geronimo-power-nobles-county-mn"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -63.042988,
+          45.197499
+        ]
+      },
+      "properties": {
+        "project_name": "Jet.AI: Maritime Canada",
+        "developer": "Jet.AI",
+        "status": "Land Bank",
+        "capacity_mw": 60,
+        "source": "baxtel",
+        "baxtel_slug": "jet-ai-maritime-canada"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.666171,
+          45.996923
+        ]
+      },
+      "properties": {
+        "project_name": "Sabey: Butte, Montana",
+        "developer": "Sabey Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": 50,
+        "source": "baxtel",
+        "baxtel_slug": "sabey-butte-montana"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.705093,
+          33.393982
+        ]
+      },
+      "properties": {
+        "project_name": "Arizona Land: Buckeye 2 Expansion",
+        "developer": "Arizona Land Consulting",
+        "status": "Land Bank",
+        "capacity_mw": 50,
+        "source": "baxtel",
+        "baxtel_slug": "arizona-land-buckeye-2-expansion"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.768398,
+          33.499496
+        ]
+      },
+      "properties": {
+        "project_name": "Arizona Land: Tonopah Campus",
+        "developer": "Arizona Land Consulting",
+        "status": "Land Bank",
+        "capacity_mw": 50,
+        "source": "baxtel",
+        "baxtel_slug": "arizona-land-tonopah-campus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -85.055494,
+          32.984972
+        ]
+      },
+      "properties": {
+        "project_name": "Thor Equities: LaGrange, GA",
+        "developer": "Thor Equities Group",
+        "status": "Land Bank",
+        "capacity_mw": 50,
+        "source": "baxtel",
+        "baxtel_slug": "thor-equities-lagrange-ga"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.721104,
+          30.49453
+        ]
+      },
+      "properties": {
+        "project_name": "NextNRG: Jacksonville, FL ",
+        "developer": "NextNRG",
+        "status": "Land Bank",
+        "capacity_mw": 50,
+        "source": "baxtel",
+        "baxtel_slug": "nextnrg-jacksonville-fl"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.858645,
+          41.925704
+        ]
+      },
+      "properties": {
+        "project_name": "Digital Realty: Franklin Park Expansion",
+        "developer": "Digital Realty Trust",
+        "status": "Land Bank",
+        "capacity_mw": 40,
+        "source": "baxtel",
+        "baxtel_slug": "digital-realty-franklin-park-expansion"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.40003,
+          46.32219
+        ]
+      },
+      "properties": {
+        "project_name": "Trammel Crow: Richland, WA",
+        "developer": "Trammell Crow Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "trammel-crow-richland-wa"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.516263,
+          39.578023
+        ]
+      },
+      "properties": {
+        "project_name": "Apple: 21755 Reno",
+        "developer": "Apple",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "apple-21755-reno"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.959672,
+          37.425526
+        ]
+      },
+      "properties": {
+        "project_name": "Vantage: Nortech Parkway",
+        "developer": "Vantage Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "vantage-nortech-parkway"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.957471,
+          37.363564
+        ]
+      },
+      "properties": {
+        "project_name": "EdgeConneX: 1600 Memorex",
+        "developer": "EdgeConneX",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "edgeconnex-1600-memorex"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.556633,
+          39.562373
+        ]
+      },
+      "properties": {
+        "project_name": "Apple: 21100 Interstate",
+        "developer": "Apple",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "apple-21100-interstate"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.537709,
+          39.574364
+        ]
+      },
+      "properties": {
+        "project_name": "Apple: 21675 Reno",
+        "developer": "Apple",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "apple-21675-reno"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -113.798645,
+          52.312236
+        ]
+      },
+      "properties": {
+        "project_name": "Crusoe: Myers Energy Park",
+        "developer": "Crusoe",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "crusoe-myers-energy-park"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -114.025154,
+          51.401814
+        ]
+      },
+      "properties": {
+        "project_name": "Crusoe: Crossfield Energy Park",
+        "developer": "Crusoe",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "crusoe-crossfield-energy-park"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -114.924217,
+          36.329931
+        ]
+      },
+      "properties": {
+        "project_name": "Novva: Apex Industrial Park",
+        "developer": "Novva Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "novva-apex-industrial-park"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.312169,
+          33.417117
+        ]
+      },
+      "properties": {
+        "project_name": "QTS: Hermosa Ranch",
+        "developer": "QTS Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "qts-hermosa-ranch"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.221463,
+          33.5524
+        ]
+      },
+      "properties": {
+        "project_name": "Aligned: Peoria Logistics Park",
+        "developer": "Aligned",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "aligned-peoria-logistics-park"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.041248,
+          32.943604
+        ]
+      },
+      "properties": {
+        "project_name": "W Holdings: Maricopa, AZ",
+        "developer": "W Holdings",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "w-holdings-maricopa-az"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.287439,
+          32.503692
+        ]
+      },
+      "properties": {
+        "project_name": "Beale: Pinal Airpark 1",
+        "developer": "Beale Infrastructure",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "beale-pinal-airpark-1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.278434,
+          32.503913
+        ]
+      },
+      "properties": {
+        "project_name": "Beale: Pinal Airpark 2",
+        "developer": "Beale Infrastructure",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "beale-pinal-airpark-2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.626659,
+          39.790124
+        ]
+      },
+      "properties": {
+        "project_name": "QTS: Watkins",
+        "developer": "QTS Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "qts-watkins"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.224212,
+          29.972875
+        ]
+      },
+      "properties": {
+        "project_name": "Open Origin: Presidio County, TX",
+        "developer": "Open Origin",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "open-origin-presidio-county-tx"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.726715,
+          46.807209
+        ]
+      },
+      "properties": {
+        "project_name": "Aurum: Bismarck, ND",
+        "developer": "Aurum Capital Ventures, Inc.",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "aurum-bismarck-nd"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -95.605359,
+          36.34726
+        ]
+      },
+      "properties": {
+        "project_name": "Beale: Project Mustang",
+        "developer": "Beale Infrastructure",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "beale-project-mustang"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.264925,
+          32.643113
+        ]
+      },
+      "properties": {
+        "project_name": "Black Mountain: Fort Worth, TX",
+        "developer": "Black Mountain ",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "black-mountain-fort-worth-tx"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.088325,
+          32.431683
+        ]
+      },
+      "properties": {
+        "project_name": "Logistic Land Investments: Venus, TX",
+        "developer": "Logistics Land Investment, LLC",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "logistic-land-investments-venus-tx"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.07195,
+          32.417742
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Midlothian DFWE",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-midlothian-dfwe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -96.62371,
+          32.563058
+        ]
+      },
+      "properties": {
+        "project_name": "Cawley Partners: South Creek Ranch",
+        "developer": "Cawley Partners",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "cawley-partners-south-creek-ranch"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -98.633667,
+          33.11507
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Graham DFWF",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-graham-dfwf"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.214143,
+          35.685731
+        ]
+      },
+      "properties": {
+        "project_name": "Beltline Energy: Luther, Oklahoma",
+        "developer": "Beltline Energy",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "beltline-energy-luther-oklahoma"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -96.860333,
+          32.478586
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Waxahachie DFWD ",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-waxahachie-dfwd"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.142854,
+          34.129532
+        ]
+      },
+      "properties": {
+        "project_name": "Sabey: Oklaunion",
+        "developer": "Sabey Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "sabey-oklaunion"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -97.656395,
+          30.485577
+        ]
+      },
+      "properties": {
+        "project_name": "Switch: Round Rock East Campus",
+        "developer": "Switch",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "switch-round-rock-east-campus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.420756,
+          38.192515
+        ]
+      },
+      "properties": {
+        "project_name": "CRG Clayco: Festus, MO",
+        "developer": "CRG Clayco",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "crg-clayco-festus-mo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -94.874167,
+          38.836245
+        ]
+      },
+      "properties": {
+        "project_name": "QTS: New Century Commerce Center",
+        "developer": "QTS Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "qts-new-century-commerce-center"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -95.39864,
+          35.691154
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Tulsa, Muskogee",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-tulsa-muskogee"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -85.306065,
+          34.273702
+        ]
+      },
+      "properties": {
+        "project_name": "Coosa Data Center",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "coosa-data-center"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.942933,
+          33.70755
+        ]
+      },
+      "properties": {
+        "project_name": "Project Avemore",
+        "developer": "Atlas Development LLC",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "project-avemore"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.112341,
+          34.614032
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Trinity HSVA",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-trinity-hsva"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.736987,
+          33.431209
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Atlanta ATL-B",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-atlanta-atl-b"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.73405,
+          33.492641
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Atlanta ATL-C",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-atlanta-atl-c"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.933521,
+          31.377606
+        ]
+      },
+      "properties": {
+        "project_name": "QTS: Blakely, Georgia",
+        "developer": "QTS Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "qts-blakely-georgia"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.06176,
+          40.477983
+        ]
+      },
+      "properties": {
+        "project_name": "SunCap: McKees Rocks, PA ",
+        "developer": "SunCap Property Group",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "suncap-mckees-rocks-pa"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -83.118707,
+          39.869597
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Columbus",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-columbus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.749717,
+          40.12231
+        ]
+      },
+      "properties": {
+        "project_name": "Karis Critical: New Albany, OH",
+        "developer": "Karis Critical",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "karis-critical-new-albany-oh"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -79.5834,
+          40.39617
+        ]
+      },
+      "properties": {
+        "project_name": "QTS: Salem Township, Pennsylvania",
+        "developer": "QTS Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "qts-salem-township-pennsylvania"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.736613,
+          40.056193
+        ]
+      },
+      "properties": {
+        "project_name": "DBT Data: 2214 Harrison Rd",
+        "developer": "DBT Data",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "dbt-data-2214-harrison-rd"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.730099,
+          39.99285
+        ]
+      },
+      "properties": {
+        "project_name": "Aligned: Pataskala",
+        "developer": "Aligned",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "aligned-pataskala"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.133604,
+          40.797869
+        ]
+      },
+      "properties": {
+        "project_name": "North Cole St Data Center",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "north-cole-st-data-center"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.718536,
+          40.103997
+        ]
+      },
+      "properties": {
+        "project_name": "EdgeConnex: Johnstown North Campus",
+        "developer": "EdgeConneX",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "edgeconnex-johnstown-north-campus"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.09813,
+          34.625263
+        ]
+      },
+      "properties": {
+        "project_name": "Project Moc-1",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "project-moc-1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.011427,
+          40.965782
+        ]
+      },
+      "properties": {
+        "project_name": "West Hazleton Data Center",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "west-hazleton-data-center"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.66546,
+          41.06968
+        ]
+      },
+      "properties": {
+        "project_name": "Talen: Washingtonville, PA",
+        "developer": "Talen Energy",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "talen-washingtonville-pa"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.25398,
+          37.506723
+        ]
+      },
+      "properties": {
+        "project_name": "White Oak Technology Park 2",
+        "developer": "QTS Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "white-oak-technology-park-2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.781018,
+          37.448703
+        ]
+      },
+      "properties": {
+        "project_name": "Upper Magnolia Green West",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "upper-magnolia-green-west"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.778412,
+          38.693264
+        ]
+      },
+      "properties": {
+        "project_name": "Maple Tree Farm",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "maple-tree-farm"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.515719,
+          38.317938
+        ]
+      },
+      "properties": {
+        "project_name": "Stack: Fredericksburg, VA",
+        "developer": "STACK INFRASTRUCTURE",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stack-fredericksburg-va"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.688392,
+          37.499315
+        ]
+      },
+      "properties": {
+        "project_name": "Watkins Centre",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "watkins-centre"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.600198,
+          38.735509
+        ]
+      },
+      "properties": {
+        "project_name": "Data Center Edge District",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "data-center-edge-district"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.80914,
+          40.227365
+        ]
+      },
+      "properties": {
+        "project_name": "Harrisburg I LLC: Harrisburg, PA",
+        "developer": "Harrisburg I, LLC",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "harrisburg-i-llc-harrisburg-pa"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.501261,
+          39.075865
+        ]
+      },
+      "properties": {
+        "project_name": "JK Land: Freedom Trail Rd",
+        "developer": "JK Land Holdings, LLC",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "jk-land-freedom-trail-rd"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.611305,
+          39.260169
+        ]
+      },
+      "properties": {
+        "project_name": "Mag Partners: Baltimore",
+        "developer": "Mag Partners",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "mag-partners-baltimore"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.259774,
+          40.048319
+        ]
+      },
+      "properties": {
+        "project_name": "Machine Investment: Lancaster 1",
+        "developer": "Machine Investment Group LP",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "machine-investment-lancaster-1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.393978,
+          38.27256
+        ]
+      },
+      "properties": {
+        "project_name": "Forest Lane Data Center",
+        "developer": "Real Estate Pursuits 2 LC",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "forest-lane-data-center"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.329925,
+          40.059458
+        ]
+      },
+      "properties": {
+        "project_name": "Machine Investment: Lancaster 2",
+        "developer": "Machine Investment Group LP",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "machine-investment-lancaster-2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.553593,
+          38.042293
+        ]
+      },
+      "properties": {
+        "project_name": "Stream: Woodford, VA",
+        "developer": "Stream Data Centers",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "stream-woodford-va"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.540605,
+          38.946611
+        ]
+      },
+      "properties": {
+        "project_name": "JK Land: Technology Park 3",
+        "developer": "JK Land Holdings, LLC",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "jk-land-technology-park-3"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.299517,
+          36.824772
+        ]
+      },
+      "properties": {
+        "project_name": "Globalinx: Portsmouth, VA",
+        "developer": "Globalinx Data Center LLC",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "globalinx-portsmouth-va"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -77.526833,
+          38.798585
+        ]
+      },
+      "properties": {
+        "project_name": "Aligned: Manassas, VA",
+        "developer": "Aligned",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "aligned-manassas-va"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -69.695221,
+          43.955875
+        ]
+      },
+      "properties": {
+        "project_name": "Maine Yankee Nuclear DC",
+        "developer": "Unknown Company",
+        "status": "Land Bank",
+        "capacity_mw": null,
+        "source": "baxtel",
+        "baxtel_slug": "maine-yankee-nuclear-dc"
+      }
+    }
+  ]
+}
